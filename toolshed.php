@@ -15,7 +15,7 @@
  */
 function _echo ($string, $withBr = FALSE)
 {
-    echo($withBr
+    echo(!$withBr
         ? htmlspecialchars($string)
         : nl2br(htmlspecialchars($string))
     );
