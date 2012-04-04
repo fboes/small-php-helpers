@@ -22,6 +22,30 @@ function _echo ($string, $withBr = FALSE)
 }
 
 /**
+ * Like print_r, but safe for HTML-Output.
+ *
+ * @param   mixed   $mixed
+ * @param   mode    as 'pre', 'comment' or 'plain'. Defaults to 'plain'
+ */
+function _print_r ($mixed, $mode = 'plain')
+{
+    $print_r = htmlspecialchars(print_r($mixed,1));
+    switch ($mode)
+    {
+        case 'comment':
+            echo "<!--\n".$print_r."\n-->";
+            break;
+        case 'pre':
+            echo "<pre>\n".$print_r."\n</pre>";
+            break;
+        default:
+            echo $print_r;
+            break;
+    }
+}
+ 
+
+/**
  * Like printf, but $format will be quoted by htmlspecialchars.
  * Arguments will _not_ be quoted.
  *
