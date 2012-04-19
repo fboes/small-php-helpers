@@ -22,12 +22,35 @@ function _echo ($string, $withBr = FALSE)
 }
 
 /**
+ * Echos string with some minimal output converting for HTML. Uses _paragraph
+ *
+ * @param   string  $string
+ */
+function _print_p ($string)
+{
+    echo (_paragraph($string));
+}
+
+/**
+ * Does some minimal output converting for HTML.
+ *
+ * @param   string  $string
+ * @return  string
+ */
+function _paragraph ($string)
+{
+    $string = '<p>'.nl2br(htmlspecialchars(trim($string))).'</p>';
+    $string = preg_replace('#(<br/?>){2,}#','</p><p>',$string);
+    return $string;
+}
+
+/**
  * Like print_r, but safe for HTML-Output.
  *
  * @param   mixed   $mixed
- * @param   mode    as 'pre', 'comment' or 'plain'. Defaults to 'plain'
+ * @param   mode    as 'pre', 'comment' or 'plain'. Defaults to 'pre'
  */
-function _print_r ($mixed, $mode = 'plain')
+function _print_r ($mixed, $mode = 'pre')
 {
     $print_r = htmlspecialchars(print_r($mixed,1));
     switch ($mode)
@@ -100,19 +123,6 @@ function _vsprintf ($format, array $args)
 }
 
 /**
- * Checks if a scalar value is FALSE, without content or only full 
- * whitespaces. 
- * For non-scalar values will evaluate if value is empty().
- *
- * @param	mixed	$v	to test
- * @return	bool	if $v is blank
- */
-function is_blank (&$v)
-{
-    return !isset($v) || (is_scalar($v) ? (trim($v) === '') : empty($v));
-}
-
-/**
  * Convert all characters into XML entities.
  *
  * @param   string  $string
@@ -126,6 +136,19 @@ function htmlallchars ($string)
         $result .= '&#'.ord($string[$i]).';';
     }
     return $result;
+}
+
+/**
+ * Checks if a scalar value is FALSE, without content or only full 
+ * whitespaces. 
+ * For non-scalar values will evaluate if value is empty().
+ *
+ * @param	mixed	$v	to test
+ * @return	bool	if $v is blank
+ */
+function is_blank (&$v)
+{
+    return !isset($v) || (is_scalar($v) ? (trim($v) === '') : empty($v));
 }
 
 /**
