@@ -25,22 +25,29 @@ function _echo ($string, $withBr = FALSE)
  * Echos string with some minimal output converting for HTML. Uses _paragraph
  *
  * @param   string  $string
+ * @param   bool    $withLinks
  */
-function _print_p ($string)
+function _print_p ($string, $withLinks = FALSE)
 {
-    echo (_paragraph($string));
+    echo (_paragraph($string, $withLinks));
 }
 
 /**
  * Does some minimal output converting for HTML.
  *
  * @param   string  $string
+ * @param   bool    $withLinks
  * @return  string
  */
-function _paragraph ($string)
+function _paragraph ($string, $withLinks = FALSE)
 {
     $string = '<p>'.nl2br(htmlspecialchars(trim($string))).'</p>';
-    $string = preg_replace('#(<br/?>){2,}#','</p><p>',$string);
+    $string = preg_replace('#(<br\s?/?>\s*){2,}#is',"</p>\n<p>",$string);
+    if ($withLinks)
+    {
+        $string = preg_replace('#(http(s)?\://\S+)#is','<a href="$1">$1</a>',$string);
+        $string = preg_replace('#(\S+@\S+)#ise',"'<a href=\"'.htmlallchars('mailto:\\1').'\">'.htmlallchars('\\1').'</a>'",$string);
+    }
     return $string;
 }
 
