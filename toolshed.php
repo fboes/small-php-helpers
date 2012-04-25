@@ -146,6 +146,67 @@ function htmlallchars ($string)
 }
 
 /**
+ * Shorten string to maximum characters as given. Omitted characters will be
+ * replaced by a custom character. This function may be too ugly to do
+ * editorial shortening of text, because no word boundaries are used.
+ *
+ * @param   string  $str
+ * @param   int $maxChars   Optional, defaults to 72
+ * @param   int $weight Is between 0 and 100, with 100 keeping everything
+ *  at the start of the string, 0 keeping everything at the end. Optional,
+ *  defaults to 100
+ * @param   string  $replace    with what string to replace the omitted
+ *  characters. Optional, defaults to a horizontal ellipse in UTF-8
+ * @return  string
+ */
+function str_shorten ($str, $maxChars = 72, $weight = 100, $replace = '…')
+{
+    $strLen = mb_strlen($str);
+    if ($strLen > $maxChars) 
+    {
+        $border = round ($maxChars * max(0,min(100,$weight)) / 100);
+        switch ($border)
+        {
+            case $maxChars:
+                $str = trim(mb_substr($str,0,$maxChars - 1)) . $replace;
+                break;
+            case 0:
+                $str = $replace . trim(mb_substr($str,$strLen - $maxChars +1,$strLen));
+                break;
+            default:
+                $str = mb_ereg_replace('^(.{'.$border.'}).+(.{'.($maxChars - $border -1).'})$', '\1' . $replace . '\2', $str);
+                break;
+        }
+    }
+    return $str;
+}
+
+/**
+ * Remove any character from string not being a-z, 0-9, _, -, '.'
+ *
+ * @param   string
+ * @return  string
+ */
+function asciify ($str)
+{
+    $str = strtolower($str);
+    if (!preg_match('#^[a-z0-9_\-\.]+$#s', $str))
+    {
+        $str = str_replace(
+            array('ä', 'ö', 'ü', 'ß'),
+            array('ae','oe','ue','ss'),
+            $str
+        );
+        $str = preg_replace(
+            array('#([^a-z0-9_\-\.])#s', '#(_)_+#', '#[^a-z0-9]+$#', '#^[^a-z0-9]+#'),
+            array('_', '_', '', ''),
+            $str
+        );
+    }
+    return $str;
+}
+
+/**
  * Checks if a scalar value is FALSE, without content or only full 
  * whitespaces. 
  * For non-scalar values will evaluate if value is empty().
@@ -161,20 +222,22 @@ function is_blank (&$v)
 /**
  * Set all internal switches for setting proper locale. Use 'locale -a'
  * to determine available locales on your system.
+ * You may also want so send "SET NAMES 'utf8' / 'latin1'" for MySQL.
  *
  * @param   string  $languageCode   according to ISO 639-1
  * @param   string  $countryCode    according to ISO 3166
  * @param   string  $charset    optional, defaults to 'utf-8'
  */
-function set_locale ($languageCode, $countryCode, $charset = 'utf-8')
+function set_locale ($languageCode, $countryCode, $charset = 'UTF-8')
 {
     $languageCode = strtolower($languageCode);
     $countryCode  = strtoupper($countryCode);
-    $charset      = strtolower($charset);
+    $charset      = strtoupper($charset);
     
     ini_set('default_charset', $charset);
+    mb_internal_encoding($charset);
 
-    $localeCode .= '.'.strtoupper(str_replace(' ','',$charset));
+    $localeCode .= '.'.str_replace(' ','',$charset);
     $categories = array(LC_COLLATE, LC_CTYPE, LC_TIME, LC_MESSAGES);
     foreach ($categories as $c) 
     {
