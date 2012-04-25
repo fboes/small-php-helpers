@@ -9,7 +9,7 @@
  */
 class SuperPDO extends PDO 
 {
-    public lastCmd = '';
+    public $lastCmd = '';
 
     
     /**
@@ -61,6 +61,109 @@ class SuperPDO extends PDO
             ;
         }
         return (implode($separator,$set));
+    }
+    
+    /**
+     * Insert array into table. Will do proper quoting.
+     *
+     * @param   string  $table  Name of the table
+     * @param   array   $data   associative array with FIELDNAME => FIELDVALUE
+     * @param   string  $options    Like 'DELAYED'. Optional, defaults to NULL
+     * @return  bool
+     */
+    public function insert ($table, array $data, $options = NULL)
+    {
+        $this->lastCmd = 
+            'INSERT '.addslashes($options)
+            .' INTO '.addslashes($table)
+            .'('.implode(',',array_keys($data)).')';
+            .' VALUES(:'.implode(',:',array_keys($data)).')'
+        ;
+        $sth = $this->prepare($this->lastCmd);
+        return $sth->execute($data);
+    }
+
+    /**
+     * Insert multiple datasets. Will do proper quoting.
+     *
+     * @param   string  $table  Name of the table
+     * @param   array   $multiData   array with associative arrays with 
+     *  FIELDNAME => FIELDVALUE
+     * @param   string  $options    Like 'DELAYED'. Optional, defaults to NULL
+     * @return  bool
+     */
+    public function multipleInsert ($table, array $multiData, $options = NULL)
+    {
+        $this->beginTransaction();
+        foreach ($multiData as $data)
+        {
+            $this->insert($table,$data,$options);
+        }
+        return $this->commit();
+    }
+    
+    /**
+     * Replace array into table. Will do proper quoting.
+     *
+     * @param   string  $table  Name of the table
+     * @param   array   $data   associative array with FIELDNAME => FIELDVALUE
+     * @param   string  $options    Like 'DELAYED'. Optional, defaults to NULL
+     * @return  bool
+     */
+    public function replace ($table, array $data, $options = NULL)
+    {
+        $this->lastCmd = 
+            'REPLACE '.addslashes($options)
+            .' INTO '.addslashes($table)
+            .'('.implode(',',array_keys($data)).')';
+            .' VALUES(:'.implode(',:',array_keys($data)).')'
+        ;
+        $sth = $this->prepare($this->lastCmd);
+        return $sth->execute($data);
+    }
+    
+    /**
+     * Update array into table. Will do proper quoting.
+     *
+     * @param   string  $table  Name of the table
+     * @param   array   $data   associative array with FIELDNAME => FIELDVALUE
+     * @param   string  $where  SQL-string denoting which fields to update.
+     *  You may want to use $this->quoteArray(array(),' AND ')
+     * @param   string  $options    Like 'DELAYED'. Optional, defaults to NULL
+     * @return  bool
+     */
+    public function update ($table, array $data, $where, $options = NULL)
+    {
+        $this->lastCmd = 
+            'UPDATE '.addslashes($options)
+            .' '.addslashes($table)
+            .' SET '.$this->quoteArray($data)
+            .' WHERE '.$where
+        ;
+        return $this->exec($this->lastCmd);
+    }
+
+    /**
+     * Returns any given string as proper date / datetime representation to
+     * be inserted into db. Will change time format according to DB type.
+     *
+     * @param   string  $someDate   date in unknown format
+     * @param   bool    $asDatetime Return string is date or datetime. Optional,
+     *  defaults to TRUE, meaning this will be datetime
+     * @return  string
+     */
+    public function returnDate ($someDate, $asDatetime = TRUE)
+    {
+        $ts = strtotime($someDate);
+        switch ($this->getAttribute(PDO::ATTR_DRIVER_NAME))
+        {
+            case 'mysql':
+                return date('Y-m-d'.($asDatetime ? ' H:i:s' : ''), $ts);
+                break;
+            default:
+                return $ts;
+                break;
+        } 
     }
 }
 ?>
