@@ -1,6 +1,7 @@
 Small PHP Helpers
 =================
 
-This set of small libraries is intended to give missing PHP functionality or easy shortcuts for everyday situations.
+This set of small libraries is intended as easy shortcuts for everyday situations.
 
-Up until now these functions are not tested but are mere reminders of functions to be implemented.
+* Toolshed: Missing PHP-functions like quoted <code>echo()</code> or a better replacement for <code>empty()</code>
+* SuperPDO: Gently improves functionality of PDO, see http://www.php.net/manual/en/book.pdo.php
