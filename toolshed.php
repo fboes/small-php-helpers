@@ -148,7 +148,8 @@ function htmlallchars ($string)
 /**
  * Shorten string to maximum characters as given. Omitted characters will be
  * replaced by a custom character. This function may be too ugly to do
- * editorial shortening of text, because no word boundaries are used.
+ * editorial shortening of text, because no word boundaries are used. See
+ * str_nice_shorten()
  *
  * @param   string  $str
  * @param   int $maxChars   Optional, defaults to 72
@@ -177,6 +178,26 @@ function str_shorten ($str, $maxChars = 72, $weight = 100, $replace = '…')
                 $str = mb_ereg_replace('^(.{'.$border.'}).+(.{'.($maxChars - $border -1).'})$', '\1' . $replace . '\2', $str);
                 break;
         }
+    }
+    return $str;
+}
+
+/**
+ * Shorten string to maximum characters as given. If string is longer than
+ * $maxChars, the rest of the string will be replaced by $replace. This
+ * function will search for word boundaries, so your string may be even shorter.
+ *
+ * @param   string  $str
+ * @param   int $maxChars   Optional, defaults to 72
+ * @param   string  $replace    with what string to replace the omitted
+ *  characters. Optional, defaults to a horizontal ellipse in UTF-8
+ * @return  string
+ */
+function str_nice_shorten ($str, $maxChars = 72, $replace = '…')
+{
+    if (mb_strlen($str) > $maxChars) 
+    {
+        $str = trim(mb_ereg_replace('^(.{0,'.((int)$maxChars-2).'}\W)(.*)$','\1',$str)).$replace;
     }
     return $str;
 }
