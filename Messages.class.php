@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * @class Messages
+ * Collect status messages from your controller for output to the user
+ *
+ * @author      Frank Bo"es <info@3960.org>
+ * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+ */
 class Messages {
   public $httpStatusCode = 200;
   public $messages = array();
@@ -65,7 +71,7 @@ class Messages {
    * @return string [description]
    */
   public function buildhttpStatusCode () {
-    $message = !empty($this->messages) 
+    $message = !empty($this->messages)
       ? end($this->messages)->message
       : ''
     ;
@@ -81,6 +87,10 @@ class Messages {
   }
 }
 
+/**
+ * @class Message
+ * A single message
+ */
 class Message {
   public $ts;
   public $message;

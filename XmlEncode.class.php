@@ -2,6 +2,9 @@
 /**
  * @class XmlEncode
  * Convert PHP construct to XML
+ *
+ * @author      Frank Bo"es <info@3960.org>
+ * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
  */
 class XmlEncode {
   public $data;
