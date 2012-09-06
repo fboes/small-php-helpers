@@ -1,7 +1,8 @@
 <?php
 /**
  * @class Messages
- * Collect status messages from your controller for output to the user
+ * Collect status messages from your controller for output to the user.
+ * Uses HTTP status codes for showing status of message.
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
@@ -14,37 +15,40 @@ class Messages {
    * [__construct description]
    */
   public function __construct () {
-    $this->messages = array();
     $this->httpStatusCode = 200;
+    $this->messages = array();
   }
 
   /**
-   * [addSuccessMessage description]
-   * @param string  $message [description]
-   * @param boolean $success [description]
+   * Adds a single message to $this->messages
+   * @param string $message [description]
+   * @param  int $httpStatusCode  200 for ok, 400 for client error, 500 for server error. You may use any other HTTP status code
+   * @return  Messages [description]
    */
-  public function addSuccessMessage ($message, $success = TRUE) {
-    $this->addMessage($message);
-    $this->httpStatusCode = max($this->httpStatusCode, $success ? 200 : 400);
-    return $this;
-  }
-
-  /**
-   * [addhttpStatusCode description]
-   * @param string  $message    [description]
-   * @param integer $httpStatusCode [description]
-   */
-  public function addHttpStatusCode ($message, $httpStatusCode = 200) {
-    $this->addMessage($message);
+  public function addMessage ($message, $httpStatusCode = 200) {
+    $this->messages[] = new Message($message, (int)$httpStatusCode);
     $this->httpStatusCode = max($this->httpStatusCode, (int)$httpStatusCode);
     return $this;
   }
 
   /**
-   * Add error message depending on assertion
+   * Add message and tell if it is a success message. Uses $this->addMessage
+   * @param string  $message [description]
+   * @param boolean $success [description]
+   * @return  Messages [description]
+   */
+  public function addSuccessMessage ($message, $success = TRUE) {
+    $httpStatusCode = $success ? 200 : 400;
+    $this->addHttpStatusCode($message, $httpStatusCode);
+    return $this;
+  }
+
+  /**
+   * Add message or failure message, depending on assertion. Uses $this->addSuccessMessage
    * @param bool $assert      [description]
    * @param string $message     [description]
    * @param string $messageFail [description]
+   * @return  Messages [description]
    */
   public function addMessageOnAssert ($assert, $message, $messageFail = '') {
     if (empty($messageFail)) {
@@ -59,15 +63,7 @@ class Messages {
   }
 
   /**
-   * Adds a single message to $this->messages
-   * @param string $message [description]
-   */
-  public function addMessage ($message) {
-    $this->messages[] = new Message($message);
-  }
-
-  /**
-   * [buildhttpStatusCode description]
+   * Return status code and last message to be used with header()
    * @return string [description]
    */
   public function buildhttpStatusCode () {
@@ -94,9 +90,16 @@ class Messages {
 class Message {
   public $ts;
   public $message;
+  public $httpStatusCode;
 
-  public function __construct ($message) {
+  /**
+   * [__construct description]
+   * @param string  $message [description]
+   * @param integer $httpStatusCode  200 for OK, 400 for client error, 500 for server error. You may also add any other HTTP status code
+   */
+  public function __construct ($message, $httpStatusCode = 200) {
     $this->ts = time();
     $this->message = (string)$message;
+    $this->httpStatusCode = (int)$httpStatusCode;
   }
 }
