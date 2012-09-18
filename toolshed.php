@@ -73,7 +73,7 @@ function _print_r ($mixed, $mode = 'pre')
             break;
     }
 }
- 
+
 
 /**
  * Like printf, but $format will be quoted by htmlspecialchars.
@@ -138,7 +138,7 @@ function _vsprintf ($format, array $args)
 function htmlallchars ($string)
 {
     $result = NULL;
-    for($i=0 ; $i<strlen($string) ; $i++) 
+    for($i=0 ; $i<strlen($string) ; $i++)
     {
         $result .= '&#'.ord($string[$i]).';';
     }
@@ -163,7 +163,7 @@ function htmlallchars ($string)
 function str_shorten ($str, $maxChars = 72, $weight = 100, $replace = '…')
 {
     $strLen = mb_strlen($str);
-    if ($strLen > $maxChars) 
+    if ($strLen > $maxChars)
     {
         $border = round ($maxChars * max(0,min(100,$weight)) / 100);
         switch ($border)
@@ -195,7 +195,7 @@ function str_shorten ($str, $maxChars = 72, $weight = 100, $replace = '…')
  */
 function str_nice_shorten ($str, $maxChars = 72, $replace = '…')
 {
-    if (mb_strlen($str) > $maxChars) 
+    if (mb_strlen($str) > $maxChars)
     {
         $str = trim(mb_ereg_replace('^(.{0,'.((int)$maxChars-2).'}\W)(.*)$','\1',$str)).$replace;
     }
@@ -214,10 +214,14 @@ function asciify ($str)
     if (!preg_match('#^[a-z0-9_\-\.]+$#s', $str))
     {
         $str = str_replace(
-            array('ä', 'ö', 'ü', 'ß'),
-            array('ae','oe','ue','ss'),
+            array('ä', 'æ', 'ö', 'ü', 'ß'),
+            array('ae','ae','oe','ue','ss'),
             $str
         );
+        $str = str_replace(array('á','à','â'), 'a', $str);
+        $str = str_replace(array('é','è','ê','ë'), 'e', $str);
+        $str = str_replace(array('ó','ò','ô'), 'o', $str);
+        $str = str_replace(array('ú','ù','û'), 'u', $str);
         $str = preg_replace(
             array('#([^a-z0-9_\-\.])#s', '#(_)_+#', '#[^a-z0-9]+$#', '#^[^a-z0-9]+#'),
             array('_', '_', '', ''),
@@ -228,8 +232,8 @@ function asciify ($str)
 }
 
 /**
- * Checks if a scalar value is FALSE, without content or only full 
- * whitespaces. 
+ * Checks if a scalar value is FALSE, without content or only full of
+ * whitespaces.
  * For non-scalar values will evaluate if value is empty().
  *
  * @param	mixed	$v	to test
@@ -254,13 +258,13 @@ function set_locale ($languageCode, $countryCode, $charset = 'UTF-8')
     $languageCode = strtolower($languageCode);
     $countryCode  = strtoupper($countryCode);
     $charset      = strtoupper($charset);
-    
+
     ini_set('default_charset', $charset);
     mb_internal_encoding($charset);
 
     $localeCode .= '.'.str_replace(' ','',$charset);
     $categories = array(LC_COLLATE, LC_CTYPE, LC_TIME, LC_MESSAGES);
-    foreach ($categories as $c) 
+    foreach ($categories as $c)
     {
         setlocale($c, $localeCode);
     }
