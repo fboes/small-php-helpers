@@ -2,7 +2,19 @@
 /**
  * @class Messages
  * Collect status messages from your controller for output to the user.
- * Uses HTTP status codes for showing status of message.
+ * Uses HTTP status codes for showing status of message, see
+ * http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+ * Status codes of note:
+ * - 200  OK
+ * - 201  Created
+ * - 301  Moved permanently
+ * - 303  Created, redirecting to new ressource
+ * - 307  Temporary redirect
+ * - 400  Client error: Bad request
+ * - 404  Client error: Not found
+ * - 409  Client error: Conflict
+ * - 410  Client error: Gone
+ * - 500  Internal server error
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
@@ -10,6 +22,7 @@
 class Messages {
   public $httpStatusCode = 200;
   public $messages = array();
+  const SESSION_OBJECT = 'PHP.Messages.Object';
 
   /**
    * [__construct description]
@@ -22,7 +35,8 @@ class Messages {
   /**
    * Adds a single message to $this->messages
    * @param string $message [description]
-   * @param  int $httpStatusCode  200 for ok, 400 for client error, 500 for server error. You may use any other HTTP status code
+   * @param  int $httpStatusCode  200 for ok, 400 for client error, 500 for server error.
+   *                              You may use any other HTTP status code
    * @return  Messages [description]
    */
   public function addMessage ($message, $httpStatusCode = 200) {
@@ -32,7 +46,8 @@ class Messages {
   }
 
   /**
-   * Add message and tell if it is a success message. Uses $this->addMessage
+   * Add message and tell if it is a success message.
+   * Uses $this->addMessage
    * @param string  $message [description]
    * @param boolean $success [description]
    * @return  Messages [description]
@@ -44,7 +59,8 @@ class Messages {
   }
 
   /**
-   * Add message or failure message, depending on assertion. Uses $this->addSuccessMessage
+   * Add message or failure message, depending on assertion.
+   * Uses $this->addSuccessMessage
    * @param bool $assert      [description]
    * @param string $message     [description]
    * @param string $messageFail [description]
@@ -63,15 +79,15 @@ class Messages {
   }
 
   /**
-   * Return status code and last message to be used with header()
+   * Return HTTP 1.1 status code and last message to be used with header()
    * @return string [description]
    */
   public function buildhttpStatusCode () {
     $message = !empty($this->messages)
-      ? end($this->messages)->message
+      ? ' ' . end($this->messages)->message
       : ''
     ;
-    return 'HTTP/1.1 ' . $this->httpStatusCode . ' ' . $message;
+    return 'HTTP/1.1 ' . $this->httpStatusCode . $message;
   }
 
   /**
@@ -80,6 +96,36 @@ class Messages {
    */
   public function isSuccess () {
     return $this->httpStatusCode < 400;
+  }
+
+  /**
+   * Store current status of messages in session for output after reload.
+   * Assumes $_SESSION to be present
+   * @return  Messages [description]
+   */
+  public function storeInSession () {
+    if (!empty($_SESSION)) {
+      $_SESSION[SESSION_OBJECT] = serialize($this);
+    }
+    else {
+      throw new Exception('Missing initialized session.');
+    }
+    return $this;
+  }
+
+  /**
+   * Restore status of messages from session for output after reload
+   * @return  Messages [description]
+   */
+  public function restoreFromSession () {
+    if (!empty($_SESSION[SESSION_OBJECT])) {
+      $that = serialize($_SESSION[SESSION_OBJECT]);
+      $thatVars = get_object_vars($that);
+      foreach ($thatVars as $varName => $varValue) {
+        $this->$varName = $varValue;
+      }
+    }
+    return $this;
   }
 }
 
@@ -95,11 +141,20 @@ class Message {
   /**
    * [__construct description]
    * @param string  $message [description]
-   * @param integer $httpStatusCode  200 for OK, 400 for client error, 500 for server error. You may also add any other HTTP status code
+   * @param integer $httpStatusCode  200 for OK, 400 for client error, 500 for server error.
+   *                                 You may also add any other HTTP status code
    */
   public function __construct ($message, $httpStatusCode = 200) {
     $this->ts = time();
     $this->message = (string)$message;
     $this->httpStatusCode = (int)$httpStatusCode;
+  }
+
+  /**
+   * [isSuccess description]
+   * @return boolean [description]
+   */
+  public function isSuccess () {
+    return $this->httpStatusCode < 400;
   }
 }
