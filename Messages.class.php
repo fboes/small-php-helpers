@@ -54,7 +54,7 @@ class Messages {
    */
   public function addSuccessMessage ($message, $success = TRUE) {
     $httpStatusCode = $success ? 200 : 400;
-    $this->addHttpStatusCode($message, $httpStatusCode);
+    $this->addMessage($message, $httpStatusCode);
     return $this;
   }
 
