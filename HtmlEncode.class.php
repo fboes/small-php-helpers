@@ -27,9 +27,9 @@ class HtmlEncode {
       $type = ' array';
     }
     elseif (is_object($this->data)) {
-      $type = ' object"';
+      $type = ' object';
     }
-    return '<div class="html-encode '.$type.'"">'.$this->outputNode($this->data).'</div>';
+    return '<div class="html-encode'.$type.'">'.$this->outputNode($this->data).'</div>';
   }
 
   /**
@@ -61,7 +61,7 @@ class HtmlEncode {
         elseif (is_bool($value)) {
           $type = ' class="boolean"';
         }
-        $return .= '<li '.$type.'><strong>'.htmlspecialchars($key).'</strong>: <span>'.$this->outputNode($value).'</span></li>';
+        $return .= '<li'.$type.'><strong>'.htmlspecialchars($key).'</strong>: <span>'.$this->outputNode($value).'</span></li>';
       }
       $return .= '</ul>';
     }
