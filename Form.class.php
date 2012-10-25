@@ -112,15 +112,17 @@ class Form {
 	 * @param  string $html like '<input name="test" />'
 	 * @return Form       [description]
 	 */
-	public function input ($html) {
+	public function input ($html, array $options = array()) {
 		$attributes = $this->parseTag($html);
 		$this->throwExceptionOnEmpty($attributes, 'name');
 		$this->makeId($attributes);
 		$this->setOnEmpty($attributes, 'type', 'text');
 		$this->addClass  ($attributes, 'form-input');
 		$this->addClass  ($attributes, 'form-input-'.$attributes['type']);
-		if (!empty($this->defaultFormData[$attributes['name']])) {
-			$this->setOnEmpty($attributes, 'value', $this->defaultFormData[$attributes['name']]);
+		$this->setOnEmpty($attributes, 'value', $this->getdefaultFormData($attributes['name']));
+		if (!empty($options)) {
+			$this->addClass  ($attributes, 'form-input-datalist');
+			$attributes['list'] = $attributes['id'].'-datalist';
 		}
 
 		switch ($attributes['type']) {
@@ -129,7 +131,7 @@ class Form {
 				break;
 		}
 
-		return $this->storeElement(self::HTML_INPUT, $attributes);
+		return $this->storeElement(self::HTML_INPUT, $attributes, $options);
 	}
 
 	/**
@@ -144,9 +146,10 @@ class Form {
 		if (!empty($attributes[self::ATTRIBUTE_CONTENT])) {
 			$this->setOnEmpty($attributes, 'value', $attributes[self::ATTRIBUTE_CONTENT]);
 		}
-		elseif (!empty($this->defaultFormData[$attributes['name']])) {
-			$this->setOnEmpty($attributes, 'value', $this->defaultFormData[$attributes['name']]);
+		else {
+			$this->setOnEmpty($attributes, 'value', $this->getdefaultFormData($attributes['name']));
 		}
+
 
 		return $this->storeElement(self::HTML_TEXTAREA, $attributes);
 	}
@@ -156,21 +159,19 @@ class Form {
 	 * @param  string $html like '<textarea name="test" />'
 	 * @return Form       [description]
 	 */
-	public function select ($html, array $values) {
+	public function select ($html, array $options) {
 		$attributes = $this->parseTag($html);
 		$this->throwExceptionOnEmpty($attributes, 'name');
-		if (empty($values)) {
-			throw new Exception ('No values given');
+		if (empty($options)) {
+			throw new Exception ('No options given');
 		}
 		$this->makeId($attributes);
 		if (!empty($attributes['multiple'])) {
 			$attributes['name'] .= '[]';
 		}
-		if (!empty($this->defaultFormData[$attributes['name']])) {
-			$this->setOnEmpty($attributes, 'value', $this->defaultFormData[$attributes['name']]);
-		}
+		$this->setOnEmpty($attributes, 'value', $this->getdefaultFormData($attributes['name']));
 
-		return $this->storeElement(self::HTML_SELECT, $attributes, $values);
+		return $this->storeElement(self::HTML_SELECT, $attributes, $options);
 	}
 
 	/**
@@ -178,12 +179,12 @@ class Form {
 	 * @param  string $html like '<textarea name="test" />'
 	 * @return Form       [description]
 	 */
-	public function checkbox ($html, array $values) {
+	public function checkbox ($html, array $options) {
 		$attributes = $this->parseTag($html);
 		$this->throwExceptionOnEmpty($attributes, 'name');
 		$this->makeId($attributes);
-		if (empty($values)) {
-			throw new Exception ('No values given');
+		if (empty($options)) {
+			throw new Exception ('No options given');
 		}
 		$this->setOnEmpty($attributes, 'type', 'checkbox');
 		$this->addClass  ($attributes, 'form-checkbox');
@@ -191,11 +192,9 @@ class Form {
 		if ($attributes['type'] == 'checkbox') {
 			$attributes['name'] .= '[]';
 		}
-		if (!empty($this->defaultFormData[$attributes['name']])) {
-			$this->setOnEmpty($attributes, 'value', $this->defaultFormData[$attributes['name']]);
-		}
+		$this->setOnEmpty($attributes, 'value', $this->getdefaultFormData($attributes['name']));
 
-		return $this->storeElement(self::HTML_CHECKBOXES, $attributes, $values);
+		return $this->storeElement(self::HTML_CHECKBOXES, $attributes, $options);
 	}
 
 	/**
@@ -221,6 +220,20 @@ class Form {
 	}
 
 	/**
+	 * [getdefaultFormData description]
+	 * @param  string $name [description]
+	 * @return string       [description]
+	 */
+	public function getdefaultFormData ($name) {
+			if (preg_match('#^(.+)(\[\])$#',$name, $nameParts)) {
+				return (!$this->is_blank($this->defaultFormData[$nameParts[1]])) ? $this->defaultFormData[$nameParts[1]] : NULL;
+			}
+			else {
+				return (!$this->is_blank($this->defaultFormData[$name])) ? $this->defaultFormData[$name] : NULL;
+			}
+	}
+
+	/**
 	 * -----------------------------------------------
 	 *  TAG CONSTRUCTION HELPERS
 	 * -----------------------------------------------
@@ -232,16 +245,16 @@ class Form {
 	 * @param  array  $elementAttributes [description]
 	 * @return [type]                    [description]
 	 */
-	protected function storeElement ($html, array $elementAttributes = array(), array $values = array()) {
+	protected function storeElement ($html, array $elementAttributes = array(), array $options = array()) {
 		// convert numerical keys for values to value of values
-		if (!empty($values) && empty($elementAttributes['data-preservekeys'])) {
-			$keys = array_keys($values);
+		if (!empty($options) && empty($elementAttributes['data-preservekeys'])) {
+			$keys = array_keys($options);
 			if ($keys[0] === 0) {
 				$tmp = array();
-				foreach ($values as $value) {
-					$tmp[$value] = $value;
+				foreach ($options as $option) {
+					$tmp[$option] = $option;
 				}
-				$values = $tmp;
+				$options = $tmp;
 			}
 		}
 
@@ -249,7 +262,7 @@ class Form {
 		$this->formElements[] = (object) array(
 			'html' => $html,
 			'attributes' => $elementAttributes,
-			'values' => $values,
+			'options' => $options,
 		);
 
 		// write form start for reference
@@ -398,6 +411,9 @@ class Form {
 				default:
 					$attributes = $this->returnAttributesAsHtml($element->attributes);
 					$formElement = sprintf($element->html, $attributes);
+					if (!empty($element->options)) {
+						$formElement .= $this->makeOptions($element);
+					}
 					break;
 			}
 			// get label
@@ -447,19 +463,26 @@ class Form {
 	 */
 	protected function makeOptions (stdClass $element) {
 		$html = '';
-		if (!empty($element->values)) {
+		if (!empty($element->options)) {
 			switch ($element->html) {
+				case self::HTML_INPUT:
+					$html .= '<datalist id="'.htmlspecialchars($element->attributes['list']).'">';
+					foreach ($element->options as $id => $option) {
+						$html .= '<option value="'.htmlspecialchars($id).'" />';
+					}
+					$html .= '</datalist>';
+					break;
 				case self::HTML_SELECT:
-					foreach ($element->values as $id => $value) {
+					foreach ($element->options as $id => $option) {
 						$checked = ($this->isChecked ($element, $id)) ? ' selected="selected"' : '';
-						$html .= '<option value="'.htmlspecialchars($id).'"'.$checked.'>'.htmlspecialchars($value).'</option>';
+						$html .= '<option value="'.htmlspecialchars($id).'"'.$checked.'>'.htmlspecialchars($option).'</option>';
 					}
 					break;
 				case self::HTML_CHECKBOXES:
 					$attributes = $this->returnAttributesAsHtml($element->attributes, array('id'));
-					foreach ($element->values as $id => $value) {
+					foreach ($element->options as $id => $option) {
 						$checked = ($this->isChecked ($element, $id)) ? ' checked="checked"' : '';
-						$html .= '<label><input value="'.htmlspecialchars($id).'"'.$checked.$attributes.' /> <span>'.htmlspecialchars($value).'</span></label>';
+						$html .= '<label><input value="'.htmlspecialchars($id).'"'.$checked.$attributes.' /> <span>'.htmlspecialchars($option).'</span></label>';
 					}
 					break;
 			}
@@ -492,13 +515,12 @@ class Form {
 	 * @return boolean           [description]
 	 */
 	protected function isChecked (stdClass $element, $value) {
-		$attributes = $element->attributes;
 		if (!$this->is_blank($value)) {
-			if (preg_match('#^(.+)(\[\])$#',$attributes['name'], $name)) {
-				return !$this->is_blank($this->defaultFormData[$name[1]]) && in_array($value, $this->defaultFormData[$name[1]]);
+			if (is_array($element->attributes['value'])) {
+				return !$this->is_blank($element->attributes['value']) && in_array($value, $element->attributes['value']);
 			}
 			else {
-				return !$this->is_blank($this->defaultFormData[$attributes['name']]) && $value == $this->defaultFormData[$attributes['name']];
+				return !$this->is_blank($element->attributes['value']) && $value == $element->attributes['value'];
 			}
 		}
 		return FALSE;
@@ -509,7 +531,7 @@ class Form {
 	 * whitespaces.
 	 * For non-scalar values will evaluate if value is empty().
 	 *
-	 * @param	mixed	$v	to test
+	 * @param   mixed	$v	to test
 	 * @return	bool	if $v is blank
 	 */
 	public function is_blank (&$v) {
