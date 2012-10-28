@@ -11,10 +11,12 @@ class FormElement {
 	public $html;
 	public $attributes;
 	public $options;
+	public $hasErrors = FALSE;
 
 	/**
 	 * [__construct description]
-	 * @param [type] $html    [description]
+	 * @param string $html    [description]
+	 * @param string $parseableHtml
 	 * @param array  $options [description]
 	 */
 	public function __construct ($html, $parseableHtml = '', array $options = array()) {
@@ -40,8 +42,8 @@ class FormElement {
 
 	/**
 	 * [parseTag description]
-	 * @param  [type] $html [description]
-	 * @return [type]       [description]
+	 * @param  string $html [description]
+	 * @return array       [description]
 	 */
 	protected function parseTag ($html) {
 		$attributes = array();
@@ -64,8 +66,8 @@ class FormElement {
 
 	/**
 	 * [setOnEmpty description]
-	 * @param [type] $array        [description]
-	 * @param [type] $classname          [description]
+	 * @param string $classname          [description]
+	 * @return FormElement
 	 */
 	public function addClass ($classname) {
 		if (empty($this->attributes['class'])) {
@@ -76,12 +78,13 @@ class FormElement {
 				$this->attributes['class'][] = $classname;
 			}
 		}
+		return $this;
 	}
 
 	/**
 	 * [setOnEmpty description]
-	 * @param [type] $array        [description]
-	 * @param [type] $classname          [description]
+	 * @param string $basicId e.g. ID of form
+	 * @return FormElement
 	 */
 	public function makeId ($basicId = '') {
 		if (empty($this->attributes['id'])) {
@@ -90,34 +93,52 @@ class FormElement {
 			}
 			$this->attributes['id'] = (!empty($basicId) ? $basicId.'-' : '') . $this->attributes['name'];
 		}
+		return $this;
 	}
 
 	/**
 	 * [setOnEmpty description]
-	 * @param [type] $array        [description]
 	 * @param [type] $key          [description]
 	 * @param [type] $defaultValue [description]
+	 * @return FormElement
 	 */
 	public function setOnEmpty ($key, $defaultValue) {
 		if (Form::is_blank($this->attributes[$key]) && !Form::is_blank($defaultValue)) {
 			$this->attributes[$key] = $defaultValue;
 		}
+		return $this;
 	}
 
 	/**
 	 * [throwExceptionOnEmpty description]
-	 * @param  [type] $array [description]
 	 * @param  [type] $key   [description]
-	 * @return [type]        [description]
+	 * @return FormElement
 	 */
 	public function throwExceptionOnEmpty ($key) {
 		if (Form::is_blank($this->attributes[$key])) {
 			throw new Exception('Missing attribute "'.$key.'"');
 		}
+		return $this;
+	}
+
+	/**
+	 * Add error if field value is required but none given
+	 * @return bool FALSE in case anything went wrong
+	 */
+	public function addErrorsOnRequired () {
+		if ($this->attributes['required']) && Form::is_blank($this->attributes['value'])) {
+			$this->addClass('error');
+			$this->error = TRUE;
+			return FALSE;
+		}
+		return TRUE;
 	}
 
 	/**
 	 * Return HTML for a single form element
+	 * @param string $htmlFieldWrapper
+	 * @param string $htmlLabelWrapper
+	 * @param string $htmlLabelRequired
 	 * @return string HTML
 	 */
 	public function returnHtml ($htmlFieldWrapper = "<span>%1\$s%2\$s</span>\n", $htmlLabelWrapper = "%s", $htmlLabelRequired = " *") {
@@ -196,6 +217,8 @@ class FormElement {
 
 	/**
 	 * [makeLabel description]
+	 * @param string $htmlLabelWrapper
+	 * @param string $htmlLabelRequired
 	 * @return string HTML
 	 */
 	protected function makeLabelText ($htmlLabelWrapper, $htmlLabelRequired) {
@@ -208,7 +231,6 @@ class FormElement {
 
 	/**
 	 * [makeOptions description]
-	 * @param  FormElement  $this [description]
 	 * @return string HTML
 	 */
 	protected function makeOptions () {

@@ -52,8 +52,8 @@ class Form {
 	}
 
 	/**
-	 * [setFieldWrapper description]
-	 * @param string $html [description]
+	 * Add HTML to wrap around every form field, but not free-from html.
+	 * @param string $html with %1$s being the label and %2$s being the actual form field
 	 */
 	public function setFieldWrapper ($html = "<span>%1\$s%2\$s</span>\n") {
 		if (strpos($html,'%1$s') !== FALSE && strpos($html,'%2$s') !== FALSE) {
@@ -66,8 +66,8 @@ class Form {
 	}
 
 	/**
-	 * [setLabelWrapper description]
-	 * @param string $html [description]
+	 * Set HTML to wrap aorund label text, e.g. "%s:"
+	 * @param string $html with %s being the actual label text
 	 */
 	public function setLabelWrapper ($html = "%s") {
 		if (strpos($html,'%s') !== FALSE) {
@@ -80,7 +80,7 @@ class Form {
 	}
 
 	/**
-	 * [setLabelWrapper description]
+	 * Additional HTML to add to label text for form fields which are required
 	 * @param string $html [description]
 	 */
 	public function setLabelRequired ($html = " *") {
@@ -123,6 +123,7 @@ class Form {
 		$element->addClass  ('form-input');
 		$element->addClass  ('form-input-'.$element->attributes['type']);
 		$element->setOnEmpty('value', $this->getdefaultFormData($element->attributes['name']));
+    $element->addErrorsOnRequired();
 		if (!empty($options)) {
 			$element->addClass  ('form-input-datalist');
 			$element->attributes['list'] = $element->attributes['id'].'-datalist';
@@ -152,6 +153,7 @@ class Form {
 		else {
 			$element->setOnEmpty('value', $this->getdefaultFormData($element->attributes['name']));
 		}
+    $element->addErrorsOnRequired();
 
 		return $this->storeElement($element);
 	}
@@ -172,6 +174,7 @@ class Form {
 			$element->attributes['name'] .= '[]';
 		}
 		$element->setOnEmpty('value', $this->getdefaultFormData($element->attributes['name']));
+    $element->addErrorsOnRequired();
 
 		return $this->storeElement($element);
 	}
@@ -195,6 +198,7 @@ class Form {
 			$element->attributes['name'] .= '[]';
 		}
 		$element->setOnEmpty('value', $this->getdefaultFormData($element->attributes['name']));
+    $element->addErrorsOnRequired();
 
 		return $this->storeElement($element);
 	}
@@ -222,30 +226,23 @@ class Form {
 	}
 
 	/**
-	 * [getdefaultFormData description]
+	 * Get default data as given in constructor for the form field with the corresponding name.
 	 * @param  string $name [description]
 	 * @return string       [description]
 	 */
 	public function getdefaultFormData ($name) {
-			if (preg_match('#^(.+)(\[\])$#',$name, $nameParts)) {
-				return (!self::is_blank($this->defaultFormData[$nameParts[1]])) ? $this->defaultFormData[$nameParts[1]] : NULL;
-			}
-			else {
-				return (!self::is_blank($this->defaultFormData[$name])) ? $this->defaultFormData[$name] : NULL;
-			}
+		if (preg_match('#^(.+)(\[\])$#',$name, $nameParts)) {
+			return (!self::is_blank($this->defaultFormData[$nameParts[1]])) ? $this->defaultFormData[$nameParts[1]] : NULL;
+		}
+		else {
+			return (!self::is_blank($this->defaultFormData[$name])) ? $this->defaultFormData[$name] : NULL;
+		}
 	}
 
 	/**
-	 * -----------------------------------------------
-	 *  TAG CONSTRUCTION HELPERS
-	 * -----------------------------------------------
-	 */
-
-	/**
 	 * Store single element to form
-	 * @param  [type] $html              [description]
-	 * @param  array  $elementAttributes [description]
-	 * @return [type]                    [description]
+	 * @param  FormElement $element
+   * @return Form       [description]
 	 */
 	protected function storeElement (FormElement $element) {
 		$this->formElements[] = $element;
@@ -277,6 +274,20 @@ class Form {
 		}
 		return $return;
 	}
+
+  /**
+   * Check if any form element has errors
+   * @return int number of form elements with errors, which means 0 / FALSE means no errors.
+   */
+  public function hasErrors () {
+    $errors = 0;
+    foreach ($this->formElements as $element) {
+      if ($element->error) {
+        $errors ++;
+      }
+    }
+    return $errors;
+  }
 
 	/**
 	 * Checks if a scalar value is FALSE, without content or only full of
