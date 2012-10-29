@@ -49,10 +49,16 @@ class FormElement {
 		$attributes = array();
 		if (preg_match_all('#([\w\-]+)="([^"]*?)"#', $html, $parts)) {
 			foreach ($parts[1] as $key => $keyName) {
-				$attributes[$keyName] = ($keyName == 'class')
-					? explode(' ',$parts[2][$key])
-					: $parts[2][$key]
-				;
+				if ($keyName == 'class') {
+					$attributes[$keyName] = explode(' ',$parts[2][$key]);
+				}
+				elseif (strpos($keyName, 'data-') === 0 && strpos($parts[2][$key], '[') === 0) {
+					$attributes[$keyName] = json_decode($parts[2][$key]);
+				}
+				else {
+					$attributes[$keyName] = $parts[2][$key];
+
+				}
 			}
 		}
 		if (preg_match('#>(.+)<#',$html,$matches)) {
@@ -126,8 +132,9 @@ class FormElement {
 	 * @return bool FALSE in case anything went wrong
 	 */
 	public function addErrorsOnRequired () {
-		if ($this->attributes['required']) && Form::is_blank($this->attributes['value'])) {
+		if (!Form::is_blank($this->attributes['required']) && Form::is_blank($this->attributes['value'])) {
 			$this->addClass('error');
+			$this->addClass('error-required');
 			$this->error = TRUE;
 			return FALSE;
 		}
@@ -205,9 +212,16 @@ class FormElement {
 	protected function returnAttributesAsHtml (array $attributes, array $forbiddenAttributes = array()) {
 		$html = '';
 		foreach ($attributes as $key => $value) {
-			if (empty($forbiddenAttributes) || !in_array($key, $forbiddenAttributes) && strpos($key, '_') !== 0) {
+			if (!Form::is_blank($value) && (empty($forbiddenAttributes) || !in_array($key, $forbiddenAttributes) && strpos($key, '_') !== 0)) {
 				if (is_array($value)) {
-					$value = implode(' ', $value);
+					switch ($key) {
+						case 'class':
+							$value = implode(' ', $value);
+							break;
+						default:
+							$value = json_encode($value);
+							break;
+					}
 				}
 				$html .= ' '.htmlspecialchars($key).'="'.htmlspecialchars($value).'"';
 			}
