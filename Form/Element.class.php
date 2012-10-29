@@ -99,6 +99,7 @@ class FormElement {
 			}
 			$this->attributes['id'] = (!empty($basicId) ? $basicId.'-' : '') . $this->attributes['name'];
 		}
+		$this->attributes['id'] = Form::make_id($this->attributes['id']);
 		return $this;
 	}
 

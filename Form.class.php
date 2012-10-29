@@ -298,6 +298,32 @@ class Form {
 	 * @return	bool	if $v is blank
 	 */
 	public static function is_blank (&$v) {
-	    return !isset($v) || (is_scalar($v) ? (trim($v) === '') : empty($v));
+		if (function_exists('is_blank')) {
+			return is_blank($v);
+		}
+		else {
+			return !isset($v) || (is_scalar($v) ? (trim($v) === '') : empty($v));
+		}
+	}
+
+	/**
+	* Convert string to proper IID / Name-Attribute
+	* @param  string $str [description]
+	* @return string      [description]
+	*/
+	public static function make_id ($str)	{
+		if (function_exists('make_id')) {
+			return make_id($str);
+		}
+		else {
+			if (!preg_match('#^[A-Za-z][A-Za-z0-9\-_\:\.]+$#', $str)) {
+				$str = preg_replace(
+					array('#^[A-Za-z]#','#[A-Za-z0-9\-_\:\.]#', '#(_)_+#'),
+					array('id',         '_',                    ''),
+					$str
+				);
+			}
+			return $str;
+		}
 	}
 }

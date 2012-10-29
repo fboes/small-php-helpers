@@ -210,21 +210,42 @@ function str_nice_shorten ($str, $maxChars = 72, $replace = '…')
  */
 function asciify ($str)
 {
-    $str = strtolower($str);
     if (!preg_match('#^[a-z0-9_\-\.]+$#s', $str))
     {
         $str = str_replace(
-            array('ä', 'æ', 'ö', 'ü', 'ß'),
-            array('ae','ae','oe','ue','ss'),
+            array('ä', 'Ä', 'æ', 'ö', 'Ö', 'ü', 'Ü', 'ß'),
+            array('ae','AE','ae','oe','OE','ue','UE','ss'),
             $str
         );
         $str = str_replace(array('á','à','â'), 'a', $str);
+        $str = str_replace(array('Á','À','Â'), 'A', $str);
         $str = str_replace(array('é','è','ê','ë'), 'e', $str);
+        $str = str_replace(array('É','È','Ê'), 'E', $str);
         $str = str_replace(array('ó','ò','ô'), 'o', $str);
+        $str = str_replace(array('Ó','Ò','Ô'), 'O', $str);
         $str = str_replace(array('ú','ù','û'), 'u', $str);
+        $str = str_replace(array('Ú','Ù','Û'), 'U', $str);
         $str = preg_replace(
-            array('#([^a-z0-9_\-\.])#s', '#(_)_+#', '#[^a-z0-9]+$#', '#^[^a-z0-9]+#'),
+            array('#([^a-z0-9_\-\.])#is', '#(_)_+#', '#[^a-z0-9]+$#i', '#^[^a-z0-9]+#i'),
             array('_', '_', '', ''),
+            $str
+        );
+    }
+    return $str;
+}
+
+/**
+ * Convert string to proper IID / Name-Attribute
+ * @param  string $str [description]
+ * @return string      [description]
+ */
+function make_id ($str)
+{
+    if (!preg_match('#^[A-Za-z][A-Za-z0-9\-_\:\.]+$#', $str))
+    {
+        $str = preg_replace(
+            array('#^[A-Za-z]#','#[A-Za-z0-9\-_\:\.]#', '#(_)_+#'),
+            array('id',         '_',                    ''),
             $str
         );
     }
