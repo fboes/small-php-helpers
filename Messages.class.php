@@ -99,6 +99,28 @@ class Messages {
   }
 
   /**
+   * Return all messages as log format
+   * @param  string $delimiter Characters to separate lines by
+   * @return string            [description]
+   */
+  public function returnLogLines ($delimiter = "\n") {
+    $output = '';
+    foreach ($this->messages as $message) {
+      $output .= $message->returnLogLine() . $delimiter;
+    }
+    return $output;
+  }
+
+  /**
+   * Write logfile
+   * @param  string $filename [description]
+   * @return bool           [description]
+   */
+  public function writeLogFile ($filename) {
+    return (file_put_contents($filename, $this->returnLogLines(), FILE_APPEND | LOCK_EX) !== FALSE);
+  }
+
+  /**
    * Store current status of messages in session for output after reload.
    * Assumes $_SESSION to be present
    * @return  Messages [description]
@@ -156,5 +178,13 @@ class Message {
    */
   public function isSuccess () {
     return $this->httpStatusCode < 400;
+  }
+
+  /**
+   * Return current message as log event
+   * @return  string [description]
+   */
+  public function returnLogLine () {
+    return '['.date('r',$this->ts).'] ['.($this->isSuccess() ? 'ok' : 'error').'] '.$this->httpStatusCode.' '.$this->message;
   }
 }
