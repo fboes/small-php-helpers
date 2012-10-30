@@ -88,6 +88,23 @@ class FormElement {
 	}
 
 	/**
+	 * [addDefaultValue description]
+	 * @param string $value [description]
+	 * @return FormElement
+	 */
+	public function addDefaultValue ($value = '') {
+		if (Form::is_blank($this->attributes['value'])) {
+			if (!Form::is_blank($value)) {
+				$this->attributes['value'] = $value;
+			}
+			elseif (!Form::is_blank($this->attributes['default'])) {
+				$this->attributes['value'] = $this->attributes['default'];
+			}
+		}
+		return $this;
+	}
+
+	/**
 	 * [setOnEmpty description]
 	 * @param string $basicId e.g. ID of form
 	 * @return FormElement
@@ -212,6 +229,7 @@ class FormElement {
 	 */
 	protected function returnAttributesAsHtml (array $attributes, array $forbiddenAttributes = array()) {
 		$html = '';
+		$forbiddenAttributes = array_merge($forbiddenAttributes, array('data-label', 'default'));
 		foreach ($attributes as $key => $value) {
 			if (!Form::is_blank($value) && (empty($forbiddenAttributes) || !in_array($key, $forbiddenAttributes) && strpos($key, '_') !== 0)) {
 				if (is_array($value)) {

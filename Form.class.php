@@ -6,6 +6,7 @@
  * Element special attributes:
  * - data-label: Add label to element
  * - data-preservekeys: Keep keys for numerical values
+ * - default: Set value if no other value is present
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
@@ -122,7 +123,7 @@ class Form {
 		$element->setOnEmpty('type', 'text');
 		$element->addClass  ('form-input');
 		$element->addClass  ('form-input-'.$element->attributes['type']);
-		$element->setOnEmpty('value', $this->getdefaultFormData($element->attributes['name']));
+		$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
     $element->addErrorsOnRequired();
 		if (!empty($options)) {
 			$element->addClass  ('form-input-datalist');
@@ -148,10 +149,10 @@ class Form {
 		$element->throwExceptionOnEmpty('name');
 		$element->makeId(!empty($this->formStart->attributes['id']) ? $this->formStart->attributes['id'] : '');
 		if (!empty($element->attributes[self::ATTRIBUTE_CONTENT])) {
-			$element->setOnEmpty('value', $element->attributes[self::ATTRIBUTE_CONTENT]);
+			$element->addDefaultValue($element->attributes[self::ATTRIBUTE_CONTENT]);
 		}
 		else {
-			$element->setOnEmpty('value', $this->getdefaultFormData($element->attributes['name']));
+			$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
 		}
     $element->addErrorsOnRequired();
 
@@ -173,7 +174,7 @@ class Form {
 		if (!empty($element->attributes['multiple'])) {
 			$element->attributes['name'] .= '[]';
 		}
-		$element->setOnEmpty('value', $this->getdefaultFormData($element->attributes['name']));
+		$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
     $element->addErrorsOnRequired();
 
 		return $this->storeElement($element);
@@ -197,7 +198,7 @@ class Form {
 		if ($element->attributes['type'] == 'checkbox') {
 			$element->attributes['name'] .= '[]';
 		}
-		$element->setOnEmpty('value', $this->getdefaultFormData($element->attributes['name']));
+		$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
     $element->addErrorsOnRequired();
 
 		return $this->storeElement($element);
