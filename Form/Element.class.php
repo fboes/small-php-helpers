@@ -214,7 +214,7 @@ class FormElement {
 					}
 					break;
 				case Form::HTML_CHECKBOXES:
-					$formLabel = !empty($this->attributes['data-label']) ? '<span class="label">'.$this->makeLabelText($htmlLabelWrapper, $htmlLabelRequired).'</span>' : '';
+					$formLabel = !empty($this->attributes['data-label']) ? '<label>'.$this->makeLabelText($htmlLabelWrapper, $htmlLabelRequired).'</label>' : '';
 					break;
 				case Form::HTML_BUTTON:
 					$formLabel = '';

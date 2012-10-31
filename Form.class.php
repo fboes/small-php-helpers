@@ -8,7 +8,7 @@
  * - data-preservekeys: Keep keys for numerical values
  * - default: Set value if no other value is present
  *
- * Other attributes
+ * Other element attributes:
  * - pattern
  * - placeholder
  * - accept
@@ -158,29 +158,39 @@ class Form {
 				$element->addError('maxlength',_('Field data is to long.'));
 			}
 		}
-		if (!Form::is_blank($element->attributes['pattern'])) {
-			# TODO: check pattern
+  	switch ($element->attributes['type']) {
+			case 'color':
+				$element->setOnEmpty('data-pattern', '#[A-Fa-f0-9]{6}');
+				break;
+			case 'date':
+				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]');
+				break;
+			case 'datetime':
+				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]T[0-2]\d:[0-5]\d(:[0-5]\d(\.\d)?)?Z');
+				break;
+			case 'datetime-local':
+				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]T[0-2]\d:[0-5]\d(:[0-5]\d(\.\d)?)?');
+				break;
+			case 'email':
+				$element->setOnEmpty('data-pattern', '\S+@\S+\.\S+');
+				break;
+			case 'number':
+				$element->setOnEmpty('data-pattern', '\S+');
+				break;
+			case 'range':
+				$element->setOnEmpty('data-pattern', '\S+');
+				break;
+			case 'url':
+				$element->setOnEmpty('data-pattern', 'http(s)?://\S+');
+				break;
+  	}
+		if (!Form::is_blank($element->attributes['value']) && (!Form::is_blank($element->attributes['pattern']) || !Form::is_blank($element->attributes['data-pattern']))) {
+			$pattern = !Form::is_blank($element->attributes['pattern']) ? $element->attributes['pattern'] : $element->attributes['data-pattern'];
+			$pattern = '#^'.str_replace('#','\#',$pattern).'$#';
+			if (!preg_match($pattern, $element->attributes['value'])) {
+				$element->addError('pattern',_('Field value does not match expectations for this field.'));
+			}
 		}
-    else {
-    	switch ($element->attributes['type']) {
-				case 'color':
-					break;
-				case 'date':
-					break;
-				case 'datetime':
-					break;
-				case 'email':
-					break;
-				case 'number':
-					break;
-				case 'range':
-					break;
-				case 'tel':
-					break;
-				case 'url':
-					break;
-    	}
-    }
 		if (!empty($options)) {
 			$element->addClass  ('form-input-datalist');
 			$element->attributes['list'] = $element->attributes['id'].'-datalist';
