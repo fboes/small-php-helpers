@@ -11,7 +11,7 @@ class FormElement {
 	public $html;
 	public $attributes;
 	public $options;
-	public $hasErrors = FALSE;
+	public $errors = array();
 
 	/**
 	 * [__construct description]
@@ -151,12 +151,22 @@ class FormElement {
 	 */
 	public function addErrorsOnRequired () {
 		if (!Form::is_blank($this->attributes['required']) && Form::is_blank($this->attributes['value'])) {
-			$this->addClass('error');
-			$this->addClass('error-required');
-			$this->error = TRUE;
+			$this->addError('required', _('This form field is required.'));
 			return FALSE;
 		}
 		return TRUE;
+	}
+
+	/**
+	 * [addError description]
+	 * @param string $msg [description]
+	 * @return  FormElement [description]
+	 */
+	public function addError ($type, $msg) {
+		$this->addClass('error');
+		$this->addClass('error-'.$type);
+		$this->errors[] = $msg;
+		return $this;
 	}
 
 	/**
@@ -166,7 +176,7 @@ class FormElement {
 	 * @param string $htmlLabelRequired
 	 * @return string HTML
 	 */
-	public function returnHtml ($htmlFieldWrapper = "<span>%1\$s%2\$s</span>\n", $htmlLabelWrapper = "%s", $htmlLabelRequired = " *") {
+	public function returnHtml ($htmlFieldWrapper = "<span>%1\$s%2\$s</span>\n", $htmlLabelWrapper = "%s", $htmlLabelRequired = " *", $htmlErrorWrapper = '<span class="error">%s</span>') {
 		if (!empty($this->attributes)) {
 			// get form field
 			switch ($this->html) {
@@ -210,13 +220,18 @@ class FormElement {
 					$formLabel = '';
 					break;
 			}
+			// get errors
+			$formError = NULL;
+			if (!empty($this->errors)) {
+				$formError = sprintf($htmlErrorWrapper, htmlspecialchars(implode(" ",$this->errors))); # TODO
+			}
 		}
 		else {
 			$formElement = $this->html;
 		}
 
 		return (!empty($htmlFieldWrapper) && isset($formLabel))
-			? sprintf($htmlFieldWrapper, $formLabel, $formElement)
+			? sprintf($htmlFieldWrapper, $formLabel, $formElement, $formError)
 			: $formElement
 		;
 	}

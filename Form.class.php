@@ -8,6 +8,18 @@
  * - data-preservekeys: Keep keys for numerical values
  * - default: Set value if no other value is present
  *
+ * Other attributes
+ * - pattern
+ * - placeholder
+ * - accept
+ * - autofocus
+ * - disabled
+ * - max
+ * - min
+ * - step
+ * - maxlength
+ * - readonly
+ *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
  */
@@ -22,6 +34,7 @@ class Form {
 	protected $htmlFieldWrapper;
 	protected $htmlLabelWrapper;
 	protected $htmlLabelRequired;
+	protected $htmlErrorWrapper;
 
 	const HTML_FORM       = '<form%s>';
 	const HTML_INPUT      = '<input%1$s />';
@@ -41,6 +54,7 @@ class Form {
 		$this->setFieldWrapper();
 		$this->setLabelWrapper();
 		$this->setLabelRequired();
+		$this->setErrorWrapper();
 	}
 
 	/**
@@ -54,9 +68,9 @@ class Form {
 
 	/**
 	 * Add HTML to wrap around every form field, but not free-from html.
-	 * @param string $html with %1$s being the label and %2$s being the actual form field
+	 * @param string $html with %1$s being the label, %2$s being the actual form field, %3$s being the optional error message
 	 */
-	public function setFieldWrapper ($html = "<span>%1\$s%2\$s</span>\n") {
+	public function setFieldWrapper ($html = "<span>%1\$s%2\$s%3\$s</span>\n") {
 		if (strpos($html,'%1$s') !== FALSE && strpos($html,'%2$s') !== FALSE) {
 			$this->htmlFieldWrapper = $html;
 		}
@@ -76,6 +90,20 @@ class Form {
 		}
 		else {
 			throw new Exception('Wrong format for HTML label wrapper, missing "%s"');
+		}
+		return $this;
+	}
+
+	/**
+	 * Set HTML to wrap aorund label text, e.g. "%s:"
+	 * @param string $html with %s being the actual label text
+	 */
+	public function setErrorWrapper ($html = '<span class="error">%s</span>') {
+		if (strpos($html,'%s') !== FALSE) {
+			$this->htmlErrorWrapper = $html;
+		}
+		else {
+			throw new Exception('Wrong format for HTML Error wrapper, missing "%s"');
 		}
 		return $this;
 	}
@@ -125,6 +153,34 @@ class Form {
 		$element->addClass  ('form-input-'.$element->attributes['type']);
 		$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
     $element->addErrorsOnRequired();
+		if (!Form::is_blank($element->attributes['maxlength'])) {
+			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {
+				$element->addError('maxlength',_('Field data is to long.'));
+			}
+		}
+		if (!Form::is_blank($element->attributes['pattern'])) {
+			# TODO: check pattern
+		}
+    else {
+    	switch ($element->attributes['type']) {
+				case 'color':
+					break;
+				case 'date':
+					break;
+				case 'datetime':
+					break;
+				case 'email':
+					break;
+				case 'number':
+					break;
+				case 'range':
+					break;
+				case 'tel':
+					break;
+				case 'url':
+					break;
+    	}
+    }
 		if (!empty($options)) {
 			$element->addClass  ('form-input-datalist');
 			$element->attributes['list'] = $element->attributes['id'].'-datalist';
@@ -153,6 +209,11 @@ class Form {
 		}
 		else {
 			$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
+		}
+		if (!Form::is_blank($element->attributes['maxlength'])) {
+			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {
+				$element->addError('maxlength',_('Field data is to long.'));
+			}
 		}
     $element->addErrorsOnRequired();
 
@@ -271,7 +332,7 @@ class Form {
 	public function returnHTML () {
 		$return = '';
 		foreach ($this->formElements as $id => $element) {
-			$return .= $element->returnHtml($this->htmlFieldWrapper, $this->htmlLabelWrapper, $this->htmlLabelRequired);
+			$return .= $element->returnHtml($this->htmlFieldWrapper, $this->htmlLabelWrapper, $this->htmlLabelRequired, $this->htmlErrorWrapper);
 		}
 		return $return;
 	}
@@ -283,8 +344,8 @@ class Form {
   public function hasErrors () {
     $errors = 0;
     foreach ($this->formElements as $element) {
-      if ($element->error) {
-        $errors ++;
+      if (!empty($element->errors)) {
+        $errors += count($element->errors);
       }
     }
     return $errors;
