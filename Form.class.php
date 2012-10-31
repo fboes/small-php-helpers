@@ -184,11 +184,19 @@ class Form {
 				$element->setOnEmpty('data-pattern', 'http(s)?://\S+');
 				break;
   	}
-		if (!Form::is_blank($element->attributes['value']) && (!Form::is_blank($element->attributes['pattern']) || !Form::is_blank($element->attributes['data-pattern']))) {
-			$pattern = !Form::is_blank($element->attributes['pattern']) ? $element->attributes['pattern'] : $element->attributes['data-pattern'];
-			$pattern = '#^'.str_replace('#','\#',$pattern).'$#';
-			if (!preg_match($pattern, $element->attributes['value'])) {
-				$element->addError('pattern',_('Field value does not match expectations for this field.'));
+		if (!Form::is_blank($element->attributes['value'])) {
+			if (!Form::is_blank($element->attributes['pattern']) || !Form::is_blank($element->attributes['data-pattern'])) {
+				$pattern = !Form::is_blank($element->attributes['pattern']) ? $element->attributes['pattern'] : $element->attributes['data-pattern'];
+				$pattern = '#^'.str_replace('#','\#',$pattern).'$#';
+				if (!preg_match($pattern, $element->attributes['value'])) {
+					$element->addError('pattern',_('Field value does not match expectations for this field.'));
+				}
+			}
+			if (!Form::is_blank($element->attributes['max']) && (float)$element->attributes['value'] > (float)$element->attributes['max']) {
+					$element->addError('max',_('Field value is to big.'));
+			}
+			if (!Form::is_blank($element->attributes['min']) && (float)$element->attributes['value'] < (float)$element->attributes['min']) {
+					$element->addError('min',_('Field value is to small.'));
 			}
 		}
 		if (!empty($options)) {
