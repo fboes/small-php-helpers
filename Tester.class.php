@@ -2,6 +2,7 @@
 /**
  * @class Tester
  * Mini-Unit-Test (in case PhpUnit ist not available)
+ * Extend this class for doing the real test. Methods with "test" prefixed get tested
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
@@ -16,11 +17,17 @@ class Tester {
 	public function __construct () {
 	}
 
+	/**
+	 * Will invoke this class and call doTests()
+	 */
 	public static function doTest () {
 		$test = new static();
 		$test->doTests();
 	}
 
+	/**
+	 * Perform all tests, calling all object methods prefixed with "test". Will output a test protocol in HTML
+	 */
 	public function doTests () {
 		$title = get_class($this);
 
@@ -59,15 +66,35 @@ class Tester {
 		echo('</html>');
 	}
 
-	protected function assertEquals ($a, $b, $message = 'Expecting %s to match %s') {
+	/**
+	 * [assertEquals description]
+	 * @param  mixed $a       [description]
+	 * @param  mixed $b       [description]
+	 * @param  string $message [description]
+	 * @return bool          [description]
+	 */
+	public function assertEquals ($a, $b, $message = 'Expecting %s to match %s') {
 		return $this->assertTrue($a === $b, sprintf($message, $this->literalize($a), $this->literalize($b)));
 	}
 
-	protected function assertNotEquals ($a, $b, $message = 'Expecting %s not to match %s') {
+	/**
+	 * [assertNotEquals description]
+	 * @param  mixed $a       [description]
+	 * @param  mixed $b       [description]
+	 * @param  string $message [description]
+	 * @return bool          [description]
+	 */
+	public function assertNotEquals ($a, $b, $message = 'Expecting %s not to match %s') {
 		return $this->assertTrue($a !== $b, sprintf($message, $this->literalize($a), $this->literalize($b)));
 	}
 
-	protected function assertTrue ($success, $message = 'Expecting %s to be TRUE') {
+	/**
+	 * [assertTrue description]
+	 * @param  bool $success [description]
+	 * @param  string $message [description]
+	 * @return bool          [description]
+	 */
+	public function assertTrue ($success, $message = 'Expecting %s to be TRUE') {
 		$message = sprintf($message, $this->literalize($success));
 
 		$this->testsDone ++;
@@ -81,6 +108,11 @@ class Tester {
 		return $success;
 	}
 
+	/**
+	 * Convert given variable to string expression describing it
+	 * @param  mixed $mixed [description]
+	 * @return string        [description]
+	 */
 	protected function literalize ($mixed) {
 		if (is_scalar($mixed)) {
 			return $mixed;
