@@ -31,7 +31,7 @@ class Tester {
 	public function doTests () {
 		$title = get_class($this);
 
-		echo('<!DOCTYPE html>');
+		echo('<!DOCTYPE html>'."\n");
 		echo('<html>');
 		echo('<head>');
 		echo('<title>'.htmlspecialchars($title).'</title>');
@@ -44,21 +44,23 @@ class Tester {
 			.'</style>')
 		;
 		echo('</head>');
-		echo('<body>');
-		echo('<h1>'.htmlspecialchars($title).'</h1>');
+		echo('<body>'."\n");
+		echo('<h1>'.htmlspecialchars($title).'</h1>'."\n");
 
 		$methods = get_class_methods($this);
 		foreach ($methods as $m) {
 			if (strpos($m, 'test') === 0) {
 				$this->testsDone = 0;
 				$this->testsSuccess = 0;
-				echo('<h2>'.htmlspecialchars($m).'</h2>');
-				echo('<dl>');
+				echo('<div class="test">'."\n");
+				echo('  <h2 id="'.htmlspecialchars($m).'">'.htmlspecialchars($m).'</h2>'."\n");
+				echo('  <dl class="assertions">'."\n");
 				$this->testStart = microtime(TRUE);
 				$this->$m();
 				$this->testEnd = microtime(TRUE);
-				echo('</dl>');
-				echo('<p>Success / tests: '.(int)$this->testsSuccess.'/'.(int)$this->testsDone.'; duration: '.round($this->testEnd - $this->testStart).' ms</p>');
+				echo('  </dl>'."\n");
+				echo('  <p>Success / tests: '.(int)$this->testsSuccess.'/'.(int)$this->testsDone.'; duration: '.round($this->testEnd - $this->testStart).' ms</p>'."\n");
+				echo('</div>'."\n");
 			}
 		}
 
@@ -89,6 +91,23 @@ class Tester {
 	}
 
 	/**
+	 * [assertRegExp description]
+	 * @param  string $regExp       [description]
+	 * @param  string $value       [description]
+	 * @param  string $message [description]
+	 * @return bool          [description]
+	 */
+	public function assertRegExp ($regExp, $value, $message = 'Expecting %s to match regular expression %s') {
+		if (!is_string($regExp)) {
+			throw new Exception('Malformed test expression used in assertRegExp');
+		}
+		elseif (!is_string($value)) {
+			return $this->assertTrue(FALSE, 'Value given to assertRegExp is not a string');
+		}
+		return $this->assertTrue(preg_match($regExp, $value), sprintf($message, $this->literalize($value), $this->literalize($regExp)));
+	}
+
+	/**
 	 * [assertTrue description]
 	 * @param  bool $success [description]
 	 * @param  string $message [description]
@@ -98,10 +117,10 @@ class Tester {
 		$message = sprintf($message, $this->literalize($success));
 
 		$this->testsDone ++;
-		echo('<dt>'.htmlspecialchars($message).'</dt>'. ($success
+		echo('    <dt>'.htmlspecialchars($message).'</dt>'. ($success
 			? '<dd class="success">Success</dd>'
 			: '<dd class="fail">Fail</dd>'
-		));
+		)."\n");
 		if ($success) {
 			$this->testsSuccess ++;
 		}
@@ -123,6 +142,6 @@ class Tester {
 		#elseif (is_array($mixed)) {
 
 		#}
-		return print_r($mixed,1);
+		return preg_replace('#\s+#',' ',print_r($mixed,1));
 	}
 }
