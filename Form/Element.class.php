@@ -11,7 +11,7 @@ class FormElement {
 	public $html;
 	public $attributes;
 	public $options;
-	public $hasErrors = FALSE;
+	public $errors = array();
 
 	/**
 	 * [__construct description]
@@ -88,6 +88,23 @@ class FormElement {
 	}
 
 	/**
+	 * [addDefaultValue description]
+	 * @param string $value [description]
+	 * @return FormElement
+	 */
+	public function addDefaultValue ($value = '') {
+		if (Form::is_blank($this->attributes['value'])) {
+			if (!Form::is_blank($value)) {
+				$this->attributes['value'] = $value;
+			}
+			elseif (!Form::is_blank($this->attributes['default'])) {
+				$this->attributes['value'] = $this->attributes['default'];
+			}
+		}
+		return $this;
+	}
+
+	/**
 	 * [setOnEmpty description]
 	 * @param string $basicId e.g. ID of form
 	 * @return FormElement
@@ -134,12 +151,22 @@ class FormElement {
 	 */
 	public function addErrorsOnRequired () {
 		if (!Form::is_blank($this->attributes['required']) && Form::is_blank($this->attributes['value'])) {
-			$this->addClass('error');
-			$this->addClass('error-required');
-			$this->error = TRUE;
+			$this->addError('required', _('This form field is required.'));
 			return FALSE;
 		}
 		return TRUE;
+	}
+
+	/**
+	 * [addError description]
+	 * @param string $msg [description]
+	 * @return  FormElement [description]
+	 */
+	public function addError ($type, $msg) {
+		$this->addClass('error');
+		$this->addClass('error-'.$type);
+		$this->errors[] = $msg;
+		return $this;
 	}
 
 	/**
@@ -149,7 +176,7 @@ class FormElement {
 	 * @param string $htmlLabelRequired
 	 * @return string HTML
 	 */
-	public function returnHtml ($htmlFieldWrapper = "<span>%1\$s%2\$s</span>\n", $htmlLabelWrapper = "%s", $htmlLabelRequired = " *") {
+	public function returnHtml ($htmlFieldWrapper = "<span>%1\$s%2\$s</span>\n", $htmlLabelWrapper = "%s", $htmlLabelRequired = " *", $htmlErrorWrapper = '<span class="error">%s</span>') {
 		if (!empty($this->attributes)) {
 			// get form field
 			switch ($this->html) {
@@ -187,11 +214,16 @@ class FormElement {
 					}
 					break;
 				case Form::HTML_CHECKBOXES:
-					$formLabel = !empty($this->attributes['data-label']) ? '<span class="label">'.$this->makeLabelText($htmlLabelWrapper, $htmlLabelRequired).'</span>' : '';
+					$formLabel = !empty($this->attributes['data-label']) ? '<label>'.$this->makeLabelText($htmlLabelWrapper, $htmlLabelRequired).'</label>' : '';
 					break;
 				case Form::HTML_BUTTON:
 					$formLabel = '';
 					break;
+			}
+			// get errors
+			$formError = NULL;
+			if (!empty($this->errors)) {
+				$formError = sprintf($htmlErrorWrapper, htmlspecialchars(implode(" ",$this->errors))); # TODO
 			}
 		}
 		else {
@@ -199,7 +231,7 @@ class FormElement {
 		}
 
 		return (!empty($htmlFieldWrapper) && isset($formLabel))
-			? sprintf($htmlFieldWrapper, $formLabel, $formElement)
+			? sprintf($htmlFieldWrapper, $formLabel, $formElement, $formError)
 			: $formElement
 		;
 	}
@@ -212,6 +244,7 @@ class FormElement {
 	 */
 	protected function returnAttributesAsHtml (array $attributes, array $forbiddenAttributes = array()) {
 		$html = '';
+		$forbiddenAttributes = array_merge($forbiddenAttributes, array('data-label', 'default'));
 		foreach ($attributes as $key => $value) {
 			if (!Form::is_blank($value) && (empty($forbiddenAttributes) || !in_array($key, $forbiddenAttributes) && strpos($key, '_') !== 0)) {
 				if (is_array($value)) {

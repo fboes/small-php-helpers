@@ -6,6 +6,19 @@
  * Element special attributes:
  * - data-label: Add label to element
  * - data-preservekeys: Keep keys for numerical values
+ * - default: Set value if no other value is present
+ *
+ * Other element attributes:
+ * - pattern
+ * - placeholder
+ * - accept
+ * - autofocus
+ * - disabled
+ * - max
+ * - min
+ * - step
+ * - maxlength
+ * - readonly
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
@@ -21,6 +34,7 @@ class Form {
 	protected $htmlFieldWrapper;
 	protected $htmlLabelWrapper;
 	protected $htmlLabelRequired;
+	protected $htmlErrorWrapper;
 
 	const HTML_FORM       = '<form%s>';
 	const HTML_INPUT      = '<input%1$s />';
@@ -40,6 +54,7 @@ class Form {
 		$this->setFieldWrapper();
 		$this->setLabelWrapper();
 		$this->setLabelRequired();
+		$this->setErrorWrapper();
 	}
 
 	/**
@@ -53,9 +68,9 @@ class Form {
 
 	/**
 	 * Add HTML to wrap around every form field, but not free-from html.
-	 * @param string $html with %1$s being the label and %2$s being the actual form field
+	 * @param string $html with %1$s being the label, %2$s being the actual form field, %3$s being the optional error message
 	 */
-	public function setFieldWrapper ($html = "<span>%1\$s%2\$s</span>\n") {
+	public function setFieldWrapper ($html = "<span>%1\$s%2\$s%3\$s</span>\n") {
 		if (strpos($html,'%1$s') !== FALSE && strpos($html,'%2$s') !== FALSE) {
 			$this->htmlFieldWrapper = $html;
 		}
@@ -75,6 +90,20 @@ class Form {
 		}
 		else {
 			throw new Exception('Wrong format for HTML label wrapper, missing "%s"');
+		}
+		return $this;
+	}
+
+	/**
+	 * Set HTML to wrap aorund label text, e.g. "%s:"
+	 * @param string $html with %s being the actual label text
+	 */
+	public function setErrorWrapper ($html = '<span class="error">%s</span>') {
+		if (strpos($html,'%s') !== FALSE) {
+			$this->htmlErrorWrapper = $html;
+		}
+		else {
+			throw new Exception('Wrong format for HTML Error wrapper, missing "%s"');
 		}
 		return $this;
 	}
@@ -122,8 +151,54 @@ class Form {
 		$element->setOnEmpty('type', 'text');
 		$element->addClass  ('form-input');
 		$element->addClass  ('form-input-'.$element->attributes['type']);
-		$element->setOnEmpty('value', $this->getdefaultFormData($element->attributes['name']));
+		$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
     $element->addErrorsOnRequired();
+		if (!Form::is_blank($element->attributes['maxlength'])) {
+			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {
+				$element->addError('maxlength',_('Field data is to long.'));
+			}
+		}
+  	switch ($element->attributes['type']) {
+			case 'color':
+				$element->setOnEmpty('data-pattern', '#[A-Fa-f0-9]{6}');
+				break;
+			case 'date':
+				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]');
+				break;
+			case 'datetime':
+				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]T[0-2]\d:[0-5]\d(:[0-5]\d(\.\d)?)?Z');
+				break;
+			case 'datetime-local':
+				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]T[0-2]\d:[0-5]\d(:[0-5]\d(\.\d)?)?');
+				break;
+			case 'email':
+				$element->setOnEmpty('data-pattern', '\S+@\S+\.\S+');
+				break;
+			case 'number':
+				$element->setOnEmpty('data-pattern', '\S+');
+				break;
+			case 'range':
+				$element->setOnEmpty('data-pattern', '\S+');
+				break;
+			case 'url':
+				$element->setOnEmpty('data-pattern', 'http(s)?://\S+');
+				break;
+  	}
+		if (!Form::is_blank($element->attributes['value'])) {
+			if (!Form::is_blank($element->attributes['pattern']) || !Form::is_blank($element->attributes['data-pattern'])) {
+				$pattern = !Form::is_blank($element->attributes['pattern']) ? $element->attributes['pattern'] : $element->attributes['data-pattern'];
+				$pattern = '#^'.str_replace('#','\#',$pattern).'$#';
+				if (!preg_match($pattern, $element->attributes['value'])) {
+					$element->addError('pattern',_('Field value does not match expectations for this field.'));
+				}
+			}
+			if (!Form::is_blank($element->attributes['max']) && (float)$element->attributes['value'] > (float)$element->attributes['max']) {
+					$element->addError('max',_('Field value is to big.'));
+			}
+			if (!Form::is_blank($element->attributes['min']) && (float)$element->attributes['value'] < (float)$element->attributes['min']) {
+					$element->addError('min',_('Field value is to small.'));
+			}
+		}
 		if (!empty($options)) {
 			$element->addClass  ('form-input-datalist');
 			$element->attributes['list'] = $element->attributes['id'].'-datalist';
@@ -148,10 +223,15 @@ class Form {
 		$element->throwExceptionOnEmpty('name');
 		$element->makeId(!empty($this->formStart->attributes['id']) ? $this->formStart->attributes['id'] : '');
 		if (!empty($element->attributes[self::ATTRIBUTE_CONTENT])) {
-			$element->setOnEmpty('value', $element->attributes[self::ATTRIBUTE_CONTENT]);
+			$element->addDefaultValue($element->attributes[self::ATTRIBUTE_CONTENT]);
 		}
 		else {
-			$element->setOnEmpty('value', $this->getdefaultFormData($element->attributes['name']));
+			$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
+		}
+		if (!Form::is_blank($element->attributes['maxlength'])) {
+			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {
+				$element->addError('maxlength',_('Field data is to long.'));
+			}
 		}
     $element->addErrorsOnRequired();
 
@@ -173,7 +253,7 @@ class Form {
 		if (!empty($element->attributes['multiple'])) {
 			$element->attributes['name'] .= '[]';
 		}
-		$element->setOnEmpty('value', $this->getdefaultFormData($element->attributes['name']));
+		$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
     $element->addErrorsOnRequired();
 
 		return $this->storeElement($element);
@@ -197,7 +277,7 @@ class Form {
 		if ($element->attributes['type'] == 'checkbox') {
 			$element->attributes['name'] .= '[]';
 		}
-		$element->setOnEmpty('value', $this->getdefaultFormData($element->attributes['name']));
+		$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
     $element->addErrorsOnRequired();
 
 		return $this->storeElement($element);
@@ -270,7 +350,7 @@ class Form {
 	public function returnHTML () {
 		$return = '';
 		foreach ($this->formElements as $id => $element) {
-			$return .= $element->returnHtml($this->htmlFieldWrapper, $this->htmlLabelWrapper, $this->htmlLabelRequired);
+			$return .= $element->returnHtml($this->htmlFieldWrapper, $this->htmlLabelWrapper, $this->htmlLabelRequired, $this->htmlErrorWrapper);
 		}
 		return $return;
 	}
@@ -282,8 +362,8 @@ class Form {
   public function hasErrors () {
     $errors = 0;
     foreach ($this->formElements as $element) {
-      if ($element->error) {
-        $errors ++;
+      if (!empty($element->errors)) {
+        $errors += count($element->errors);
       }
     }
     return $errors;
