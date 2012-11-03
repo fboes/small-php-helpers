@@ -2,7 +2,8 @@
 /**
  * @class Tester
  * Mini-Unit-Test (in case PhpUnit ist not available)
- * Extend this class for doing the real test. Methods with "test" prefixed get tested
+ * Extend this class for doing the real test. Methods with "test" prefixed get tested.
+ * This class intentionally has direct HTML output.
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
@@ -102,9 +103,48 @@ class Tester {
 			throw new Exception('Malformed test expression used in assertRegExp');
 		}
 		elseif (!is_string($value)) {
-			return $this->assertTrue(FALSE, 'Value given to assertRegExp is not a string');
+			return $this->assertTrue(FALSE, 'Expecting %s to be a string', $this->literalize($value));
 		}
 		return $this->assertTrue(preg_match($regExp, $value), sprintf($message, $this->literalize($value), $this->literalize($regExp)));
+	}
+
+	/**
+	 * [assertFunctionExists description]
+	 * @param  string $functionName       [description]
+	 * @param  string $value       [description]
+	 * @param  string $message [description]
+	 * @return bool          [description]
+	 */
+	public function assertFunctionExists ($functionName, $message = 'Expecting function %s() to exist') {
+		if (!is_string($functionName)) {
+			throw new Exception('Malformed function name used in assertFunctionExists');
+		}
+		return $this->assertTrue(function_exists($functionName), sprintf($message, $functionName));
+	}
+
+	/**
+	 * [assertFunctionExists description]
+	 * @param  string $attributeName       [description]
+	 * @param  string $value       [description]
+	 * @param  string $className [description]
+	 * @return bool          [description]
+	 */
+	public function assertClassHasAttribute($attributeName, $className, $message = 'Expecting class %s to have attribute %s') {
+		if (!is_string($attributeName)) {
+			throw new Exception('Malformed attribute name used in assertClassHasAttribute');
+		}
+		if (!is_string($className)) {
+			throw new Exception('Malformed class name used in assertClassHasAttribute');
+		}
+		if (!class_exists($className)) {
+			return $this->assertTrue(FALSE, sprintf('Expecting %s to be a classname', $this->literalize($className)));
+		}
+		else {
+			$classVariables = array_keys(get_class_vars($className));
+			return $this->assertTrue(in_array($attributeName, $classVariables), sprintf($message,$this->literalize($className), $this->literalize($attributeName)));
+
+		}
+
 	}
 
 	/**
@@ -113,18 +153,18 @@ class Tester {
 	 * @param  string $message [description]
 	 * @return bool          [description]
 	 */
-	public function assertTrue ($success, $message = 'Expecting %s to be TRUE') {
-		$message = sprintf($message, $this->literalize($success));
+	public function assertTrue ($condition, $message = 'Expecting %s to be TRUE') {
+		$message = sprintf($message, $this->literalize($condition));
 
 		$this->testsDone ++;
-		echo('    <dt>'.htmlspecialchars($message).'</dt>'. ($success
+		echo('    <dt>'.htmlspecialchars($message).'</dt>'. ($condition
 			? '<dd class="success">Success</dd>'
 			: '<dd class="fail">Fail</dd>'
 		)."\n");
-		if ($success) {
-			$this->testsSuccess ++;
+		if ($condition) {
+			$this->testscondition ++;
 		}
-		return $success;
+		return $condition;
 	}
 
 	/**
@@ -133,11 +173,14 @@ class Tester {
 	 * @return string        [description]
 	 */
 	protected function literalize ($mixed) {
-		if (is_scalar($mixed)) {
-			return $mixed;
+		if (is_string($mixed)) {
+			return "'".$mixed."'";
 		}
 		elseif (is_bool($mixed)) {
 			return $mixed ? 'TRUE' : 'FALSE';
+		}
+		elseif (is_scalar($mixed)) {
+			return $mixed;
 		}
 		#elseif (is_array($mixed)) {
 

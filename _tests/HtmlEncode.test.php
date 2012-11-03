@@ -6,6 +6,7 @@ require('../HtmlEncode.class.php');
 class HtmlEncodeTest extends Tester {
 	public function testSimple () {
 		$this->assertTrue(is_object(new HtmlEncode('a')), 'HtmlEncode is object');
+		$this->assertClassHasAttribute('data','HtmlEncode');
 	}
 
 }
