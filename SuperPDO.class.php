@@ -76,7 +76,7 @@ class SuperPDO extends PDO
         $this->lastCmd = 
             'INSERT '.addslashes($options)
             .' INTO '.addslashes($table)
-            .'('.implode(',',array_keys($data)).')';
+            .'('.implode(',',array_keys($data)).')'
             .' VALUES(:'.implode(',:',array_keys($data)).')'
         ;
         $sth = $this->prepare($this->lastCmd);
@@ -115,7 +115,7 @@ class SuperPDO extends PDO
         $this->lastCmd = 
             'REPLACE '.addslashes($options)
             .' INTO '.addslashes($table)
-            .'('.implode(',',array_keys($data)).')';
+            .'('.implode(',',array_keys($data)).')'
             .' VALUES(:'.implode(',:',array_keys($data)).')'
         ;
         $sth = $this->prepare($this->lastCmd);
