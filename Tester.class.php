@@ -2,7 +2,7 @@
 /**
  * @class Tester
  * Mini-Unit-Test (in case PhpUnit ist not available)
- * Extend this class for doing the real test. Methods with "test" prefixed get tested.
+ * Extend this class for doing the real test. Methods with "test" prefixed get tested. Methods with 'data' prefixed are used as data providers for corresponding "test"-methods. "data"-methods MUST return an array of arrays.
  * This class intentionally has direct HTML output.
  *
  * @author      Frank Bo"es <info@3960.org>
@@ -14,6 +14,11 @@ class Tester {
 	protected $testsSuccess = 0;
 	protected $testStart = 0;
 	protected $testEnd;
+	protected $methodsTests = array();
+	protected $methodsProviders = array();
+
+	const PREFIX_TEST = 'test';
+	const PREFIX_PROVIDER = 'data';
 
 	public function __construct () {
 	}
@@ -48,21 +53,48 @@ class Tester {
 		echo('<body>'."\n");
 		echo('<h1>'.htmlspecialchars($title).'</h1>'."\n");
 
+		// get all tests and providers
 		$methods = get_class_methods($this);
+		$this->methodsProviders = array();
+		$this->methodsTests = array();
 		foreach ($methods as $m) {
-			if (strpos($m, 'test') === 0) {
-				$this->testsDone = 0;
-				$this->testsSuccess = 0;
-				echo('<div class="test">'."\n");
-				echo('  <h2 id="'.htmlspecialchars($m).'">'.htmlspecialchars($m).'</h2>'."\n");
+			if (strpos($m, self::PREFIX_TEST) === 0) {
+				$this->methodsTests[] = $m;
+			}
+			elseif (strpos($m, self::PREFIX_PROVIDER) === 0) {
+				$this->methodsProviders[] = $m;
+			}
+		}
+
+		// do all tests
+		foreach ($this->methodsTests as $m) {
+			$this->testsDone = 0;
+			$this->testsSuccess = 0;
+			echo('<div class="test">'."\n");
+
+			$data = array(array());
+			$possibleProvider = str_replace(self::PREFIX_TEST, self::PREFIX_PROVIDER, $m);
+			if (method_exists($this, $possibleProvider)) {
+				$data = $this->$possibleProvider();
+			}
+
+			foreach ($data as $run => $dataSet) {
+				echo('  <h2 id="'.htmlspecialchars($m.'-'.$run).'">'.htmlspecialchars($m.': '.($run+1)).'</h2>'."\n");
 				echo('  <dl class="assertions">'."\n");
 				$this->testStart = microtime(TRUE);
-				$this->$m();
+
+				if (!empty($dataSet)) {
+					call_user_func_array(array($this, $m), $dataSet);
+				}
+				else {
+					$this->$m();
+				}
 				$this->testEnd = microtime(TRUE);
 				echo('  </dl>'."\n");
-				echo('  <p>Success / tests: '.(int)$this->testsSuccess.'/'.(int)$this->testsDone.'; duration: '.round($this->testEnd - $this->testStart).' ms</p>'."\n");
-				echo('</div>'."\n");
+
 			}
+			echo('  <p>Success / tests: '.(int)$this->testsSuccess.'/'.(int)$this->testsDone.'; duration: '.round($this->testEnd - $this->testStart).' ms</p>'."\n");
+			echo('</div>'."\n");
 		}
 
 		echo('</body>');

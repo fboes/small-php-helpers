@@ -17,6 +17,18 @@ class TesterTest extends Tester {
 		$this->assertRegExp('#a#','blabla');
 	}
 
+	public function dataProviders () {
+		return array(
+			array ('a'),
+			array ('b', 'b'),
+			array ('c', 'c'),
+		);
+	}
+
+	public function testProviders ($a, $b = 'a') {
+		$this->assertEquals ($a, $b);
+	}
+
 	public function testValidators () {
 		$this->assertValidXml('<xml>bla</xml>');
 		$this->assertValidHtml('x<p>bla</p>');
