@@ -16,6 +16,11 @@ class TesterTest extends Tester {
 		$this->assertTrue(1);
 		$this->assertRegExp('#a#','blabla');
 	}
+
+	public function testValidators () {
+		$this->assertValidXml('<xml>bla</xml>');
+		$this->assertValidHtml('x<p>bla</p>');
+	}
 }
 
 TesterTest::doTest();

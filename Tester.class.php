@@ -100,7 +100,7 @@ class Tester {
 	 */
 	public function assertRegExp ($regExp, $value, $message = 'Expecting %s to match regular expression %s') {
 		if (!is_string($regExp)) {
-			throw new Exception('Malformed test expression used in assertRegExp');
+			throw new Exception('Malformed test expression used in '.__METHOD__);
 		}
 		elseif (!is_string($value)) {
 			return $this->assertTrue(FALSE, 'Expecting %s to be a string', $this->literalize($value));
@@ -117,7 +117,7 @@ class Tester {
 	 */
 	public function assertFunctionExists ($functionName, $message = 'Expecting function %s() to exist') {
 		if (!is_string($functionName)) {
-			throw new Exception('Malformed function name used in assertFunctionExists');
+			throw new Exception('Malformed function name used in '.__METHOD__);
 		}
 		return $this->assertTrue(function_exists($functionName), sprintf($message, $functionName));
 	}
@@ -125,16 +125,16 @@ class Tester {
 	/**
 	 * [assertFunctionExists description]
 	 * @param  string $attributeName       [description]
-	 * @param  string $value       [description]
 	 * @param  string $className [description]
+	 * @param  string $message [description]
 	 * @return bool          [description]
 	 */
 	public function assertClassHasAttribute($attributeName, $className, $message = 'Expecting class %s to have attribute %s') {
 		if (!is_string($attributeName)) {
-			throw new Exception('Malformed attribute name used in assertClassHasAttribute');
+			throw new Exception('Malformed attribute name used in '.__METHOD__);
 		}
 		if (!is_string($className)) {
-			throw new Exception('Malformed class name used in assertClassHasAttribute');
+			throw new Exception('Malformed class name used in '.__METHOD__);
 		}
 		if (!class_exists($className)) {
 			return $this->assertTrue(FALSE, sprintf('Expecting %s to be a classname', $this->literalize($className)));
@@ -144,7 +144,53 @@ class Tester {
 			return $this->assertTrue(in_array($attributeName, $classVariables), sprintf($message,$this->literalize($className), $this->literalize($attributeName)));
 
 		}
+	}
 
+	/**
+	 * [assertFunctionExists description]
+	 * @param  string $xml       [description]
+	 * @param  string $message [description]
+	 * @return bool          [description]
+	 */
+	public function assertValidXml ($xml, $xsdUri = NULL, $message = 'Expecting string to be valid XML') {
+		if (!is_string($xml)) {
+			throw new Exception('XML is not a string in '.__METHOD__);
+		}
+
+		libxml_use_internal_errors(TRUE);
+		$tempDom = new DOMDocument();
+		$success = $tempDom->loadXML($xml);
+
+		if ($success && !empty($xsdUri)) {
+			if (!is_string($xsdUri)) {
+				throw new Exception('XSD-URI is not a string in '.__METHOD__);
+			}
+			$success = $tempDom->schemaValidate($xsdUri);
+			return $this->assertTrue(FALSE, sprintf('Expecting XML to validate against XSD %s', $this->literalize($xsdUri)));
+
+		} 
+
+		return $this->assertTrue($success, sprintf($message,$this->literalize($xml)));		
+	}
+
+	/**
+	 * [assertFunctionExists description]
+	 * @param  string $html       [description]
+	 * @param  string $message [description]
+	 * @return bool          [description]
+	 */
+	public function assertValidHtml ($html, $message = 'Expecting string to be valid HTML (snippet)') {
+		if (!is_string($html)) {
+			throw new Exception('HTML is not a string in '.__METHOD__);
+		}
+
+		libxml_use_internal_errors(TRUE);
+		$tempDom = new DOMDocument();
+		$success = $tempDom->loadHTML($html);
+		$errors = libxml_get_errors();
+		$success = $success && empty($errors);
+
+		return $this->assertTrue($success, sprintf($message,$this->literalize($xml)));
 	}
 
 	/**
