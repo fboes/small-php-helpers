@@ -11,9 +11,10 @@ class XmlEncodeTest extends Tester {
 
 	public function dataXml () {
 		return array (
-			array('a'),
-			array(array(1,2,3)),
-			array((object)array('a' => 'b')),
+			'string' => array('a'),
+			'array' => array(array(1,2,3)),
+			'object' => array((object)array('a' => 'b')),
+			'self' => array($this),
 		);
 	}
 

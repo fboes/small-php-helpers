@@ -45,8 +45,8 @@ class Tester {
 			'<style>'
 			.'body {font:80% sans-serif;}'
 			.'h1,h2 {margin-bottom:0.5em;}'
-			.'table {width:100%} th,td {border-bottom:1px dotted #ddd;} th {text-align:left;padding-right:1em;} td {text-align:right;}'
-			.'.success {color:green;font-weight:bold;} .fail {color:maroon;font-weight:bold;}'
+			.'table {width:100%;} th,td {border-bottom:1px dotted #ddd;} th {text-align:left;padding-right:1em;} td {text-align:right;}'
+			.'.success {color:green;font-weight:bold;} .fail {color:maroon;font-weight:bold;} .result {text-align:right;color:#999;}'
 			.'</style>')
 		;
 		echo('</head>');
@@ -68,22 +68,27 @@ class Tester {
 
 		// do all tests
 		foreach ($this->methodsTests as $m) {
-			$this->testsDone = 0;
-			$this->testsSuccess = 0;
-			echo('<div class="test">'."\n");
-
 			$data = array(array());
 			$possibleProvider = str_replace(self::PREFIX_TEST, self::PREFIX_PROVIDER, $m);
 			if (method_exists($this, $possibleProvider)) {
 				$data = $this->$possibleProvider();
+				if (!is_array($data)) {
+					throw new Exception('Wrong return value in '.$possibleProvider);
+				}
 			}
 
 			foreach ($data as $run => $dataSet) {
-				echo('  <h2 id="'.htmlspecialchars($m.'-'.$run).'">'.htmlspecialchars($m.': '.($run+1)).'</h2>'."\n");
+				$this->testsDone = 0;
+				$this->testsSuccess = 0;
+				echo('<div class="test">'."\n");
+				echo('  <h2 id="'.htmlspecialchars($m.'-'.$run).'">'.htmlspecialchars($m.': '.($run)).'</h2>'."\n");
 				echo('  <table class="assertions">'."\n");
 				$this->testStart = microtime(TRUE);
 
 				if (!empty($dataSet)) {
+					if (!is_array($dataSet)) {
+						throw new Exception('Wrong return value in '.$possibleProvider);
+					}
 					call_user_func_array(array($this, $m), $dataSet);
 				}
 				else {
@@ -91,10 +96,9 @@ class Tester {
 				}
 				$this->testEnd = microtime(TRUE);
 				echo('  </table>'."\n");
-
+				echo('  <p class="result">Success / tests: '.(int)$this->testsSuccess.'/'.(int)$this->testsDone.'; duration: '.round($this->testEnd - $this->testStart).' ms</p>'."\n");
+				echo('</div>'."\n");
 			}
-			echo('  <p>Success / tests: '.(int)$this->testsSuccess.'/'.(int)$this->testsDone.'; duration: '.round($this->testEnd - $this->testStart).' ms</p>'."\n");
-			echo('</div>'."\n");
 		}
 
 		echo('</body>');
@@ -174,7 +178,6 @@ class Tester {
 		else {
 			$classVariables = array_keys(get_class_vars($className));
 			return $this->assertTrue(in_array($attributeName, $classVariables), sprintf($message,$this->literalize($className), $this->literalize($attributeName)));
-
 		}
 	}
 
