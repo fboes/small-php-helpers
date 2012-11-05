@@ -45,7 +45,7 @@ class Tester {
 			'<style>'
 			.'body {font:80% sans-serif;}'
 			.'h1,h2 {margin-bottom:0.5em;}'
-			.'dl {overflow:hidden;} dt,dd {float:left;border-bottom:1px dotted #ddd;} dt {clear:left;min-width:18em;display:inline-block;padding-right:0.5em;} dd {margin-left:0;min-width:5em;text-align:right;}'
+			.'table {width:100%} th,td {border-bottom:1px dotted #ddd;} th {text-align:left;padding-right:1em;} td {text-align:right;}'
 			.'.success {color:green;font-weight:bold;} .fail {color:maroon;font-weight:bold;}'
 			.'</style>')
 		;
@@ -80,7 +80,7 @@ class Tester {
 
 			foreach ($data as $run => $dataSet) {
 				echo('  <h2 id="'.htmlspecialchars($m.'-'.$run).'">'.htmlspecialchars($m.': '.($run+1)).'</h2>'."\n");
-				echo('  <dl class="assertions">'."\n");
+				echo('  <table class="assertions">'."\n");
 				$this->testStart = microtime(TRUE);
 
 				if (!empty($dataSet)) {
@@ -90,7 +90,7 @@ class Tester {
 					$this->$m();
 				}
 				$this->testEnd = microtime(TRUE);
-				echo('  </dl>'."\n");
+				echo('  </table>'."\n");
 
 			}
 			echo('  <p>Success / tests: '.(int)$this->testsSuccess.'/'.(int)$this->testsDone.'; duration: '.round($this->testEnd - $this->testStart).' ms</p>'."\n");
@@ -137,7 +137,7 @@ class Tester {
 		elseif (!is_string($value)) {
 			return $this->assertTrue(FALSE, 'Expecting %s to be a string', $this->literalize($value));
 		}
-		return $this->assertTrue(preg_match($regExp, $value), sprintf($message, $this->literalize($value), $this->literalize($regExp)));
+		return $this->assertTrue((bool)preg_match($regExp, $value), sprintf($message, $this->literalize($value), $this->literalize($regExp)));
 	}
 
 	/**
@@ -200,9 +200,9 @@ class Tester {
 			$success = $tempDom->schemaValidate($xsdUri);
 			return $this->assertTrue(FALSE, sprintf('Expecting XML to validate against XSD %s', $this->literalize($xsdUri)));
 
-		} 
+		}
 
-		return $this->assertTrue($success, sprintf($message,$this->literalize($xml)));		
+		return $this->assertTrue($success, sprintf($message,$this->literalize($xml)));
 	}
 
 	/**
@@ -222,7 +222,7 @@ class Tester {
 		$errors = libxml_get_errors();
 		$success = $success && empty($errors);
 
-		return $this->assertTrue($success, sprintf($message,$this->literalize($xml)));
+		return $this->assertTrue($success, sprintf($message,$this->literalize($html)));
 	}
 
 	/**
@@ -233,14 +233,17 @@ class Tester {
 	 */
 	public function assertTrue ($condition, $message = 'Expecting %s to be TRUE') {
 		$message = sprintf($message, $this->literalize($condition));
+		$condition = is_bool($condition) && $condition;
 
 		$this->testsDone ++;
-		echo('    <dt>'.htmlspecialchars($message).'</dt>'. ($condition
-			? '<dd class="success">Success</dd>'
-			: '<dd class="fail">Fail</dd>'
-		)."\n");
+		echo('    <tr>');
+		echo('<th>'.htmlspecialchars($message).'</th>'. ($condition
+			? '<td class="success">Success</td>'
+			: '<td class="fail">Fail</td>'
+		));
+		echo('</tr>'."\n");
 		if ($condition) {
-			$this->testscondition ++;
+			$this->testsSuccess ++;
 		}
 		return $condition;
 	}

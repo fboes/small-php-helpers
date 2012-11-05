@@ -13,7 +13,6 @@ class TesterTest extends Tester {
 	public function testAssertions () {
 		$this->assertNotEquals(1,2);
 		$this->assertNotEquals(1,TRUE);
-		$this->assertTrue(1);
 		$this->assertRegExp('#a#','blabla');
 	}
 
