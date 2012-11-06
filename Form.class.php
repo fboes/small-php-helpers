@@ -149,8 +149,8 @@ class Form {
 		$element->throwExceptionOnEmpty('name');
 		$element->makeId(!empty($this->formStart->attributes['id']) ? $this->formStart->attributes['id'] : '');
 		$element->setOnEmpty('type', 'text');
-		$element->addClass  ('form-input');
-		$element->addClass  ('form-input-'.$element->attributes['type']);
+		$element->addClass  ('input');
+		$element->addClass  ($element->attributes['type']);
 		$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
     $element->addErrorsOnRequired();
 		if (!Form::is_blank($element->attributes['maxlength'])) {
@@ -175,10 +175,10 @@ class Form {
 				$element->setOnEmpty('data-pattern', '\S+@\S+\.\S+');
 				break;
 			case 'number':
-				$element->setOnEmpty('data-pattern', '\S+');
+				$element->setOnEmpty('data-pattern', '\-?\d+(\.\d+)?');
 				break;
 			case 'range':
-				$element->setOnEmpty('data-pattern', '\S+');
+				$element->setOnEmpty('data-pattern', '\-?\d+(\.\d+)?');
 				break;
 			case 'url':
 				$element->setOnEmpty('data-pattern', 'http(s)?://\S+');
@@ -199,8 +199,11 @@ class Form {
 					$element->addError('min',_('Field value is to small.'));
 			}
 		}
+		if (!Form::is_blank($element->attributes['pattern']) || !Form::is_blank($element->attributes['data-pattern'])) {
+			$element->addClass  ('pattern');
+		}
 		if (!empty($options)) {
-			$element->addClass  ('form-input-datalist');
+			$element->addClass  ('datalist');
 			$element->attributes['list'] = $element->attributes['id'].'-datalist';
 		}
 
@@ -272,8 +275,8 @@ class Form {
 			throw new Exception ('No options given');
 		}
 		$element->setOnEmpty('type', 'checkbox');
-		$element->addClass  ('form-checkbox');
-		$element->addClass  ('form-checkbox-'.$element->attributes['type']);
+		$element->addClass  ('checkbox');
+		$element->addClass  ('checkbox-'.$element->attributes['type']);
 		if ($element->attributes['type'] == 'checkbox') {
 			$element->attributes['name'] .= '[]';
 		}

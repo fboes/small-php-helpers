@@ -92,12 +92,36 @@ class FormTest extends Tester {
 		$this->assertValidXml($output);
 	}
 
+	/**
+	 * Check pattern check
+	 */
+	public function testPatternRecognition () {
+		$f = Form::init()
+			->start('<form>')
+			->input('<input type="url" name="url" />')
+			->end('</form>')
+		;
+		$output = $f->returnHTML();
+		#$this->outputLine($output);
+
+		$this->assertRegExp('#data-pattern=".+"#', $output);
+	}
+
+
 	public function dataValidator () {
 		return array(
 			'Required wrong' => array('<input value="" name="required" required="required" />', 'required'),
 			'Required right' => array('<input value="i am here" name="required" required="required" />'),
+			'Required right' => array('<input value="0" name="required" required="required" />'),
 			'E-Mail wrong' => array('<input type="email" value="no-email" name="email" />','pattern'),
 			'E-Mail right' => array('<input type="email" value="i.am@an.email.com" name="email" />'),
+			'URL wrong' => array('<input type="url" value="ftp://i am not an url" name="url" />','pattern'),
+			'URL right' => array('<input type="url" value="http://example.com" name="url" />'),
+			'Number wrong' => array('<input type="number" value="no-number" name="number" />','pattern'),
+			'Number right' => array('<input type="number" value="-12.34" name="number" />'),
+			'Range wrong max' => array('<input type="number" min="0" max="1" value="2" name="number" />','max'),
+			'Range wrong min' => array('<input type="number" min="0" max="1" value="-2" name="number" />','min'),
+			'Range right' => array('<input type="number" min="0" max="1" value="0" name="number" />'),
 		);
 
 	}

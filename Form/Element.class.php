@@ -80,7 +80,7 @@ class FormElement {
 			$this->attributes['class'] = array($classname);
 		}
 		else {
-			if (!in_array($classname, $this->attributes)) {
+			if (!in_array($classname, $this->attributes['class'])) {
 				$this->attributes['class'][] = $classname;
 			}
 		}
