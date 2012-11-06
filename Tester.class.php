@@ -10,8 +10,10 @@
  */
 
 class Tester {
-	protected $testsDone = 0;
-	protected $testsSuccess = 0;
+	protected $assertionsDone = 0;
+	protected $assertionsSuccess = 0;
+	protected $globalAssertionsDone = 0;
+	protected $globalAssertionsSuccess = 0;
 	protected $testStart = 0;
 	protected $testEnd;
 	protected $methodsTests = array();
@@ -45,8 +47,9 @@ class Tester {
 			'<style>'
 			.'body {font:80% sans-serif;}'
 			.'h1,h2 {margin-bottom:0.5em;}'
-			.'table {width:100%;} th,td {border-bottom:1px dotted #ddd;} th {text-align:left;padding-right:1em;}'
+			.'table {width:100%;} th,td {border-bottom:1px dotted #ddd;font-weight:normal;} th {text-align:left;padding-right:1em;}'
 			.'.success {color:green;font-weight:bold;text-align:right;} .fail {color:maroon;font-weight:bold;text-align:right;} .result {text-align:right;color:#999;}'
+			.'#test-summary{border-top:2px solid #aaa; margin-top:2em;padding-top:1em;}'
 			.'</style>')
 		;
 		echo('</head>');
@@ -79,8 +82,8 @@ class Tester {
 
 			$id = 0;
 			foreach ($data as $run => $dataSet) {
-				$this->testsDone = 0;
-				$this->testsSuccess = 0;
+				$this->assertionsDone = 0;
+				$this->assertionsSuccess = 0;
 				echo('<div class="test">'."\n");
 				echo('  <h2 id="'.htmlspecialchars($m.'-'.$id).'">'.htmlspecialchars($m.': '.($run)).'</h2>'."\n");
 				echo('  <table class="assertions">'."\n");
@@ -97,11 +100,21 @@ class Tester {
 				}
 				$this->testEnd = microtime(TRUE);
 				echo('  </table>'."\n");
-				echo('  <p class="result">Success / tests: '.(int)$this->testsSuccess.'/'.(int)$this->testsDone.'; duration: '.round($this->testEnd - $this->testStart).' ms</p>'."\n");
+				echo('  <p class="result">Success / tests: '.(int)$this->assertionsSuccess.'/'.(int)$this->assertionsDone.'; duration: '.round($this->testEnd - $this->testStart).' ms</p>'."\n");
 				echo('</div>'."\n");
+
+				$this->globalAssertionsSuccess += $this->assertionsSuccess;
+				$this->globalAssertionsDone += $this->assertionsDone;
 				$id ++;
 			}
 		}
+
+
+		echo('  <h2 id="test-summary">Summary</h2>');
+		echo('  <table class="assertions">'."\n");
+		$this->assertTrue($this->globalAssertionsDone == $this->globalAssertionsDone, 'Expecting all tests to succeed');
+		echo('  </table>'."\n");
+		echo('  <p class="result">Sum success / tests: '.(int)$this->globalAssertionsDone.'/'.(int)$this->globalAssertionsDone.'</p>'."\n");
 
 		echo('</body>');
 		echo('</html>');
@@ -253,7 +266,7 @@ class Tester {
 		$message = sprintf($message, $this->literalize($condition));
 		$condition = is_bool($condition) && $condition;
 
-		$this->testsDone ++;
+		$this->assertionsDone ++;
 		echo('    <tr>');
 		echo('<th>'.htmlspecialchars($message).'</th>'. ($condition
 			? '<td class="success">Success</td>'
@@ -261,7 +274,7 @@ class Tester {
 		));
 		echo('</tr>'."\n");
 		if ($condition) {
-			$this->testsSuccess ++;
+			$this->assertionsSuccess ++;
 		}
 		return $condition;
 	}

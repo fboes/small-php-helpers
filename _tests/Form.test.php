@@ -144,12 +144,12 @@ class FormTest extends Tester {
 		$this->assertValidXml($output);
 
 		if (!empty($error)) {
-			$this->assertRegExp('#class=".+?error"#', $output, 'Expecting error to be present');
-			$this->assertRegExp('#class=".+?error-'.$error.'"#', $output);
+			$this->assertRegExp('#class="[^"]*?error#', $output, "Expecting 'error' to be present in class");
+			$this->assertRegExp('#class="[^"]*?error-'.$error.'#', $output, "Expecting 'error-$error' to be present in class");
 
 		}
 		else {
-			$this->assertTrue (!(bool)preg_match('#class=".+?error#', $output), 'Expecting no error to be present');
+			$this->assertTrue (!(bool)preg_match('#class=".+?error#', $output), "Expecting no 'error' to be present in class");
 		}
 
 	}
