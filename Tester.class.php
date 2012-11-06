@@ -45,8 +45,8 @@ class Tester {
 			'<style>'
 			.'body {font:80% sans-serif;}'
 			.'h1,h2 {margin-bottom:0.5em;}'
-			.'table {width:100%;} th,td {border-bottom:1px dotted #ddd;} th {text-align:left;padding-right:1em;} td {text-align:right;}'
-			.'.success {color:green;font-weight:bold;} .fail {color:maroon;font-weight:bold;} .result {text-align:right;color:#999;}'
+			.'table {width:100%;} th,td {border-bottom:1px dotted #ddd;} th {text-align:left;padding-right:1em;}'
+			.'.success {color:green;font-weight:bold;text-align:right;} .fail {color:maroon;font-weight:bold;text-align:right;} .result {text-align:right;color:#999;}'
 			.'</style>')
 		;
 		echo('</head>');
@@ -77,11 +77,12 @@ class Tester {
 				}
 			}
 
+			$id = 0;
 			foreach ($data as $run => $dataSet) {
 				$this->testsDone = 0;
 				$this->testsSuccess = 0;
 				echo('<div class="test">'."\n");
-				echo('  <h2 id="'.htmlspecialchars($m.'-'.$run).'">'.htmlspecialchars($m.': '.($run)).'</h2>'."\n");
+				echo('  <h2 id="'.htmlspecialchars($m.'-'.$id).'">'.htmlspecialchars($m.': '.($run)).'</h2>'."\n");
 				echo('  <table class="assertions">'."\n");
 				$this->testStart = microtime(TRUE);
 
@@ -98,6 +99,7 @@ class Tester {
 				echo('  </table>'."\n");
 				echo('  <p class="result">Success / tests: '.(int)$this->testsSuccess.'/'.(int)$this->testsDone.'; duration: '.round($this->testEnd - $this->testStart).' ms</p>'."\n");
 				echo('</div>'."\n");
+				$id ++;
 			}
 		}
 
@@ -205,6 +207,14 @@ class Tester {
 
 		}
 
+		$errors = libxml_get_errors();
+		libxml_clear_errors();
+		$success = $success && empty($errors);
+
+		if (!empty($errors)) {
+			$this->outputLine($errors);
+		}
+
 		return $this->assertTrue($success, sprintf($message,$this->literalize($xml)));
 	}
 
@@ -223,7 +233,12 @@ class Tester {
 		$tempDom = new DOMDocument();
 		$success = $tempDom->loadHTML($html);
 		$errors = libxml_get_errors();
+		libxml_clear_errors();
 		$success = $success && empty($errors);
+
+		if (!empty($errors)) {
+			$this->outputLine($errors);
+		}
 
 		return $this->assertTrue($success, sprintf($message,$this->literalize($html)));
 	}
@@ -249,6 +264,18 @@ class Tester {
 			$this->testsSuccess ++;
 		}
 		return $condition;
+	}
+
+	/**
+	 * [outputLine description]
+	 * @param  mixed $string [description]
+	 * @return bool TRUE
+	 */
+	public function outputLine ($mixed) {
+		echo('    <tr>');
+		echo('<td colspan="2"><pre>'.htmlspecialchars(print_r($mixed,1)).'</pre></td>');
+		echo('</tr>'."\n");
+		return TRUE;
 	}
 
 	/**
