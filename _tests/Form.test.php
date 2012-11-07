@@ -9,40 +9,6 @@ class FormTest extends Tester {
 		$this->assertClassHasAttribute('formElements','Form');
 	}
 
-	public function dataFormPopulation () {
-		return array(
-			array (
-				array(
-					'a' => 'b',
-					'c' => 'd',
-				)
-			),
-			array (
-				array(
-					'input' => 'output',
-					'alpha' => 1,
-					'omega' => array(1,2)
-				)
-			),
-		);
-	}
-
-	public function testFormPopulation ($a) {
-		$f = new Form($a);
-		$this->assertEquals($a, $f->defaultFormData);
-	}
-
-	public function DataHtmlOutput () {
-		return array(
-			'Numerical options'  => array(
-				array(1,2,3)
-			),
-			'Hash' => array (
-				array('a' => 'b', 'c' => 'd')
-			),
-		);
-	}
-
 	/**
 	 * Test generic HTML output
 	 * @param  [type] $options [description]
@@ -90,6 +56,153 @@ class FormTest extends Tester {
 		$this->assertTrue(is_string($output), 'Expecting HTML output to be string');
 		#$this->assertValidHtml($output); // Datalist is HTML5
 		$this->assertValidXml($output);
+	}
+
+	public function dataFormPopulation () {
+		return array(
+			array (
+				array(
+					'a' => 'b',
+					'c' => 'd',
+				)
+			),
+			array (
+				array(
+					'input' => 'output',
+					'alpha' => time(),
+					'omega' => array(1,2)
+				)
+			),
+		);
+	}
+
+	public function testFormPopulation ($a) {
+		$f = new Form($a);
+		$this->assertEquals($a, $f->defaultFormData);
+	}
+
+	public function testSimpleFieldPopulation () {
+		$searchValue = md5(time());
+		$searchField = 'test';
+		$defaultValues = array(
+			$searchField => $searchValue,
+			'another-'.$searchField => 'another-'.$searchValue,
+		);
+		$selectValues = array_values($defaultValues);
+
+		// Positive tests
+
+		$f = Form::init($defaultValues)
+			->start('<form>')
+			->input('<input name="'.htmlspecialchars($searchField).'" />')
+			->end('</form>')
+		;
+		$this->assertRegExp('#value="'.$searchValue.'"#', $f->returnHTML(), 'Expecting default value to be visible in HTML for input');
+
+		$f = Form::init($defaultValues)
+			->start('<form>')
+			->textarea('<input name="'.htmlspecialchars($searchField).'" />')
+			->end('</form>')
+		;
+		$this->assertRegExp('#>'.$searchValue.'<#', $f->returnHTML(), 'Expecting default value to be visible in HTML for textarea');
+
+		$f = Form::init($defaultValues)
+			->start('<form>')
+			->select('<input name="'.htmlspecialchars($searchField).'" />',$selectValues)
+			->end('</form>')
+		;
+		$this->assertRegExp('#value="'.$searchValue.'" selected="selected"#', $f->returnHTML(), 'Expecting default value to be visible in HTML for select');
+
+		$f = Form::init($defaultValues)
+			->start('<form>')
+			->checkbox('<input name="'.htmlspecialchars($searchField).'" type="radio" />',$selectValues)
+			->end('</form>')
+		;
+		$this->assertRegExp('#value="'.$searchValue.'" checked="checked"#', $f->returnHTML(), 'Expecting default value to be visible in HTML for radio button');
+
+		// Negative tests
+
+		$f = Form::init($defaultValues)
+			->start('<form>')
+			->input('<input name="'.htmlspecialchars('not-'.$searchField).'" />')
+			->end('</form>')
+		;
+		$this->assertTrue(!preg_match('#value="'.$searchValue.'"#', $f->returnHTML()), 'Expecting not matching default value not to be visible in HTML for input');
+
+		$f = Form::init($defaultValues)
+			->start('<form>')
+			->textarea('<input name="'.htmlspecialchars('not-'.$searchField).'" />')
+			->end('</form>')
+		;
+		$this->assertTrue(!preg_match('#>'.$searchValue.'<#', $f->returnHTML()), 'Expecting not matching default value not to be visible in HTML for textarea');
+
+		$f = Form::init($defaultValues)
+			->start('<form>')
+			->select('<input name="'.htmlspecialchars('not-'.$searchField).'" />',$selectValues)
+			->end('</form>')
+		;
+		$this->assertTrue(!preg_match('#value="'.$searchValue.'" selected="selected"#', $f->returnHTML()), 'Expecting not matching default value not to be visible in HTML for select');
+
+		$f = Form::init($defaultValues)
+			->start('<form>')
+			->checkbox('<input name="'.htmlspecialchars('not-'.$searchField).'" type="radio" />',$selectValues)
+			->end('</form>')
+		;
+		$this->assertTrue(!preg_match('#value="'.$searchValue.'" checked="checked"#', $f->returnHTML()), 'Expecting not matching default value not to be visible in HTML for radio button');
+
+	}
+
+	public function testMultiFieldPopulation () {
+		$searchValue = md5(time());
+		$searchField = 'test';
+		$selectValues = array($searchValue, 'another-'.$searchValue);
+		$defaultValues = array(
+			$searchField => $selectValues,
+		);
+
+		// Positive tests
+
+		$f = Form::init($defaultValues)
+			->start('<form>')
+			->select('<input name="'.htmlspecialchars($searchField).'" multiple="multiple" />',$selectValues)
+			->end('</form>')
+		;
+		$this->assertTrue(2 == preg_match_all('#selected="selected"#', $f->returnHTML()), 'Expecting default valuse to be visible in HTML for multi-select');
+
+		$f = Form::init($defaultValues)
+			->start('<form>')
+			->checkbox('<input name="'.htmlspecialchars($searchField).'" type="checkbox" />',$selectValues)
+			->end('</form>')
+		;
+		$this->assertTrue(2 == preg_match_all('#checked="checked"#', $f->returnHTML()), 'Expecting default values to be visible in HTML for checkbox');
+
+		// Negative tests
+
+		$f = Form::init($defaultValues)
+			->start('<form>')
+			->select('<input name="'.htmlspecialchars('not-'.$searchField).'" multiple="multiple" />',$selectValues)
+			->end('</form>')
+		;
+		$this->assertTrue(!preg_match('#selected="selected"#', $f->returnHTML()), 'Expecting not matching default values not to be visible in HTML for multi-select');
+
+		$f = Form::init($defaultValues)
+			->start('<form>')
+			->checkbox('<input name="'.htmlspecialchars('not-'.$searchField).'" type="checkbox" />',$selectValues)
+			->end('</form>')
+		;
+		$this->assertTrue(!preg_match('#checked="checked"#', $f->returnHTML()), 'Expecting not matching default values not to be visible in HTML for checkbox');
+
+	}
+
+	public function DataHtmlOutput () {
+		return array(
+			'Numerical options'  => array(
+				array(1,2,3)
+			),
+			'Hash' => array (
+				array('a' => 'b', 'c' => 'd')
+			),
+		);
 	}
 
 	/**
