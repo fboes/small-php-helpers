@@ -288,7 +288,9 @@ class FormElement {
 				case Form::HTML_INPUT:
 					$html .= '<datalist id="'.htmlspecialchars($this->attributes['list']).'">';
 					foreach ($this->options as $id => $option) {
-						$html .= '<option value="'.htmlspecialchars($id).'" />';
+						$checked = ($this->isChecked ($id)) ? ' selected="selected"' : '';
+						$label = ($option != $id) ?  ' label="'.htmlspecialchars($option).'"' : '';
+						$html .= '<option value="'.htmlspecialchars($id).'"'.$label.$checked.' />';
 					}
 					$html .= '</datalist>';
 					break;

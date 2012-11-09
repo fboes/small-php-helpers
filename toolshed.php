@@ -52,7 +52,7 @@ function _paragraph ($string, $withLinks = FALSE)
 }
 
 /**
- * Like print_r, but safe for HTML-Output.
+ * Like print_r, but safe for HTML-Output. You may also wnt to try _print_r(var_dump(…));
  *
  * @param   mixed   $mixed
  * @param   mode    as 'pre', 'comment' or 'plain'. Defaults to 'pre'
@@ -241,11 +241,11 @@ function asciify ($str)
  */
 function make_id ($str)
 {
-    if (!preg_match('#^[A-Za-z][A-Za-z0-9\-_\:\.]+$#', $str))
+    if (!preg_match('#^[A-Za-z][A-Za-z0-9\-_\:\.]*$#', $str))
     {
         $str = preg_replace(
-            array('#^[A-Za-z]#','#[A-Za-z0-9\-_\:\.]#', '#(_)_+#'),
-            array('id',         '_',                    ''),
+            array('#^[^A-Za-z]#','#[^A-Za-z0-9\-_\:\.]#', '#(_)_+#'),
+            array('id_$0',       '_',                     '$1'),
             $str
         );
     }

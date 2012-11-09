@@ -34,19 +34,27 @@ class FormTest extends Tester {
 		$this->assertValidXml($output);
 
 		$this->assertRegExp('#<label>#', $output, 'Expecting labels to be present');
+		$this->assertRegExp('#id="[a-z]"#', $output, 'Expecting ids to be present');
 		$this->assertRegExp('#<option#', $output, 'Expecting options to be present');
 		$this->assertRegExp('#type="radio"#', $output, 'Expecting radio-buttons to be present');
 		$this->assertRegExp('#type="checkbox"#', $output, 'Expecting checkboxes to be present');
 
 	}
 
+	public function dataDataSet () {
+		return array(
+			array(array(1,2,3,4)),
+			array(array('a' => 'b', 'c' => 'd')),
+		);
+	}
+
 	/**
 	 * Test data set functionality (HTML5)
 	 */
-	public function testDataSet () {
+	public function testDataSet (array $data) {
 		$f = Form::init()
 			->start('<form>')
-			->input('<input data-label="a" name="a" />', array(1,2,3))
+			->input('<input data-label="a" name="a" />', $data)
 			->end('</form>')
 		;
 
@@ -232,9 +240,13 @@ class FormTest extends Tester {
 			'URL right' => array('<input type="url" value="http://example.com" name="url" />'),
 			'Number wrong' => array('<input type="number" value="no-number" name="number" />','pattern'),
 			'Number right' => array('<input type="number" value="-12.34" name="number" />'),
+			'Number right 2' => array('<input type="number" value="-.34" name="number" />'),
+			'Number right 3' => array('<input type="number" value="-12.34e5" name="number" />'),
 			'Range wrong max' => array('<input type="number" min="0" max="1" value="2" name="number" />','max'),
 			'Range wrong min' => array('<input type="number" min="0" max="1" value="-2" name="number" />','min'),
 			'Range right' => array('<input type="number" min="0" max="1" value="0" name="number" />'),
+			'Maxlength wrong' => array('<input type="number" maxlength="10" value="12345678901" name="maxlength" />','maxlength'),
+			'Maxlength right' => array('<input type="number" maxlength="10" value="1234567890" name="maxlength" />'),
 		);
 
 	}

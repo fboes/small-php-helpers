@@ -7,15 +7,39 @@ class toolshedTest extends Tester {
 	public function testSimple () {
 		$this->assertFunctionExists('_');
 		$this->assertFunctionExists('_echo');
+		$this->assertFunctionExists('_paragraph');
 	}
 
-	public function testParagraph () {
-		$this->assertFunctionExists('_paragraph');
+
+	public function dataParagraph () {
+		return array(
+			'Simple' => array('Kleiner testparagraph' , '<p>Kleiner testparagraph</p>'),
+			'Quoting HTML' => array('<a href="">Test</a>' , '<p>&lt;a href=&quot;&quot;&gt;Test&lt;/a&gt;</p>'),
+			'Line Breaks' => array("Noch ein kleiner\n Paragraph", "<p>Noch ein kleiner<br />\n Paragraph</p>"),
+			'More line Breaks' => array("Noch ein kleiner\n\nParagraph", "<p>Noch ein kleiner</p>\n<p>Paragraph</p>"),
+			'Complete gibberish' => array('ü+ö#ö# <>>> "" 6376783 <script >')
+		);
+	}
+
+	public function testParagraph ($paragraph, $expectedResult = NULL) {
+		$output = _paragraph($paragraph);
+		#$this->outputLine($output);
+		$this->assertValidHtml($output);
+		if (!is_blank($expectedResult)){
+			$this->assertEquals($output, $expectedResult);
+		}
 	}
 
 	public function testSprint () {
 		$this->assertFunctionExists('_sprintf');
 		$this->assertFunctionExists('_vsprintf');
+	}
+
+	public function testMakeId () {
+		$this->assertEquals(make_id('a'), 'a');
+		$this->assertEquals(make_id('abcd'), 'abcd');
+		$this->assertEquals(make_id('1abcd'), 'id_1abcd');
+		$this->assertEquals(make_id('1ü Lumm Plopp'), 'id_1_Lumm_Plopp');
 	}
 
 	public function testIsBlank () {

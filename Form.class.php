@@ -8,17 +8,21 @@
  * - data-preservekeys: Keep keys for numerical values
  * - default: Set value if no other value is present
  *
- * Other element attributes:
- * - pattern
- * - placeholder
+ * Other element attributes (see http://www.whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.html):
  * - accept
+ * - autocomplete
  * - autofocus
+ * - dirname
  * - disabled
+ * - inputmode
+ * - maxlength
  * - max
  * - min
- * - step
- * - maxlength
+ * - name
+ * - pattern
+ * - placeholder
  * - readonly
+ * - step
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
@@ -161,27 +165,44 @@ class Form {
   	switch ($element->attributes['type']) {
 			case 'color':
 				$element->setOnEmpty('data-pattern', '#[A-Fa-f0-9]{6}');
+				$element->setOnEmpty('title', _('Expecting web color'));
 				break;
 			case 'date':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]');
+				$element->setOnEmpty('title', _('Expecting date like 2020-12-31'));
+				break;
+			case 'time':
+				$element->setOnEmpty('data-pattern', '[0-2][\d]:[0-5][\d](:[0-5]\d(\.\d)?)?');
+				$element->setOnEmpty('title', _('Expecting time like 23:59'));
 				break;
 			case 'datetime':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]T[0-2]\d:[0-5]\d(:[0-5]\d(\.\d)?)?Z');
+				$element->setOnEmpty('title', _('Expecting date like 2020-12-31T23:59Z'));
+				break;
+			case 'week':
+				$element->setOnEmpty('data-pattern', '[\d]{4}-W[0-5][\d]');
+				$element->setOnEmpty('title', _('Expecting week like 2020-W52'));
+				break;
+			case 'month':
+				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]');
+				$element->setOnEmpty('title', _('Expecting month like 2020-12'));
 				break;
 			case 'datetime-local':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]T[0-2]\d:[0-5]\d(:[0-5]\d(\.\d)?)?');
+				$element->setOnEmpty('title', _('Expecting date like 2020-12-31T23:59'));
 				break;
 			case 'email':
-				$element->setOnEmpty('data-pattern', '\S+@\S+\.\S+');
+				$element->setOnEmpty('data-pattern', '\S+@\S+');
+				$element->setOnEmpty('title', _('Expecting valid email address'));
 				break;
 			case 'number':
-				$element->setOnEmpty('data-pattern', '\-?\d+(\.\d+)?');
-				break;
 			case 'range':
-				$element->setOnEmpty('data-pattern', '\-?\d+(\.\d+)?');
+				$element->setOnEmpty('data-pattern', '\-?(\d+)?(\.)?\d+([eE]\-?\d+)?');
+				$element->setOnEmpty('title', _('Expecting numerical value'));
 				break;
 			case 'url':
 				$element->setOnEmpty('data-pattern', 'http(s)?://\S+');
+				$element->setOnEmpty('title', _('Expecting valid URL, starting with http'));
 				break;
   	}
 		if (!Form::is_blank($element->attributes['value'])) {
@@ -362,15 +383,15 @@ class Form {
    * Check if any form element has errors
    * @return int number of form elements with errors, which means 0 / FALSE means no errors.
    */
-  public function hasErrors () {
-    $errors = 0;
-    foreach ($this->formElements as $element) {
-      if (!empty($element->errors)) {
-        $errors += count($element->errors);
-      }
-    }
-    return $errors;
-  }
+	public function hasErrors () {
+	  $errors = 0;
+	  foreach ($this->formElements as $element) {
+	    if (!empty($element->errors)) {
+	      $errors += count($element->errors);
+	    }
+	  }
+	  return $errors;
+	}
 
 	/**
 	 * Checks if a scalar value is FALSE, without content or only full of
@@ -399,10 +420,10 @@ class Form {
 			return make_id($str);
 		}
 		else {
-			if (!preg_match('#^[A-Za-z][A-Za-z0-9\-_\:\.]+$#', $str)) {
+			if (!preg_match('#^[A-Za-z][A-Za-z0-9\-_\:\.]*$#', $str)) {
 				$str = preg_replace(
-					array('#^[A-Za-z]#','#[A-Za-z0-9\-_\:\.]#', '#(_)_+#'),
-					array('id',         '_',                    ''),
+					array('#^[^A-Za-z]#','#[^A-Za-z0-9\-_\:\.]#', '#(_)_+#'),
+					array('id_$0',       '_',                     '$1'),
 					$str
 				);
 			}
