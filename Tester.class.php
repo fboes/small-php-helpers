@@ -18,11 +18,13 @@ class Tester {
 	protected $testEnd;
 	protected $methodsTests = array();
 	protected $methodsProviders = array();
+	protected $cli = FALSE;
 
 	const PREFIX_TEST = 'test';
 	const PREFIX_PROVIDER = 'data';
 
 	public function __construct () {
+		$this->cli = php_sapi_name() == 'cli';
 	}
 
 	/**
@@ -39,22 +41,28 @@ class Tester {
 	public function doTests () {
 		$title = get_class($this);
 
-		echo('<!DOCTYPE html>'."\n");
-		echo('<html>');
-		echo('<head>');
-		echo('<title>'.htmlspecialchars($title).'</title>');
-		echo(
-			'<style>'
-			.'body {font:80% sans-serif;}'
-			.'h1,h2 {margin-bottom:0.5em;}'
-			.'table {width:100%;} th,td {border-bottom:1px dotted #ddd;font-weight:normal;} th {text-align:left;padding-right:1em;}'
-			.'.success {color:green;font-weight:bold;text-align:right;} .fail {color:maroon;font-weight:bold;text-align:right;} .result {text-align:right;color:#999;}'
-			.'#test-summary{border-top:2px solid #aaa; margin-top:2em;padding-top:1em;}'
-			.'</style>')
-		;
-		echo('</head>');
-		echo('<body>'."\n");
-		echo('<h1>'.htmlspecialchars($title).'</h1>'."\n");
+		if ($this->cli) {
+			echo($title."\n");
+			echo("================================================\n");
+		}
+		else {
+			echo('<!DOCTYPE html>'."\n");
+			echo('<html>');
+			echo('<head>');
+			echo('<title>'.htmlspecialchars($title).'</title>');
+			echo(
+				'<style>'
+				.'body {font:80% sans-serif;}'
+				.'h1,h2 {margin-bottom:0.5em;}'
+				.'table {width:100%;} th,td {border-bottom:1px dotted #ddd;font-weight:normal;} th {text-align:left;padding-right:1em;}'
+				.'.success {color:green;font-weight:bold;text-align:right;} .fail {color:maroon;font-weight:bold;text-align:right;} .result {text-align:right;color:#999;}'
+				.'#test-summary{border-top:2px solid #aaa; margin-top:2em;padding-top:1em;}'
+				.'</style>')
+			;
+			echo('</head>');
+			echo('<body>'."\n");
+			echo('<h1>'.htmlspecialchars($title).'</h1>'."\n");
+		}
 
 		// get all tests and providers
 		$methods = get_class_methods($this);
@@ -84,9 +92,15 @@ class Tester {
 			foreach ($data as $run => $dataSet) {
 				$this->assertionsDone = 0;
 				$this->assertionsSuccess = 0;
-				echo('<div class="test">'."\n");
-				echo('  <h2 id="'.htmlspecialchars($m.'-'.$id).'">'.htmlspecialchars($m.': '.($run)).'</h2>'."\n");
-				echo('  <table class="assertions">'."\n");
+				if ($this->cli) {
+					echo("\n".$m.': '.($run)."\n");
+					echo("------------------------------------------------\n\n");
+				}
+				else {
+					echo('<div class="test">'."\n");
+					echo('  <h2 id="'.htmlspecialchars($m.'-'.$id).'">'.htmlspecialchars($m.': '.($run)).'</h2>'."\n");
+					echo('  <table class="assertions">'."\n");
+				}
 				$this->testStart = microtime(TRUE);
 
 				if (!empty($dataSet)) {
@@ -99,25 +113,40 @@ class Tester {
 					$this->$m();
 				}
 				$this->testEnd = microtime(TRUE);
-				echo('  </table>'."\n");
-				echo('  <p class="result">Success / tests: '.(int)$this->assertionsSuccess.'/'.(int)$this->assertionsDone.'; duration: '.round($this->testEnd - $this->testStart).' ms</p>'."\n");
-				echo('</div>'."\n");
+				if ($this->cli) {
+					echo("\n".'Success / tests: '.(int)$this->assertionsSuccess.'/'.(int)$this->assertionsDone.'; duration: '.round($this->testEnd - $this->testStart).' ms'."\n");
+				}
+				else {
+					echo('  </table>'."\n");
+					echo('  <p class="result">Success / tests: '.(int)$this->assertionsSuccess.'/'.(int)$this->assertionsDone.'; duration: '.round($this->testEnd - $this->testStart).' ms</p>'."\n\n");
+					echo('</div>'."\n");
+				}
 
 				$this->globalAssertionsSuccess += $this->assertionsSuccess;
-				$this->globalAssertionsDone += $this->assertionsDone;
+				$this->globalAssertionsDone    += $this->assertionsDone;
 				$id ++;
 			}
 		}
 
+		if ($this->cli) {
+			echo("\nSummary\n");
+			echo("------------------------------------------------\n\n");
+		}
+		else {
+			echo('  <h2 id="test-summary">Summary</h2>');
+			echo('  <table class="assertions">'."\n");
+		}
+		$this->assertTrue($this->globalAssertionsSuccess == $this->globalAssertionsDone, 'Expecting all tests to succeed');
+		if ($this->cli) {
+			echo("\n".'Sum success / tests: '.(int)$this->globalAssertionsSuccess.'/'.(int)$this->globalAssertionsDone."\n");
+		}
+		else {
+			echo('  </table>'."\n");
+			echo('  <p class="result">Sum success / tests: '.(int)$this->globalAssertionsSuccess.'/'.(int)$this->globalAssertionsDone.'</p>'."\n");
 
-		echo('  <h2 id="test-summary">Summary</h2>');
-		echo('  <table class="assertions">'."\n");
-		$this->assertTrue($this->globalAssertionsDone == $this->globalAssertionsDone, 'Expecting all tests to succeed');
-		echo('  </table>'."\n");
-		echo('  <p class="result">Sum success / tests: '.(int)$this->globalAssertionsDone.'/'.(int)$this->globalAssertionsDone.'</p>'."\n");
-
-		echo('</body>');
-		echo('</html>');
+			echo('</body>');
+			echo('</html>');
+		}
 	}
 
 	/**
@@ -267,12 +296,20 @@ class Tester {
 		$condition = is_bool($condition) && $condition;
 
 		$this->assertionsDone ++;
-		echo('    <tr>');
-		echo('<th>'.htmlspecialchars($message).'</th>'. ($condition
-			? '<td class="success">Success</td>'
-			: '<td class="fail">Fail</td>'
-		));
-		echo('</tr>'."\n");
+		if ($this->cli) {
+			echo('* '. ($condition
+				? 'SUCCESS'
+				: 'FAIL'
+			).': '.$message."\n");
+		}
+		else {
+			echo('    <tr>');
+			echo('<th>'.htmlspecialchars($message).'</th>'. ($condition
+				? '<td class="success">Success</td>'
+				: '<td class="fail">Fail</td>'
+			));
+			echo('</tr>'."\n");
+		}
 		if ($condition) {
 			$this->assertionsSuccess ++;
 		}
@@ -285,9 +322,15 @@ class Tester {
 	 * @return bool TRUE
 	 */
 	public function outputLine ($mixed) {
-		echo('    <tr>');
-		echo('<td colspan="2"><pre>'.htmlspecialchars(print_r($mixed,1)).'</pre></td>');
-		echo('</tr>'."\n");
+		if ($this->cli) {
+			print_r($mixed);
+			echo("\n");
+		}
+		else {
+			echo('    <tr>');
+			echo('<td colspan="2"><pre>'.htmlspecialchars(print_r($mixed,1)).'</pre></td>');
+			echo('</tr>'."\n");
+		}
 		return TRUE;
 	}
 

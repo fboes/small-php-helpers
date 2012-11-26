@@ -49,16 +49,7 @@ class FormElement {
 		$attributes = array();
 		if (preg_match_all('#([\w\-]+)="([^"]*?)"#', $html, $parts)) {
 			foreach ($parts[1] as $key => $keyName) {
-				if ($keyName == 'class') {
-					$attributes[$keyName] = explode(' ',$parts[2][$key]);
-				}
-				elseif (strpos($keyName, 'data-') === 0 && strpos($parts[2][$key], '[') === 0) {
-					$attributes[$keyName] = json_decode($parts[2][$key]);
-				}
-				else {
-					$attributes[$keyName] = $parts[2][$key];
-
-				}
+				$attributes[$keyName] = $this->convertAttribute($keyName, $parts[2][$key]);
 			}
 		}
 		if (preg_match('#>(.+)<#',$html,$matches)) {
@@ -68,6 +59,32 @@ class FormElement {
 			$this->addClass($attributes,'required');
 		}
 		return $attributes;
+	}
+
+	public function setAttributesByArray (array $attributes) {
+		foreach ($attributes as $attribute => $value) {
+			$this->setOnEmpty($attribute, $value);
+		}
+	}
+
+	/**
+	 * [convertAttribute description]
+	 * @param  [type] $name  [description]
+	 * @param  [type] $value [description]
+	 * @return [type]        [description]
+	 */
+	public function convertAttribute ($name, $value) {
+		if ($name == 'class') {
+			return
+			 explode(' ',$value);
+		}
+		elseif (strpos($name, 'data-') === 0 && strpos($value, '[') === 0) {
+			return
+			 json_decode($value);
+		}
+		else {
+			return $value;
+		}
 	}
 
 	/**
@@ -128,7 +145,7 @@ class FormElement {
 	 */
 	public function setOnEmpty ($key, $defaultValue) {
 		if (Form::is_blank($this->attributes[$key]) && !Form::is_blank($defaultValue)) {
-			$this->attributes[$key] = $defaultValue;
+			$this->attributes[$key] = $this->convertAttribute($key, $defaultValue);
 		}
 		return $this;
 	}

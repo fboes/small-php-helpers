@@ -31,7 +31,7 @@
 require_once('Form/Element.class.php');
 
 class Form {
-	public $defaultFormData = array();
+	public $defaultElementAttributes = array();
 	public $formElements = array();
 	protected $formStart;
 
@@ -51,10 +51,17 @@ class Form {
 
 	/**
 	 * Initiate form
-	 * @param array $defaultFormData Set default values for all form fields, e.g. text=test for <input name="test" value="text" />
+	 * @param array $defaultValues Set default values for all form fields, e.g. text=test for <input name="test" value="text" />
 	 */
-	public function __construct(array $defaultFormData = array()) {
-		$this->defaultFormData = $defaultFormData;
+	public function __construct(array $defaultValues = array()) {
+		if (!empty($defaultValues)) {
+			foreach ($defaultValues as $key => $value) {
+				if (empty($this->defaultElementAttributes[$key])) {
+					$this->defaultElementAttributes[$key] = array();
+				}
+				$this->defaultElementAttributes[$key]['value'] = $value;
+			}
+		}
 		$this->setFieldWrapper();
 		$this->setLabelWrapper();
 		$this->setLabelRequired();
@@ -63,11 +70,33 @@ class Form {
 
 	/**
 	 * Static constructor for chaining
-	 * @param  array  $defaultFormData [description]
+	 * @param  array  $defaultValues [description]
 	 * @return Form       [description]
 	 */
-	public static function init (array $defaultFormData = array()) {
-		return new self($defaultFormData);
+	public static function init (array $defaultValues = array()) {
+		return new self($defaultValues);
+	}
+
+	/**
+	 * Set attributes for form elements not via HTML, but from a configuration array
+	 * @param array $elements with FIELD_NAME = array(FIELD_ATTRIBUTE => FIELD_ATTRIBUTE_VALUE)
+	 * @return Form       [description]
+	 */
+	public function setDefaultElementAttributes (array $elements) {
+		foreach ($elements as $fieldname => $attributes) {
+			if (is_array($attributes)) {
+				if (empty($this->defaultElementAttributes[$fieldname])) {
+					$this->defaultElementAttributes[$fieldname] = $attributes;
+				}
+				else {
+					$this->defaultElementAttributes[$fieldname] = array_merge($attributes,$this->defaultElementAttributes[$fieldname]);
+				}
+			}
+			else {
+				throw new Exception("Attributes need to be given as array");
+			}
+		}
+		return $this;
 	}
 
 	/**
@@ -151,11 +180,14 @@ class Form {
 	public function input ($html, array $options = array()) {
 		$element = new FormElement(self::HTML_INPUT, $html, $options);
 		$element->throwExceptionOnEmpty('name');
+		$element->setAttributesByArray($this->getdefaultElementAttributes($element->attributes['name']));
+		$element->addDefaultValue();
+
+		// Manipulate attributes
 		$element->makeId(!empty($this->formStart->attributes['id']) ? $this->formStart->attributes['id'] : '');
 		$element->setOnEmpty('type', 'text');
 		$element->addClass  ('input');
 		$element->addClass  ($element->attributes['type']);
-		$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
     $element->addErrorsOnRequired();
 		if (!Form::is_blank($element->attributes['maxlength'])) {
 			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {
@@ -245,13 +277,14 @@ class Form {
 	public function textarea ($html) {
 		$element = new FormElement(self::HTML_TEXTAREA, $html);
 		$element->throwExceptionOnEmpty('name');
+		$element->setAttributesByArray($this->getdefaultElementAttributes($element->attributes['name']));
+		$element->addDefaultValue((!empty($element->attributes[self::ATTRIBUTE_CONTENT]))
+			? $element->attributes[self::ATTRIBUTE_CONTENT]
+			: NULL
+		);
+
+		// Manipulate attributes
 		$element->makeId(!empty($this->formStart->attributes['id']) ? $this->formStart->attributes['id'] : '');
-		if (!empty($element->attributes[self::ATTRIBUTE_CONTENT])) {
-			$element->addDefaultValue($element->attributes[self::ATTRIBUTE_CONTENT]);
-		}
-		else {
-			$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
-		}
 		if (!Form::is_blank($element->attributes['maxlength'])) {
 			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {
 				$element->addError('maxlength',_('Field data is to long.'));
@@ -273,11 +306,14 @@ class Form {
 		if (empty($options)) {
 			throw new Exception ('No options given');
 		}
-		$element->makeId(!empty($this->formStart->attributes['id']) ? $this->formStart->attributes['id'] : '');
 		if (!empty($element->attributes['multiple'])) {
 			$element->attributes['name'] .= '[]';
 		}
-		$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
+		$element->setAttributesByArray($this->getdefaultElementAttributes($element->attributes['name']));
+		$element->addDefaultValue();
+
+		// Manipulate attributes
+		$element->makeId(!empty($this->formStart->attributes['id']) ? $this->formStart->attributes['id'] : '');
     $element->addErrorsOnRequired();
 
 		return $this->storeElement($element);
@@ -291,17 +327,20 @@ class Form {
 	public function checkbox ($html, array $options) {
 		$element = new FormElement(self::HTML_CHECKBOXES, $html, $options);
 		$element->throwExceptionOnEmpty('name');
-		$element->makeId(!empty($this->formStart->attributes['id']) ? $this->formStart->attributes['id'] : '');
 		if (empty($options)) {
 			throw new Exception ('No options given');
 		}
 		$element->setOnEmpty('type', 'checkbox');
-		$element->addClass  ('checkbox');
-		$element->addClass  ('checkbox-'.$element->attributes['type']);
 		if ($element->attributes['type'] == 'checkbox') {
 			$element->attributes['name'] .= '[]';
 		}
-		$element->addDefaultValue($this->getdefaultFormData($element->attributes['name']));
+		$element->setAttributesByArray($this->getdefaultElementAttributes($element->attributes['name']));
+		$element->addDefaultValue();
+
+		// Manipulate attributes
+		$element->makeId(!empty($this->formStart->attributes['id']) ? $this->formStart->attributes['id'] : '');
+		$element->addClass  ('checkbox');
+		$element->addClass  ('checkbox-'.$element->attributes['type']);
     $element->addErrorsOnRequired();
 
 		return $this->storeElement($element);
@@ -330,17 +369,30 @@ class Form {
 	}
 
 	/**
-	 * Get default data as given in constructor for the form field with the corresponding name.
+	 * Get default attribute array as given in setDefaultElementAttributes for the form field with the corresponding name.
+	 * @param  string $name [description]
+	 * @return array       [description]
+	 */
+	public function getdefaultElementAttributes ($name) {
+		if (preg_match('#^(.+)(\[\])$#',$name, $nameParts)) {
+			return (!self::is_blank($this->defaultElementAttributes[$nameParts[1]])) ? $this->defaultElementAttributes[$nameParts[1]] : array();
+		}
+		else {
+			return (!self::is_blank($this->defaultElementAttributes[$name])) ? $this->defaultElementAttributes[$name] : array();
+		}
+	}
+
+	/**
+	 * Get default attribute value as given in constructor for the form field with the corresponding name.
 	 * @param  string $name [description]
 	 * @return string       [description]
 	 */
-	public function getdefaultFormData ($name) {
-		if (preg_match('#^(.+)(\[\])$#',$name, $nameParts)) {
-			return (!self::is_blank($this->defaultFormData[$nameParts[1]])) ? $this->defaultFormData[$nameParts[1]] : NULL;
-		}
-		else {
-			return (!self::is_blank($this->defaultFormData[$name])) ? $this->defaultFormData[$name] : NULL;
-		}
+	public function getdefaultElementAttribute ($name, $key = 'value') {
+		$attributes = $this->getdefaultElementAttributes($name);
+		return (!self::is_blank($attributes[$key]))
+			? $attributes[$key]
+			: NULL
+		;
 	}
 
 	/**

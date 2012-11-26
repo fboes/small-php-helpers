@@ -68,13 +68,13 @@ class FormTest extends Tester {
 
 	public function dataFormPopulation () {
 		return array(
-			array (
+			'Simple' => array (
 				array(
 					'a' => 'b',
 					'c' => 'd',
 				)
 			),
-			array (
+			'Arrays and time' => array (
 				array(
 					'input' => 'output',
 					'alpha' => time(),
@@ -86,7 +86,9 @@ class FormTest extends Tester {
 
 	public function testFormPopulation ($a) {
 		$f = new Form($a);
-		$this->assertEquals($a, $f->defaultFormData);
+		foreach ($a as $key => $value) {
+			$this->assertEquals($value, $f->defaultElementAttributes[$key]['value']);
+		}
 	}
 
 	public function testSimpleFieldPopulation () {
@@ -277,6 +279,43 @@ class FormTest extends Tester {
 			$this->assertTrue (!(bool)preg_match('#class=".+?error#', $output), "Expecting no 'error' to be present in class");
 		}
 
+	}
+
+	public function dataFromAttributes () {
+		return array (
+			array(
+				array(
+					'value' => md5(time()) . '-value',
+					'data-label' => _('I am legend')
+				)
+			),
+		);
+	}
+
+	public function testFromAttributes ($attributes) {
+		$fieldname = md5(time());
+		$attributes = array(
+			$fieldname => $attributes
+		);
+
+		$f = Form::init()
+			->setDefaultElementAttributes($attributes)
+			->start('<form>')
+			->input('<input name="'.$fieldname.'" />')
+			->end('</form>')
+		;
+
+		$this->assertTrue(is_array($attributes), 'Expecting attributes to be an array');
+		$this->assertTrue(!empty($f->defaultElementAttributes), 'Expecting default attributes to be set');
+		$this->assertTrue($attributes == $f->defaultElementAttributes, 'Expecting default attributes to match given attributes');
+
+		$output = $f->returnHTML();
+		#$this->outputLine($output);
+
+		$this->assertValidXml($output);
+		foreach ($attributes[$fieldname] as $key => $value) {
+			$this->assertTrue(strpos($output, htmlspecialchars($value)) !== FALSE, "Expecting '".$value."' to be present");
+		}
 	}
 
 
