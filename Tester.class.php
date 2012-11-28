@@ -19,12 +19,14 @@ class Tester {
 	protected $methodsTests = array();
 	protected $methodsProviders = array();
 	protected $cli = FALSE;
+	protected $colors = TRUE;
 
 	const PREFIX_TEST = 'test';
 	const PREFIX_PROVIDER = 'data';
 
 	public function __construct () {
-		$this->cli = php_sapi_name() == 'cli';
+		$this->cli    = (php_sapi_name() === 'cli');
+		$this->colors = (php_uname('s') !== 'Windows');
 	}
 
 	/**
@@ -42,8 +44,8 @@ class Tester {
 		$title = get_class($this);
 
 		if ($this->cli) {
-			echo($title."\n");
-			echo("================================================\n");
+			echo("\n".$this->coloredString(1).$title."\n");
+			echo("================================================".$this->coloredString()."\n");
 		}
 		else {
 			echo('<!DOCTYPE html>'."\n");
@@ -93,8 +95,7 @@ class Tester {
 				$this->assertionsDone = 0;
 				$this->assertionsSuccess = 0;
 				if ($this->cli) {
-					echo("\n".$m.': '.($run)."\n");
-					echo("------------------------------------------------\n\n");
+					echo("\n".$this->coloredString($m.': '.($run)."\n------------------------------------------------", 1)."\n\n");
 				}
 				else {
 					echo('<div class="test">'."\n");
@@ -129,8 +130,7 @@ class Tester {
 		}
 
 		if ($this->cli) {
-			echo("\nSummary\n");
-			echo("------------------------------------------------\n\n");
+			echo("\n".$this->coloredString("Summary\n------------------------------------------------", 1)."\n\n");
 		}
 		else {
 			echo('  <h2 id="test-summary">Summary</h2>');
@@ -298,8 +298,8 @@ class Tester {
 		$this->assertionsDone ++;
 		if ($this->cli) {
 			echo('* '. ($condition
-				? 'SUCCESS'
-				: 'FAIL'
+				? $this->coloredString("SUCCESS",32)
+				: $this->coloredString("FAIL",31)
 			).': '.$message."\n");
 		}
 		else {
@@ -353,5 +353,12 @@ class Tester {
 
 		#}
 		return preg_replace('#\s+#',' ',print_r($mixed,1));
+	}
+
+	protected function coloredString ($string, $code = 0) {
+		return ($this->colors)
+			? "\033[".$code."m".$string."\033[0m"
+			: $string
+		;
 	}
 }
