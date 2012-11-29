@@ -44,8 +44,7 @@ class Tester {
 		$title = get_class($this);
 
 		if ($this->cli) {
-			echo("\n".$this->coloredString(1).$title."\n");
-			echo("================================================".$this->coloredString()."\n");
+			echo("\n".$this->coloredString($title."\n================================================", 1)."\n");
 		}
 		else {
 			echo('<!DOCTYPE html>'."\n");
