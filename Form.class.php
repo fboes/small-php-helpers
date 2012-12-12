@@ -74,7 +74,7 @@ class Form {
 	 * @return Form       [description]
 	 */
 	public static function init (array $defaultValues = array()) {
-		return new self($defaultValues);
+		return new static($defaultValues);
 	}
 
 	/**

@@ -208,7 +208,7 @@ class Tester {
 	 * @param  string $message [description]
 	 * @return bool          [description]
 	 */
-	public function assertClassHasAttribute($attributeName, $className, $message = 'Expecting class %s to have attribute %s') {
+	public function assertClassHasAttribute ($attributeName, $className, $message = 'Expecting class %s to have attribute %s') {
 		if (!is_string($attributeName)) {
 			throw new Exception('Malformed attribute name used in '.__METHOD__);
 		}
