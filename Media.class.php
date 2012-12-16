@@ -1,6 +1,7 @@
 <?php
 /**
  * @class Media
+ * Add mutiple sources for a media object, get the optimal HTML
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
@@ -19,11 +20,23 @@ class Media {
 		'.html' => 'text/html',
 	);
 
+	/**
+	 * Invoke new media object, setting width and height
+	 * @param int $width  in pixels
+	 * @param int $height in pixels
+	 */
 	public function __construct ($width, $height)  {
 		$this->width  = (int)$width;
 		$this->height = (int)$height;
 	}
 
+	/**
+	 * Static invocation of construct
+	 * @see  __construct()
+	 * @param  int $width  in pixels
+	 * @param  int $height in pixels
+	 * @return self         [description]
+	 */
 	public static function dimensions ($width, $height)  {
 		return new static($width, $height);
 	}
@@ -67,11 +80,16 @@ class Media {
 		return $this;
 	}
 
+	/**
+	 * Guess MIME-type by file ending. Uses $this->fileEndingsToMimeType
+	 * @param  string $url [description]
+	 * @return string  MIME-type
+	 */
 	public function guessMimeType ($url) {
 		if (preg_match('#(\.[a-zA-z0-9]+)$#',$url,$matches)) {
 			$fileEnding = strtolower($matches[1]);
 			if (!empty($this->fileEndingsToMimeType[$fileEnding])) {
-				return $this->fileEndingsToMimeType[$fileEnding];
+				return strtolower($this->fileEndingsToMimeType[$fileEnding]);
 			}
 		}
 		return '';
@@ -93,17 +111,23 @@ class Media {
 		$currentMimeType = current(array_keys($remainingMediaObjects));
 		$currentUrl      = array_shift($remainingMediaObjects);
 		if (!empty($currentUrl)){
-			$html .= '<object data="'.htmlspecialchars($currentUrl).'" type="'.htmlspecialchars($currentMimeType).'" width="'.htmlspecialchars($this->width).'" height="'.htmlspecialchars($this->height).'">'."\n";
-			if (!empty($remainingMediaObjects)) {
-				$html .= $this->returnHtmlObject($remainingMediaObjects);
-			}
-			else {
-				$html .= $this->retunHtmlPosterImage();
-				$html .= $this->retunHtmlFallbackText();
-			}
+			$innerHtml = (!empty($remainingMediaObjects))
+				? $this->returnHtmlObject($remainingMediaObjects)
+				: $this->returnHtmlFallback()
+			;
+
+			$html .= '<object data="'.htmlspecialchars($currentUrl).'" type="'.htmlspecialchars($currentMimeType).'"'.$this->returnHtmlDimensionAttribute().'>'."\n";
+			$html .= $innerHtml;
 			$html .= '</object>'."\n";
 		}
+		else {
+
+		}
 		return $html;
+	}
+
+	protected function returnHtmlFallback () {
+		return $this->retunHtmlPosterImage() . $this->returnHtmlFallbackText();
 	}
 
 	protected function retunHtmlPosterImage () {
@@ -113,11 +137,15 @@ class Media {
 		return '';
 	}
 
-	protected function retunHtmlFallbackText () {
+	protected function returnHtmlFallbackText () {
 		if (!empty($this->fallbackText)) {
 			return '<p class="fallback">'.nl2br(htmlspecialchars($this->fallbackText)).'</p>'."\n";
 		}
 		return '';
+	}
+
+	protected function returnHtmlDimensionAttribute () {
+		return ' width="'.htmlspecialchars($this->width).'" height="'.htmlspecialchars($this->height).'"';
 	}
 
 	/**

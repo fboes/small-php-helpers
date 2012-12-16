@@ -34,12 +34,12 @@ class MediaTest extends Tester {
 
 		$html = $m->returnHtml();
 
-		$this->assertValidHtml($html);
+		$this->assertValidXml($html);
 		$this->outputLine($html);
 	}
 
 	public function testMediaAudio () {
-		$m = MediaAudio::dimensions(320,480)
+		$m = MediaAudio::dimensions(320,240)
 			->setFallbackText('test')
 			->addMedia('test.webma')
 			->addMedia('test.mp3')
@@ -50,7 +50,7 @@ class MediaTest extends Tester {
 
 		$html = $m->returnHtml();
 
-		$this->assertValidHtml($html);
+		$this->assertValidXml($html);
 		$this->outputLine($html);
 	}
 }

@@ -28,29 +28,84 @@ class MediaVideo extends Media {
 		'.avi'  => 'video/x-msvideo',
 	);
 
-
 	public function returnHtml () {
-		$method = __FUNCTION__;
-		return parent::$method();
-
-		# HTML5 video tag
-		# Flash fallback
-		# object tag
-		# Windows Media tag
-		# Quicktime tag
-		# HTML fallback
+		$html = '<div class="media">'."\n";
+		$html .= $this->returnHtml5Tag($this->mediaObjects);
+		$html .= '</div>'."\n";
+		return $html;
 	}
 
 	protected function returnHtml5Tag (array $remainingMediaObjects) {
-		/*
-		<video width="640" height="360" controls>
-			<!-- MP4 must be first for iPad! -->
-			<source src="__VIDEO__.MP4" type="video/mp4" /><!-- Safari / iOS video    -->
-			<source src="__VIDEO__.OGV" type="video/ogg" /><!-- Firefox / Opera / Chrome10 -->
-		</video>
-		*/
+		$html = '%s';
+
+		if (!empty($remainingMediaObjects['video/mp4']) || !empty($remainingMediaObjects['video/ogg']) || !empty($remainingMediaObjects['video/webm'])) {
+
+			$attributes = array(
+				'controls="controls"',
+				'autobuffer="autobuffer"',
+			);
+			if (!empty($this->posterImage)) {
+				$attributes[] = 'poster="'.htmlspecialchars($this->posterImage).'"';
+			}
+
+			$html = '<video ' . implode(' ', $attributes) . $this->returnHtmlDimensionAttribute().'>'."\n";
+			foreach (array('video/mp4','video/ogg','video/webm') as $mimeType) {
+				if (!empty($remainingMediaObjects[$mimeType])) {
+					$html .= "\t".'<source src="'.htmlspecialchars($remainingMediaObjects[$mimeType]).'" type="'.htmlspecialchars($mimeType).'" />'."\n";
+				}
+			}
+			$html .= '%s';
+			$html .= '</video>'."\n";
+		}
+
+		#$innerHtml = (!empty($remainingMediaObjects))
+		#	? $this->returnHtmlFlash($remainingMediaObjects)
+		#	: $this->returnHtmlFallback()
+		#;
+		$innerHtml = $this->returnHtmlObject($remainingMediaObjects);
+
+		return sprintf($html, $innerHtml);
 	}
 
 	protected function returnHtmlFlash (array $remainingMediaObjects) {
+		$html = '%s';
+
+		$innerHtml = (!empty($remainingMediaObjects))
+			? $this->returnHtmlRest($remainingMediaObjects)
+			: $this->returnHtmlFallback()
+		;
+
+		return sprintf($html, $innerHtml);
 	}
+
+	protected function returnHtmlRest (array $remainingMediaObjects) {
+		$html = '%s';
+
+		$innerHtml = (!empty($remainingMediaObjects))
+			? $this->returnHtmlWindowsMedia($remainingMediaObjects)
+			: $this->returnHtmlFallback()
+		;
+
+		return sprintf($html, $innerHtml);
+	}
+
+	protected function returnHtmlWindowsMedia (array $remainingMediaObjects) {
+		$html = '%s';
+
+		$innerHtml = (!empty($remainingMediaObjects))
+			? $this->returnHtmlQuicktime($remainingMediaObjects)
+			: $this->returnHtmlFallback()
+		;
+
+		return sprintf($html, $innerHtml);
+	}
+
+	protected function returnHtmlQuicktime (array $remainingMediaObjects) {
+		$html = '';
+
+		$innerHtml = $this->returnHtmlFallback();
+
+		return sprintf($html, $innerHtml);
+	}
+
 }

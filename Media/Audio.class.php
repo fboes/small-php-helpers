@@ -23,25 +23,49 @@ class MediaAudio extends Media {
 	);
 
 	public function returnHtml () {
-		$method = __FUNCTION__;
-		return parent::$method();
-
-		# HTML5 audio tag
-		# Flash fallback
-		# object tag
-		# HTML fallback
+		$html = '<div class="media">'."\n";
+		$html .= $this->returnHtml5Tag($this->mediaObjects);
+		$html .= '</div>'."\n";
+		return $html;
 	}
 
 	protected function returnHtml5Tag (array $remainingMediaObjects) {
-		/*
-		<audio controls autobuffer>
-		  <source src="thankyou.ogg" />
-		  <source src="thankyou.mp3" />
-		  <!-- oder doch Flash?! -->
-		</audio>
-		*/
+		$html = '%s';
+
+		if (!empty($remainingMediaObjects['audio/mp4']) || !empty($remainingMediaObjects['audio/ogg']) || !empty($remainingMediaObjects['audio/webm']) || !empty($remainingMediaObjects['audio/mpeg'])) {
+
+			$attributes = array(
+				'controls="controls"',
+				'autobuffer="autobuffer"',
+			);
+
+			$html = '<audio ' . implode(' ', $attributes) . $this->returnHtmlDimensionAttribute().'>'."\n";
+			foreach (array('audio/mp4','audio/ogg','audio/webm','audio/mpeg') as $mimeType) {
+				if (!empty($remainingMediaObjects[$mimeType])) {
+					$html .= "\t".'<source src="'.htmlspecialchars($remainingMediaObjects[$mimeType]).'" type="'.htmlspecialchars($mimeType).'" />'."\n";
+				}
+			}
+			$html .= '%s';
+			$html .= '</audio>'."\n";
+		}
+
+		#$innerHtml = (!empty($remainingMediaObjects))
+		#	? $this->returnHtmlFlash($remainingMediaObjects)
+		#	: $this->returnHtmlFallback()
+		#;
+		$innerHtml = $this->returnHtmlObject($remainingMediaObjects);
+
+		return sprintf($html, $innerHtml);
 	}
 
 	protected function returnHtmlFlash (array $remainingMediaObjects) {
+		$html = '%s';
+
+		$innerHtml = (!empty($remainingMediaObjects))
+			? $this->returnHtmlObject($remainingMediaObjects)
+			: $this->returnHtmlFallback()
+		;
+
+		return sprintf($html, $innerHtml);
 	}
 }
