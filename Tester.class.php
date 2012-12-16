@@ -23,10 +23,11 @@ class Tester {
 
 	const PREFIX_TEST = 'test';
 	const PREFIX_PROVIDER = 'data';
+	const PARAM_FORCE_CLI = 'cli';
 
 	public function __construct () {
-		$this->cli    = (php_sapi_name() === 'cli');
-		$this->colors = (php_uname('s') !== 'Windows');
+		$this->cli    = (php_sapi_name() === 'cli'    ||  isset($_GET[self::PARAM_FORCE_CLI]));
+		$this->colors = (php_uname('s') !== 'Windows' && !isset($_GET[self::PARAM_FORCE_CLI]));
 	}
 
 	/**
@@ -44,6 +45,7 @@ class Tester {
 		$title = get_class($this);
 
 		if ($this->cli) {
+			header('Content-type: text/plain');
 			echo("\n".$this->coloredString($title."\n================================================", 1)."\n");
 		}
 		else {
