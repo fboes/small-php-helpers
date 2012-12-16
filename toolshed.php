@@ -79,6 +79,7 @@ function _print_r ($mixed, $mode = 'pre')
  * Like printf, but $format will be quoted by htmlspecialchars.
  * Arguments will _not_ be quoted.
  *
+ * @see  _vprintf()
  * @param   string  $format
  * @param   string  $args   and more args
  */
@@ -93,6 +94,7 @@ function _printf ()
  * Like sprintf, but $format will be quoted by htmlspecialchars
  * Arguments will _not_ be quoted.
  *
+ * @see  _vsprintf()
  * @param   string  $format
  * @param   string  $args   and more args
  * @return  string
@@ -108,6 +110,7 @@ function _sprintf ()
  * Like vprinft, but $format will be quoted by htmlspecialchars
  * Arguments will _not_ be quoted.
  *
+ * @see  _vsprintf()
  * @param   string  $format
  * @param   array   $args
  */
