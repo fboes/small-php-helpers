@@ -15,19 +15,37 @@ class Coordinates {
 	public $altitude  = 0;
 	public $title     = NULL;
 
-	public $planetEquatorialRadiusMeters = 63781370.0;
-	public $planetPolarRadiusMeters      = 63567523.0;
+	public $planetMeanRadius = 63781370.0;
 
 	/**
 	 * Define planet. Defaults to Earth
-	 * @param float $planetEquatorialRadiusMeters aka semi-major axis, in meters
-	 * @param float $planetPolarRadiusMeters      aka semi-minor axis, in meters
+	 * @param float $planetMeanRadius in meters
 	 */
-	public function __construct ($planetEquatorialRadiusMeters = 63781370.0, $planetPolarRadiusMeters =  63567523.0) {
-		$this->planetEquatorialRadiusMeters = (float)$planetEquatorialRadiusMeters;
-		$this->planetPolarRadiusMeters      = !empty($planetPolarRadiusMeters) ? (float)$planetPolarRadiusMeters : $planetEquatorialRadiusMeters;
+	public function __construct ($planetMeanRadius =   6371009.0) {
+		$this->planetMeanRadius = (float)$planetMeanRadius;
 	}
 
+	/**
+	 * Will set $this->planetMeanRadius for astronomical bodies
+	 * http://en.wikipedia.org/wiki/Earth_radius#Mean_radius
+	 * @param float $equatorialRadius in meters. Aka semi-major axis
+	 * @param float $polarRadius      in meters. Aka semi-minor axis
+	 * @return  self [description]
+	 */
+	public function setPlanetaryRadius ($equatorialRadius, $polarRadius) {
+		$this->planetMeanRadius = (2 * (float)$equatorialRadius + (float)$polarRadius) / 3;
+		return $this;
+	}
+
+	/**
+	 * Static inovation of object for chaining
+	 * @see  $this->setCoordinates()
+	 * @param [type] $latitude  [description]
+	 * @param [type] $longitude [description]
+	 * @param float  $altitude  [description]
+	 * @param [type] $title     [description]
+	 * @return  self [description]
+	 */
 	static public function set ($latitude, $longitude, $altitude = 0.0, $title = NULL) {
 		$obj = new static();
 		return $obj->setCoordinates($latitude, $longitude, $altitude, $title);
@@ -35,9 +53,9 @@ class Coordinates {
 
 	/**
 	 * [setCoordinates description]
-	 * @param float  $latitude  [description]
-	 * @param float  $longitude [description]
-	 * @param float  $altitude  [description]
+	 * @param float  $latitude  in decimal degrees
+	 * @param float  $longitude in decimal degrees
+	 * @param float  $altitude  in meters
 	 * @param string  $title     [description]
 	 * @return  self [description]
 	 */
@@ -47,6 +65,26 @@ class Coordinates {
 		$this->altitude  = (float)$altitude;
 		$this->title     = (string)$title;
 		return $this;
+	}
+
+	/**
+	 * Return distance between this coordinates and given coordinates
+	 * http://stackoverflow.com/questions/365826/calculate-distance-between-2-gps-coordinates
+	 * @param  Coordinates $coordinates [description]
+	 * @return float                   in meters
+	 */
+	public function getDistanceToCoordinates (Coordinates $coordinates) {
+		if ($this->planetMeanRadius != $coordinates->planetMeanRadius) {
+			throw new Exception('MeanRadius does not match, coordinates seem to be on different planets');
+		}
+		$dLat = deg2rad($coordinates->latitude - $this->latitude);
+		$dLon = deg2rad($coordinates->longitude - $this->longitude);
+		$lat1 = deg2rad($this->latitude);
+		$lat2 = deg2rad($coordinates->latitude);
+
+		$a = sin($dLat/2) * sin($dLat/2) + sin($dLon/2) * sin($dLon/2) * cos($lat1) * cos($lat2);
+		$c = 2 * atan2(sqrt($a), sqrt(1-$a));
+		return ($this->planetMeanRadius + $this->altitude - $coordinates->altitude) * $c;
 	}
 
 	static protected function stayInRange ($value, $min, $max) {
