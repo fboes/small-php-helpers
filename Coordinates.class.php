@@ -104,7 +104,7 @@ class Coordinates {
 	 */
 	public function getDistanceToCoordinates (Coordinates $coordinates) {
 		if ($this->getPlanetMeanRadius() != $coordinates->getPlanetMeanRadius()) {
-			throw new Exception('MeanRadius does not match, coordinates seem to be on different planets');
+			throw new Exception('Mean radius does not match, coordinates seem to be on different planets');
 		}
 		$dLat = deg2rad($coordinates->latitude - $this->latitude);
 		$dLon = deg2rad($coordinates->longitude - $this->longitude);
@@ -127,6 +127,8 @@ class Coordinates {
 		$lon1 = $this->longitudeRad();
 		$lat2 = $coordinates->latitudeRad();
 		$lon2 = $coordinates->longitudeRad();
+
+		$dLon = $lon2 - $lon1;
 
 		$y = sin($dLon) * cos($lat2);
 		$x = cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($dLon);
@@ -157,7 +159,7 @@ class Coordinates {
 
 		$newCoordinates = new static($this->planetMeanRadius);
 		$newCoordinates->setCoordinates(rad2deg($lat2), rad2deg($lon2), $this->altitude,
-			sprintf(_('%s ° & %s m from "%s"'), $bearing, $distance, $this->title)
+			sprintf(_('%s m with direction %s deg from "%s"'), round($distance), round($bearing), $this->title)
 		);
 		return $newCoordinates;
 	}

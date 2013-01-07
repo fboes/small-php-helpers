@@ -52,9 +52,35 @@ class CoordinatesTest extends Tester {
 		$distance = $coords1->getDistanceToCoordinates($coords2);
 		$this->outputLine($distance);
 
-		$this->assertTrue(is_float($distance), 'Expecting distance to be a floating point number');
+		$this->assertTrue(is_numeric($distance), 'Expecting distance to be numeric');
 		$this->assertTrue($distance > 0.45 * $coords1->getPlanetMeanRadius(), 'Expecting distance to be a greater than 2887 km');
 		$this->assertTrue($distance < 0.46 * $coords1->getPlanetMeanRadius(), 'Expecting distance to be a less than 2888 km');
+
+		$initialBearing = $coords1->getInitialBearingToCoordinates($coords2);
+		$this->outputLine($initialBearing);
+
+		$this->assertTrue(is_numeric($initialBearing), 'Expecting bearing to be numeric');
+
+		$coords3 = $coords1->getRelativeCoordinates($distance, $initialBearing);
+		$this->outputLine($coords3);
+
+		$this->assertTrue(is_object($coords3), 'Expecting return value to be object');
+		$this->assertTrue(abs($coords3->latitude  - $coords2->latitude ) < 0.5, 'Expecting latitude to be close to reference point (lat)');
+		$this->assertTrue(abs($coords3->longitude - $coords2->longitude) < 0.5, 'Expecting latitude to be close to reference point (lon)');
+	}
+
+	/**
+	 * See http://www.movable-type.co.uk/scripts/latlong.html
+	 * @return [type] [description]
+	 */
+	public function testBearing () {
+		$coords1 = Coordinates::set(35, 45, 0, 'Baghdad');
+		$coords2 = Coordinates::set(35, 135, 0, 'Osaka');
+		$initialBearing = $coords1->getInitialBearingToCoordinates($coords2);
+		#$this->outputLine($initialBearing);
+
+		$this->assertTrue(is_numeric($initialBearing), 'Expecting bearing to be numeric');
+		$this->assertEquals($initialBearing, 60, 'Expecting bearing to be 60');
 	}
 }
 
