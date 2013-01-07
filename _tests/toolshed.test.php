@@ -63,6 +63,22 @@ class toolshedTest extends Tester {
 		$this->assertTrue(!is_blank($a), 'Expecting is_blank on not empty array to be FALSE');
 	}
 
+	public function testGetValue () {
+		$this->assertFunctionExists('get_value');
+
+		$this->assertEquals(get_value($a), NULL);
+		$this->assertEquals(get_value($a, array()), array());
+		$this->assertEquals(get_value($a, 'x'), 'x');
+
+		$a = 0;
+		$this->assertEquals(get_value($a), $a);
+		$this->assertEquals(get_value($a, 'x'), $a);
+
+		$a = 'bla';
+		$this->assertEquals(get_value($a), $a);
+		$this->assertEquals(get_value($a, 'x'), $a);
+
+	}
 }
 
 toolshedTest::doTest();
