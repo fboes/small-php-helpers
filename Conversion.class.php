@@ -7,9 +7,9 @@ class Conversion {
 
 	/**
 	 * [returnDistance description]
-	 * @param  float $meters [description]
+	 * @param  float $meters  [description]
 	 * @param  string $unit   like 'm', 'meter', 'km', etc.
-	 * @param int $precision [description]
+	 * @param  int $precision [description]
 	 * @return string         [description]
 	 */
 	static public function returnDistance ($meters, $unit = 'm', $precision = 0) {
@@ -44,7 +44,7 @@ class Conversion {
 				$unit = 'm';
 				break;
 		}
-		return round($distance, $precision) . ' '. $unit;
+		return round($distance, $precision) . ' '. _($unit);
 
 	}
 }
