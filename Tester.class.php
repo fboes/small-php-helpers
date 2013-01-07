@@ -210,6 +210,28 @@ class Tester {
 	 * @param  string $message [description]
 	 * @return bool          [description]
 	 */
+	public function assertMethodExists ($methodName, $className, $message = 'Expecting class %s to have method %s') {
+		if (!is_string($methodName)) {
+			throw new Exception('Malformed method name used in '.__METHOD__);
+		}
+		if (!is_string($className)) {
+			throw new Exception('Malformed class name used in '.__METHOD__);
+		}
+		if (!class_exists($className)) {
+			return $this->assertTrue(FALSE, sprintf('Expecting %s to be a classname', $this->literalize($className)));
+		}
+		else {
+			return $this->assertTrue(method_exists($className, $methodName), sprintf($message,$this->literalize($className), $this->literalize($methodName)));
+		}
+	}
+
+	/**
+	 * [assertFunctionExists description]
+	 * @param  string $attributeName       [description]
+	 * @param  string $className [description]
+	 * @param  string $message [description]
+	 * @return bool          [description]
+	 */
 	public function assertClassHasAttribute ($attributeName, $className, $message = 'Expecting class %s to have attribute %s') {
 		if (!is_string($attributeName)) {
 			throw new Exception('Malformed attribute name used in '.__METHOD__);
@@ -221,8 +243,7 @@ class Tester {
 			return $this->assertTrue(FALSE, sprintf('Expecting %s to be a classname', $this->literalize($className)));
 		}
 		else {
-			$classVariables = array_keys(get_class_vars($className));
-			return $this->assertTrue(in_array($attributeName, $classVariables), sprintf($message,$this->literalize($className), $this->literalize($attributeName)));
+			return $this->assertTrue(property_exists($className, $attributeName), sprintf($message,$this->literalize($className), $this->literalize($attributeName)));
 		}
 	}
 

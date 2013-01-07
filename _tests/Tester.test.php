@@ -7,6 +7,8 @@ class TesterTest extends Tester {
 
 	public function testSimple () {
 		$this->assertTrue(is_object(new Tester()));
+		$this->assertMethodExists('testSimple','TesterTest');
+		$this->assertClassHasAttribute('globalAssertionsSuccess','TesterTest');
 		$this->assertClassHasAttribute('seeIfIAmHere','TesterTest');
 	}
 
