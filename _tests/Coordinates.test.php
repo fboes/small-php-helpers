@@ -65,8 +65,8 @@ class CoordinatesTest extends Tester {
 		$this->outputLine($coords3);
 
 		$this->assertTrue(is_object($coords3), 'Expecting return value to be object');
-		$this->assertTrue(abs($coords3->latitude  - $coords2->latitude ) < 0.5, 'Expecting latitude to be close to reference point (lat)');
-		$this->assertTrue(abs($coords3->longitude - $coords2->longitude) < 0.5, 'Expecting latitude to be close to reference point (lon)');
+		$this->assertTrue(abs($coords3->latitude  - $coords2->latitude ) < 0.000001, 'Expecting latitude to be close to reference point (lat)');
+		$this->assertTrue(abs($coords3->longitude - $coords2->longitude) < 0.000001, 'Expecting latitude to be close to reference point (lon)');
 	}
 
 	/**

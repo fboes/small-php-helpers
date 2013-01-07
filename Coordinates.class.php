@@ -133,7 +133,12 @@ class Coordinates {
 		$y = sin($dLon) * cos($lat2);
 		$x = cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($dLon);
 
-		return (rad2deg(atan2($y, $x)) + 360) % 360;
+		$deg = rad2deg(atan2($y, $x));
+		if ($deg < 0) {
+			$deg += 360;
+		}
+
+		return $deg;
 	}
 
 
