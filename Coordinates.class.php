@@ -15,7 +15,8 @@ class Coordinates {
 	public $altitude  = 0;
 	public $title     = NULL;
 
-	public $planetMeanRadius = 63781370.0;
+	protected $planetMeanRadius = 6371009.0;
+	protected $memoDeg2Rad = array();
 
 	/**
 	 * Define planet. Defaults to Earth
@@ -32,9 +33,8 @@ class Coordinates {
 	 * @param float $polarRadius      in meters. Aka semi-minor axis
 	 * @return  self [description]
 	 */
-	public function setPlanetaryRadius ($equatorialRadius, $polarRadius) {
-		$this->planetMeanRadius = (2 * (float)$equatorialRadius + (float)$polarRadius) / 3;
-		return $this;
+	static public function onSpecialPlanet ($equatorialRadius, $polarRadius) {
+		return new static((2 * (float)$equatorialRadius + (float)$polarRadius) / 3);
 	}
 
 	/**
@@ -51,6 +51,34 @@ class Coordinates {
 		return $obj->setCoordinates($latitude, $longitude, $altitude, $title);
 	}
 
+	public function getPlanetMeanRadius () {
+		return $this->planetMeanRadius;
+	}
+
+	/**
+	 * Return current latitude as radians
+	 * @return float
+	 */
+	public function latitudeRad () {
+		return $this->returnDeg2Rad($this->latitude);
+	}
+
+	/**
+	 * Return current longitude as radians
+	 * @return float
+	 */
+	public function longitudeRad () {
+		return $this->returnDeg2Rad($this->longitude);
+	}
+
+	public function returnDeg2Rad ($deg) {
+		if (empty($this->memoDeg2Rad[$deg])) {
+			$this->memoDeg2Rad[$deg] =  deg2rad($deg);
+		}
+		return $this->memoDeg2Rad[$deg];
+	}
+
+
 	/**
 	 * [setCoordinates description]
 	 * @param float  $latitude  in decimal degrees
@@ -60,45 +88,100 @@ class Coordinates {
 	 * @return  self [description]
 	 */
 	public function setCoordinates ($latitude, $longitude, $altitude = 0.0, $title = NULL) {
-		$this->latitude  = static::stayInRange((float)$latitude,  -90.0,   90.0);
-		$this->longitude = static::stayInRange((float)$longitude, -180.0, 180.0);
+		$this->latitude  = (float)$latitude;
+		$this->longitude = (float)$longitude;
+		$this->keepCoordinatesInBounds();
 		$this->altitude  = (float)$altitude;
 		$this->title     = (string)$title;
 		return $this;
 	}
 
 	/**
-	 * Return distance between this coordinates and given coordinates
-	 * http://stackoverflow.com/questions/365826/calculate-distance-between-2-gps-coordinates
+	 * Return distance between this coordinates and given coordinates. Uses haversine formula
+	 * @see http://www.movable-type.co.uk/scripts/latlong.html
 	 * @param  Coordinates $coordinates [description]
 	 * @return float                   in meters
 	 */
 	public function getDistanceToCoordinates (Coordinates $coordinates) {
-		if ($this->planetMeanRadius != $coordinates->planetMeanRadius) {
+		if ($this->getPlanetMeanRadius() != $coordinates->getPlanetMeanRadius()) {
 			throw new Exception('MeanRadius does not match, coordinates seem to be on different planets');
 		}
 		$dLat = deg2rad($coordinates->latitude - $this->latitude);
 		$dLon = deg2rad($coordinates->longitude - $this->longitude);
-		$lat1 = deg2rad($this->latitude);
-		$lat2 = deg2rad($coordinates->latitude);
+		$lat1 = $this->latitudeRad();
+		$lat2 = $coordinates->latitudeRad();
 
 		$a = sin($dLat/2) * sin($dLat/2) + sin($dLon/2) * sin($dLon/2) * cos($lat1) * cos($lat2);
 		$c = 2 * atan2(sqrt($a), sqrt(1-$a));
 		return ($this->planetMeanRadius + $this->altitude - $coordinates->altitude) * $c;
 	}
 
-	static protected function stayInRange ($value, $min, $max) {
-		if ($min > $max) {
-			throw new Exception('$min must be smaller than $max in '.__METHOD__);
+	/**
+	 * Get bearing at current position to move to given coordinates
+	 * @see http://www.movable-type.co.uk/scripts/latlong.html
+	 * @param  Coordinates $coordinates [description]
+	 * @return float                   in decimal degrees
+	 */
+	public function getInitialBearingToCoordinates (Coordinates $coordinates) {
+		$lat1 = $this->latitudeRad();
+		$lon1 = $this->longitudeRad();
+		$lat2 = $coordinates->latitudeRad();
+		$lon2 = $coordinates->longitudeRad();
+
+		$y = sin($dLon) * cos($lat2);
+		$x = cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($dLon);
+
+		return (rad2deg(atan2($y, $x)) + 360) % 360;
+	}
+
+
+	/**
+	 * Get new coordinates relative to current coordinates by using given distance and initial bearing
+	 * @see http://www.movable-type.co.uk/scripts/latlong.html
+	 * @param float $distance in meters
+	 * @param float $bearing in deciaml degrees
+	 * @return Coordinates [description]
+	 */
+	public function getRelativeCoordinates ($distance, $bearing) {
+		$distance = (float)$distance;
+		$bearing  = (float)$bearing;
+
+		$brng = deg2rad($bearing);
+		$d    = $distance;
+		$lat1 = $this->latitudeRad();
+		$lon1 = $this->longitudeRad();
+		$R    = $this->planetMeanRadius;
+
+		$lat2 = asin( sin($lat1) * cos($d/$R) + cos($lat1) * sin($d/$R) * cos($brng) );
+		$lon2 = $lon1 + atan2(sin($brng) * sin($d/$R) * cos($lat1), cos($d/$R) - sin($lat1) * sin($lat2));
+
+		$newCoordinates = new static($this->planetMeanRadius);
+		$newCoordinates->setCoordinates(rad2deg($lat2), rad2deg($lon2), $this->altitude,
+			sprintf(_('%s ° & %s m from "%s"'), $bearing, $distance, $this->title)
+		);
+		return $newCoordinates;
+	}
+
+	/**
+	 * Check if current coordinates are in bounds. If latitude is out of bounds this function will also convert longitude, implying the given coordinates are on a line extending beyond the pole.
+	 * @return self [description]
+	 */
+	protected function keepCoordinatesInBounds () {
+		while ($this->latitude > 90) {
+			$this->latitude  = 180 - $this->latitude;
+			$this->longitude -= 180;
 		}
-		$fullRange = abs($max - $min);
-		while ($value < $min) {
-			$value += $fullRange;
+		while ($this->latitude < -90) {
+			$this->latitude  = 180 + $this->latitude;
+			$this->longitude += 180;
 		}
-		while ($value > $max) {
-			$value -= $fullRange;
+		while ($this->longitude > 180) {
+			$this->longitude -= 360;
 		}
-		return $value;
+		while ($this->longitude <= -180) {
+			$this->longitude += 360;
+		}
+		return $this;
 	}
 
 	/**
