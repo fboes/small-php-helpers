@@ -9,7 +9,7 @@ class Conversion {
 	 * [returnDistance description]
 	 * @param  float $meters  [description]
 	 * @param  string $unit   like 'm', 'meter', 'km', etc.
-	 * @param  int $precision [description]
+	 * @param  int $precision with negative values the current $meters will be rounded to the nearest 10, 100, etc meters
 	 * @return string         [description]
 	 */
 	static public function returnDistance ($meters, $unit = 'm', $precision = 0) {
@@ -45,6 +45,22 @@ class Conversion {
 				break;
 		}
 		return round($distance, $precision) . ' '. _($unit);
+	}
 
+	/**
+	 * Convert bearing into plain text bearing description. Will use _() for translation afterwards. Can also be used for relative bearing
+	 * @param  float $deg [description]
+	 * @param  array $directions [description]
+	 * @param  float $fullCircle full circle relative to $deg
+	 * @return  string [description]
+	 */
+	static public function returnBearing ($deg, $directions = array('North','East','South', 'West'), $fullCircle = 360) {
+		$directionsCount = count($directions);
+		$segmentSize = $fullCircle / $directionsCount;
+		$key = round($deg / $segmentSize);
+		while ($key >= $directionsCount) {
+			$key -= $directionsCount;
+		}
+		return _($directions[$key]);
 	}
 }
