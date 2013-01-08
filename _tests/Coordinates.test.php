@@ -52,7 +52,7 @@ class CoordinatesTest extends Tester {
 		$distance = $coords1->getDistanceToCoordinates($coords2);
 		$this->outputLine($distance);
 
-		$this->assertTrue(is_numeric($distance), 'Expecting distance to be numeric');
+		$this->assertTrue(is_float($distance), 'Expecting distance to be numeric');
 		$this->assertTrue($distance > 0.45 * $coords1->getPlanetMeanRadius(), 'Expecting distance to be a greater than 2887 km');
 		$this->assertTrue($distance < 0.46 * $coords1->getPlanetMeanRadius(), 'Expecting distance to be a less than 2888 km');
 
@@ -77,10 +77,34 @@ class CoordinatesTest extends Tester {
 		$coords1 = Coordinates::set(35, 45, 0, 'Baghdad');
 		$coords2 = Coordinates::set(35, 135, 0, 'Osaka');
 		$initialBearing = $coords1->getInitialBearingToCoordinates($coords2);
-		#$this->outputLine($initialBearing);
+		$this->outputLine($initialBearing);
 
-		$this->assertTrue(is_numeric($initialBearing), 'Expecting bearing to be numeric');
-		$this->assertEquals($initialBearing, 60, 'Expecting bearing to be 60');
+		$this->assertTrue(is_float($initialBearing), 'Expecting bearing to be numeric');
+		$this->assertEquals(round($initialBearing), (float)60, 'Expecting bearing to be ~= 60');
+	}
+
+	public function testPolygon () {
+		$coords1 = Coordinates::set(0,0,0, 'Center');
+
+		$moreCoords = $coords1->getRegularPolygon(1000 * 1000,4);
+		$this->assertTrue(is_array($moreCoords), 'Expecting method to return an array');
+		$this->assertEquals(count($moreCoords), 4);
+		foreach ($moreCoords as $c) {
+			$this->assertTrue($c instanceof Coordinates, 'Expecting return items of array to be Coordinates objects');
+		}
+		#$this->outputLine($moreCoords);
+	}
+
+	public function testHexagon () {
+		$coords1 = Coordinates::set(0,0,0, 'Center');
+
+		$moreCoords = $coords1->getRegularPolygon(400 * 1000,6);
+		$this->assertTrue(is_array($moreCoords), 'Expecting method to return an array');
+		$this->assertEquals(count($moreCoords), 6);
+		foreach ($moreCoords as $c) {
+			$this->assertTrue($c instanceof Coordinates, 'Expecting return items of array to be Coordinates objects');
+		}
+		#$this->outputLine($moreCoords);
 	}
 }
 

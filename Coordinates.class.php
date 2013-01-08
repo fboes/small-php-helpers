@@ -40,19 +40,23 @@ class Coordinates {
 	/**
 	 * Static inovation of object for chaining
 	 * @see  $this->setCoordinates()
-	 * @param [type] $latitude  [description]
-	 * @param [type] $longitude [description]
+	 * @param float $latitude  [description]
+	 * @param float $longitude [description]
 	 * @param float  $altitude  [description]
-	 * @param [type] $title     [description]
+	 * @param string $title     [description]
 	 * @return  self [description]
 	 */
 	static public function set ($latitude, $longitude, $altitude = 0.0, $title = NULL) {
 		$obj = new static();
-		return $obj->setCoordinates($latitude, $longitude, $altitude, $title);
+		return $obj->setCoordinates((float)$latitude, (float)$longitude, (float)$altitude, $title);
 	}
 
+	/**
+	 * Get mean radius of current planet.
+	 * @return float in meters
+	 */
 	public function getPlanetMeanRadius () {
-		return $this->planetMeanRadius;
+		return (float)$this->planetMeanRadius;
 	}
 
 	/**
@@ -71,7 +75,13 @@ class Coordinates {
 		return $this->returnDeg2Rad($this->longitude);
 	}
 
+	/**
+	 * Convert decimal degrees into radians. Uses memoization for performance improvement.
+	 * @param  float $deg [description]
+	 * @return float      [description]
+	 */
 	public function returnDeg2Rad ($deg) {
+		$deg = (float)$deg;
 		if (empty($this->memoDeg2Rad[$deg])) {
 			$this->memoDeg2Rad[$deg] =  deg2rad($deg);
 		}
@@ -97,7 +107,7 @@ class Coordinates {
 	}
 
 	/**
-	 * Return distance between this coordinates and given coordinates. Uses haversine formula
+	 * Return distance between this coordinates and given coordinates. Uses haversine formula, ignores altitude.
 	 * @see http://www.movable-type.co.uk/scripts/latlong.html
 	 * @param  Coordinates $coordinates [description]
 	 * @return float                   in meters
@@ -106,18 +116,18 @@ class Coordinates {
 		if ($this->getPlanetMeanRadius() != $coordinates->getPlanetMeanRadius()) {
 			throw new Exception('Mean radius does not match, coordinates seem to be on different planets');
 		}
-		$dLat = deg2rad($coordinates->latitude - $this->latitude);
+		$dLat = deg2rad($coordinates->latitude  - $this->latitude);
 		$dLon = deg2rad($coordinates->longitude - $this->longitude);
 		$lat1 = $this->latitudeRad();
 		$lat2 = $coordinates->latitudeRad();
 
 		$a = sin($dLat/2) * sin($dLat/2) + sin($dLon/2) * sin($dLon/2) * cos($lat1) * cos($lat2);
 		$c = 2 * atan2(sqrt($a), sqrt(1-$a));
-		return ($this->planetMeanRadius + $this->altitude - $coordinates->altitude) * $c;
+		return $this->planetMeanRadius * $c;
 	}
 
 	/**
-	 * Get bearing at current position to move to given coordinates
+	 * Get bearing at current position to move to given coordinates, ignoring altitude.
 	 * @see http://www.movable-type.co.uk/scripts/latlong.html
 	 * @param  Coordinates $coordinates [description]
 	 * @return float                   in decimal degrees
@@ -143,7 +153,7 @@ class Coordinates {
 
 
 	/**
-	 * Get new coordinates relative to current coordinates by using given distance and initial bearing
+	 * Get new coordinates relative to current coordinates by using given distance and initial bearing, ignoring altitude.
 	 * @see http://www.movable-type.co.uk/scripts/latlong.html
 	 * @param float $distance in meters
 	 * @param float $bearing in deciaml degrees
@@ -167,6 +177,21 @@ class Coordinates {
 			sprintf(_('%s m with direction %s deg from "%s"'), round($distance), round($bearing), $this->title)
 		);
 		return $newCoordinates;
+	}
+
+	/**
+	 * Build regular ploygon with current coordinates in center.
+	 * @param  float  $distance in meters
+	 * @param  integer $vertices number of vertices, set 4 for a square
+	 * @return array            of Coordinates
+	 */
+	public function getRegularPolygon ($distance, $vertices = 4) {
+		$verticeCoords = array();
+		$step = 360 / $vertices;
+		for ($curVertice = 1; $curVertice <= $vertices; $curVertice ++) {
+			$verticeCoords[] = $this->getRelativeCoordinates( $distance, $curVertice * $step - ($step / 2) );
+		}
+		return $verticeCoords;
 	}
 
 	/**
