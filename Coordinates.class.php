@@ -143,12 +143,15 @@ class Coordinates {
 		$y = sin($dLon) * cos($lat2);
 		$x = cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($dLon);
 
-		$deg = rad2deg(atan2($y, $x));
-		if ($deg < 0) {
-			$deg += 360;
-		}
-
+		$deg = $this->keepDegreesInBounds(rad2deg(atan2($y, $x)));
 		return $deg;
+	}
+
+	public function getRelationToCoordinates (Coordinates $coordinates) {
+		return array(
+			'distance' => $this->getDistanceToCoordinates($coordinates),
+			'bearing'  => $this->getInitialBearingToCoordinates($coordinates),
+		);
 	}
 
 
@@ -161,7 +164,7 @@ class Coordinates {
 	 */
 	public function getRelativeCoordinates ($distance, $bearing) {
 		$distance = (float)$distance;
-		$bearing  = (float)$bearing;
+		$bearing  = $this->keepDegreesInBounds((float)$bearing);
 
 		$brng = deg2rad($bearing);
 		$d    = $distance;
@@ -182,14 +185,15 @@ class Coordinates {
 	/**
 	 * Build regular ploygon with current coordinates in center.
 	 * @param  float  $distance in meters
-	 * @param  integer $vertices number of vertices, set 4 for a square
+	 * @param  int $vertices number of vertices, set 4 for a square
+	 * @param  float $offsetDeg rotate polygon by x degrees initially. For a regular square this would be 45
 	 * @return array            of Coordinates
 	 */
-	public function getRegularPolygon ($distance, $vertices = 4) {
+	public function getRegularPolygon ($distance, $vertices = 4, $offsetDeg = 0) {
 		$verticeCoords = array();
 		$step = 360 / $vertices;
-		for ($curVertice = 1; $curVertice <= $vertices; $curVertice ++) {
-			$verticeCoords[] = $this->getRelativeCoordinates( $distance, $curVertice * $step - ($step / 2) );
+		for ($curVertice = 0; $curVertice <= ($vertices-1); $curVertice ++) {
+			$verticeCoords[] = $this->getRelativeCoordinates( $distance, ($curVertice * $step) + $offsetDeg );
 		}
 		return $verticeCoords;
 	}
@@ -214,6 +218,20 @@ class Coordinates {
 			$this->longitude += 360;
 		}
 		return $this;
+	}
+
+	protected function keepDegreesInBounds ($deg) {
+		return $this->keepInBounds($deg,360,0);
+	}
+
+	protected function keepInBounds ($value, $max, $min = 0) {
+		while ($value >= $max) {
+			$value -= $max;
+		}
+		while ($value < $min) {
+			$value += $max;
+		}
+		return $value;
 	}
 
 	/**

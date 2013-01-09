@@ -13,7 +13,6 @@ class ConversionTest extends Tester {
 		}
 	}
 
-
 	public function dataBearingOutput () {
 		return array(
 			'Simple' => array( array('N','E','S', 'W') ),

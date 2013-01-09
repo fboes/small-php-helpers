@@ -49,24 +49,33 @@ class CoordinatesTest extends Tester {
 		$coords1 = Coordinates::set(36.12, -86.67, 0, 'BNA');
 		$coords2 = Coordinates::set(33.94, -118.40, 0, 'LAX');
 
+		// getDistanceToCoordinates
 		$distance = $coords1->getDistanceToCoordinates($coords2);
 		$this->outputLine($distance);
-
 		$this->assertTrue(is_float($distance), 'Expecting distance to be numeric');
 		$this->assertTrue($distance > 0.45 * $coords1->getPlanetMeanRadius(), 'Expecting distance to be a greater than 2887 km');
 		$this->assertTrue($distance < 0.46 * $coords1->getPlanetMeanRadius(), 'Expecting distance to be a less than 2888 km');
 
+		// getInitialBearingToCoordinates
 		$initialBearing = $coords1->getInitialBearingToCoordinates($coords2);
 		$this->outputLine($initialBearing);
-
 		$this->assertTrue(is_numeric($initialBearing), 'Expecting bearing to be numeric');
 
+		// getRelationToCoordinates
+		$relation = $coords1->getRelationToCoordinates($coords2);
+		$this->assertTrue(is_array($relation));
+		$this->assertTrue(!empty($relation['distance']));
+		$this->assertEquals($relation['distance'], $distance);
+		$this->assertTrue(!empty($relation['bearing']));
+		$this->assertEquals($relation['bearing'], $initialBearing);
+
+		// getRelativeCoordinates
 		$coords3 = $coords1->getRelativeCoordinates($distance, $initialBearing);
 		$this->outputLine($coords3);
-
 		$this->assertTrue(is_object($coords3), 'Expecting return value to be object');
 		$this->assertTrue(abs($coords3->latitude  - $coords2->latitude ) < 0.000001, 'Expecting latitude to be close to reference point (lat)');
 		$this->assertTrue(abs($coords3->longitude - $coords2->longitude) < 0.000001, 'Expecting latitude to be close to reference point (lon)');
+
 	}
 
 	/**
@@ -76,6 +85,7 @@ class CoordinatesTest extends Tester {
 	public function testBearing () {
 		$coords1 = Coordinates::set(35, 45, 0, 'Baghdad');
 		$coords2 = Coordinates::set(35, 135, 0, 'Osaka');
+
 		$initialBearing = $coords1->getInitialBearingToCoordinates($coords2);
 		$this->outputLine($initialBearing);
 
@@ -86,13 +96,13 @@ class CoordinatesTest extends Tester {
 	public function testPolygon () {
 		$coords1 = Coordinates::set(0,0,0, 'Center');
 
-		$moreCoords = $coords1->getRegularPolygon(1000 * 1000,4);
+		$moreCoords = $coords1->getRegularPolygon(1000 * 1000,4,45);
 		$this->assertTrue(is_array($moreCoords), 'Expecting method to return an array');
 		$this->assertEquals(count($moreCoords), 4);
 		foreach ($moreCoords as $c) {
 			$this->assertTrue($c instanceof Coordinates, 'Expecting return items of array to be Coordinates objects');
 		}
-		#$this->outputLine($moreCoords);
+		$this->outputLine($moreCoords);
 	}
 
 	public function testHexagon () {
@@ -104,7 +114,7 @@ class CoordinatesTest extends Tester {
 		foreach ($moreCoords as $c) {
 			$this->assertTrue($c instanceof Coordinates, 'Expecting return items of array to be Coordinates objects');
 		}
-		#$this->outputLine($moreCoords);
+		$this->outputLine($moreCoords);
 	}
 }
 
