@@ -6,7 +6,7 @@ require('../Social.class.php');
 class SocialTest extends Tester {
 
 	public function testSimple () {
-		$social = new Social('Title of URL', 'http://example.com/');
+		$social = new Social('Title of URL', 'http://example.com/test');
 
 		$url = $social->facebookUrl();
 		$this->assertTrue(is_string($url), 'URL is string');

@@ -45,8 +45,8 @@ class Social {
 	 * @param  string $body    [description]
 	 * @return string [description]
 	 */
-	public function emailUrl ($subject = 'Recommendation from %1$s', $body = 'Recommending "%1$s" (%2$s) from %3$s.') {
-		$subject = sprintf(_($subject), $this->title, $this->url,$this->getDomain());
+	public function emailUrl ($subject = 'Recommendation from %3$s', $body = 'Recommending "%1$s" (%2$s) from %3$s.') {
+		$subject = sprintf(_($subject), $this->title, $this->url, $this->getDomain());
 		$body    = sprintf(_($body),    $this->title, $this->url, $this->getDomain());
 
 		return 'mailto:?subject='.rawurlencode($subject).'&body='.rawurlencode($body);
@@ -69,7 +69,7 @@ class Social {
 	}
 
 	protected function getDomain () {
-		return preg_replace('#^[a-zA-z]://(.+?)/.*$#','$1',$this->url);
+		return preg_replace('#^[a-zA-z]+://([^/]+).*$#','$1',$this->url);
 	}
 
 }
