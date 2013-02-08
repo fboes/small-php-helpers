@@ -260,6 +260,27 @@ function get_value (&$v, $defaultValue = NULL) {
 }
 
 /**
+ * Convert string into associative array
+ * @param  string $string with x:y
+ * @return array with array(x=>y)
+ */
+function make_array ($string) {
+  $return = array();
+  $lines = preg_split('#[\r\n]+#', trim($string));
+  if (!empty($lines)) {
+    foreach ($lines as $line) {
+      if (preg_match('#^(.+):(.+)$#',trim($line),$matches)) {
+        $return[trim($matches[1])] = trim($matches[2]);
+      }
+      else {
+      	$return[] = trim($line);
+      }
+    }
+  }
+  return $return;
+}
+
+/**
  * Set all internal switches for setting proper locale. Use 'locale -a' to determine available locales on your system. You may also want so send "SET NAMES 'utf8' / 'latin1'" for MySQL.
  *
  * @param   string  $languageCode   according to ISO 639-1

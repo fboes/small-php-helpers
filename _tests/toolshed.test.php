@@ -79,6 +79,23 @@ class toolshedTest extends Tester {
 		$this->assertEquals(get_value($a, 'x'), $a);
 
 	}
+
+	public function dataMakeArray () {
+		return array(
+			'Single line' => array('a', array('a')),
+			'Multiple line' => array('a
+b', array('a','b')),
+			'Single line, associative' => array('a:b', array('a' => 'b')),
+			'Multiple line, associative' => array('a:b
+c : d', array('a' => 'b', 'c' => 'd')),
+		);
+	}
+
+	public function testMakeArray ($input, array $output) {
+		$array = make_array($input);
+		$this->assertTrue(is_array($array), 'Expecting make_array to return an array');
+		$this->assertEquals($array,$output);
+	}
 }
 
 toolshedTest::doTest();
