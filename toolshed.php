@@ -302,6 +302,28 @@ function set_locale ($languageCode, $countryCode, $charset = 'UTF-8') {
 	}
 }
 
+/**
+ * Convert filename to a safe filename, stripping all harmful components and doing some minimal pattern checks
+ * @param  string $filename       [description]
+ * @param  string $directory      [description]
+ * @param  string $allowedPattern pattern like '/\.(txt|doc)$/'. Optional
+ * @return string                 or NULL if filename does not match pattern
+ */
+function safe_filename ($filename, $directory, $allowedPattern = NULL) {
+	$filename  = basename($filename);
+	if (!empty($allowedPattern) && !preg_match($allowedPattern,$filename)) {
+		return NULL;
+	}
+	if (!empty($directory)) {
+		if (!preg_match('#/$#',$directory)) {
+			$directory .= '/';
+		}
+		$directory = dirname($directory.'.');
+		$directory .= '/';
+	}
+	return $directory . $filename;
+}
+
 if (!function_exists('_')) {
 	function _ ($string) {
 		return $string;

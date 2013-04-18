@@ -96,6 +96,17 @@ c : d', array('a' => 'b', 'c' => 'd')),
 		$this->assertTrue(is_array($array), 'Expecting make_array to return an array');
 		$this->assertEquals($array,$output);
 	}
+
+	public function testSafe_filename () {
+		$this->assertEquals(safe_filename('bla.txt',''),'bla.txt');
+		$this->assertEquals(safe_filename('blubb/bla.txt',''),'bla.txt');
+		$this->assertEquals(safe_filename('blubb/bla.txt','','#\.txt$#'),'bla.txt');
+		$this->assertEquals(safe_filename('blubb/bla.txt','','#\.doc$#'),NULL);
+		$this->assertEquals(safe_filename('bla.txt','blubb'),'blubb/bla.txt');
+		$this->assertEquals(safe_filename('dingo/bla.txt','blubb'),'blubb/bla.txt');
+		$this->assertEquals(safe_filename('dingo/bla.txt','/home/user/test'),'/home/user/test/bla.txt');
+		$this->assertEquals(safe_filename('dingo/bla.txt','/home/user/test/'),'/home/user/test/bla.txt');
+	}
 }
 
 toolshedTest::doTest();

@@ -14,6 +14,8 @@ class Page {
 	protected $sitename;
 	protected $language;
 	protected $country;
+	protected $latitude;
+	protected $longitude;
 
 	/**
 	 * Set basic properties of your site
@@ -39,12 +41,12 @@ class Page {
 	 * Set locale for this page
 	 * @param [type] $languageCode [description]
 	 * @param [type] $countryCode  [description]
-	 * @return  string [description]
+	 * @return  self
 	 */
 	public function setLocale ($languageCode, $countryCode) {
 		$this->language = strtolower($languageCode);
 		$this->country = strtoupper($countryCode);
-		return $this->getLocale();
+		return $this;
 	}
 
 	/**
@@ -56,15 +58,34 @@ class Page {
 	}
 
 	/**
+	 * Set WGS 84 coordinates for this page
+	 * @param float $latitude  [description]
+	 * @param float $longitude [description]
+	 * @return  self [description]
+	 */
+	public function setCoordinates ($latitude, $longitude) {
+		$this->latitude  = (float) $latitude;
+		$this->longitude = (float) $longitude;
+	}
+
+	/**
 	 * [basicMeta description]
 	 * @param  string $titlePattern %1$s being the site name, %2$s being the page title
 	 * @return string HTML
 	 */
 	public function basicMeta ($titlePattern = '%2$s - %1$s') {
-		return
+		$meta =
 			'<title>'.htmlspecialchars(sprintf($titlePattern, $this->sitename, $this->title)).'</title>'."\n"
 			.'<meta name="description" content="'.htmlspecialchars($this->description).'" />'."\n"
 		;
+		if (isset($this->latitude) && isset($this->longitude)) {
+			$meta .=
+				'<meta name="geo.position" content="'.htmlspecialchars($this->latitude.';'.$this->longitude).'" />'."\n"
+				.'<meta name="ICBM" content="'.htmlspecialchars($this->latitude.', '.$this->longitude).'" />'."\n"
+			;
+		}
+
+		return $meta;
 	}
 
 	/**
