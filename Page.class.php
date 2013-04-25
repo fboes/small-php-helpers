@@ -45,7 +45,7 @@ class Page {
 	 */
 	public function setLocale ($languageCode, $countryCode) {
 		$this->language = strtolower($languageCode);
-		$this->country = strtoupper($countryCode);
+		$this->country  = strtoupper($countryCode);
 		return $this;
 	}
 
@@ -150,7 +150,7 @@ class Page {
 	 * @return string [description]
 	 */
 	public function googlePlusUrl () {
-		return '#';
+		return 'https://plus.google.com/share?url='.rawurlencode($this->url);
 	}
 
 	/**
