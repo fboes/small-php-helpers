@@ -188,13 +188,13 @@ class Form {
 		$element->setOnEmpty('type', 'text');
 		$element->addClass  ('input');
 		$element->addClass  ($element->attributes['type']);
-    $element->addErrorsOnRequired();
+		$element->addErrorsOnRequired();
 		if (!Form::is_blank($element->attributes['maxlength'])) {
 			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {
 				$element->addError('maxlength',_('Field data is to long.'));
 			}
 		}
-  	switch ($element->attributes['type']) {
+		switch ($element->attributes['type']) {
 			case 'color':
 				$element->setOnEmpty('data-pattern', '#[A-Fa-f0-9]{6}');
 				$element->setOnEmpty('title', _('Expecting web color'));
@@ -236,7 +236,7 @@ class Form {
 				$element->setOnEmpty('data-pattern', 'http(s)?://\S+');
 				$element->setOnEmpty('title', _('Expecting valid URL, starting with http'));
 				break;
-  	}
+		}
 		if (!Form::is_blank($element->attributes['value'])) {
 			if (!Form::is_blank($element->attributes['pattern']) || !Form::is_blank($element->attributes['data-pattern'])) {
 				$pattern = !Form::is_blank($element->attributes['pattern']) ? $element->attributes['pattern'] : $element->attributes['data-pattern'];
@@ -314,7 +314,7 @@ class Form {
 
 		// Manipulate attributes
 		$element->makeId(!empty($this->formStart->attributes['id']) ? $this->formStart->attributes['id'] : '');
-    $element->addErrorsOnRequired();
+		$element->addErrorsOnRequired();
 
 		return $this->storeElement($element);
 	}
@@ -341,7 +341,7 @@ class Form {
 		$element->makeId(!empty($this->formStart->attributes['id']) ? $this->formStart->attributes['id'] : '');
 		$element->addClass  ('checkbox');
 		$element->addClass  ('checkbox-'.$element->attributes['type']);
-    $element->addErrorsOnRequired();
+		$element->addErrorsOnRequired();
 
 		return $this->storeElement($element);
 	}
