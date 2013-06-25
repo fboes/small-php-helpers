@@ -23,6 +23,7 @@ class FormTest extends Tester {
 			->select('<select data-label="e" name="e" multiple="multiple">', $options)
 			->checkbox('<input data-label="f" name="f">', $options)
 			->checkbox('<input data-label="g" name="g" type="radio">', $options)
+			#->input('<input data-label="h" name="h" />', $options)
 			->end('</form>')
 		;
 

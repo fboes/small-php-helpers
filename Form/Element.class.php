@@ -199,11 +199,11 @@ class FormElement {
 			switch ($this->html) {
 				case Form::HTML_SELECT:
 					$attributes = $this->returnAttributesAsHtml($this->attributes, array('value'));
-					$formElement = sprintf($this->html, $attributes, $this->makeOptions($this));
+					$formElement = sprintf($this->html, $attributes, $this->makeOptions(Form::HTML_SELECT_OPTION, Form::HTML_SELECT_OPTIONS_WRAPPER));
 					break;
 				case Form::HTML_CHECKBOXES:
 					$attributes = $this->returnAttributesAsHtml($this->attributes, array('value','name'));
-					$formElement = sprintf($this->html, $attributes, $this->makeOptions($this));
+					$formElement = sprintf($this->html, $attributes, $this->makeOptions(Form::HTML_CHECKBOXES_OPTION, Form::HTML_CHECKBOXES_OPTIONS_WRAPPER, 'checked="checked"'));
 					break;
 				case Form::HTML_TEXTAREA:
 					$attributes = $this->returnAttributesAsHtml($this->attributes, array('value'));
@@ -217,7 +217,7 @@ class FormElement {
 					$attributes = $this->returnAttributesAsHtml($this->attributes);
 					$formElement = sprintf($this->html, $attributes);
 					if (!empty($this->options)) {
-						$formElement .= $this->makeOptions($this);
+						$formElement .= $this->makeOptions(Form::HTML_INPUT_OPTION, Form::HTML_INPUT_OPTIONS_WRAPPER);
 					}
 					break;
 			}
@@ -282,8 +282,8 @@ class FormElement {
 
 	/**
 	 * [makeLabel description]
-	 * @param string $htmlLabelWrapper
-	 * @param string $htmlLabelRequired
+	 * @param  string $htmlLabelWrapper
+	 * @param  string $htmlLabelRequired
 	 * @return string HTML
 	 */
 	protected function makeLabelText ($htmlLabelWrapper, $htmlLabelRequired) {
@@ -296,33 +296,36 @@ class FormElement {
 
 	/**
 	 * [makeOptions description]
-	 * @return string HTML
+	 * @param  string $htmlOption         [description]
+	 * @param  string $htmlOptionsWrapper [description]
+	 * @param  string $htmlSelected       [description]
+	 * @return string                     HTML
 	 */
-	protected function makeOptions () {
+	protected function makeOptions ($htmlOption = '<option%1$s>%2$s</option>', $htmlOptionsWrapper = '%1$s', $htmlSelected = 'selected="selected"') {
 		$html = '';
 		if (!empty($this->options)) {
 			switch ($this->html) {
 				case Form::HTML_INPUT:
-					$html .= '<datalist id="'.htmlspecialchars($this->attributes['list']).'">';
 					foreach ($this->options as $id => $option) {
-						$checked = ($this->isChecked ($id)) ? ' selected="selected"' : '';
+						$checked = ($this->isChecked ($id)) ? ' '.$htmlSelected : '';
 						$label = ($option != $id) ?  ' label="'.htmlspecialchars($option).'"' : '';
-						$html .= '<option value="'.htmlspecialchars($id).'"'.$label.$checked.' />';
+						$html .= sprintf($htmlOption, ' value="'.htmlspecialchars($id).'"'.$label.$checked, NULL);
 					}
-					$html .= '</datalist>';
+					$html = sprintf($htmlOptionsWrapper, $html, ' id="'.htmlspecialchars($this->attributes['list']).'"');
 					break;
 				case Form::HTML_SELECT:
 					foreach ($this->options as $id => $option) {
-						$checked = ($this->isChecked ($id)) ? ' selected="selected"' : '';
-						$html .= '<option value="'.htmlspecialchars($id).'"'.$checked.'>'.htmlspecialchars($option).'</option>';
+						$checked = ($this->isChecked ($id)) ? ' '.$htmlSelected : '';
+						$html .= sprintf($htmlOption, ' value="'.htmlspecialchars($id).'"'.$checked, htmlspecialchars($option));
 					}
 					break;
 				case Form::HTML_CHECKBOXES:
 					$attributes = $this->returnAttributesAsHtml($this->attributes, array('id'));
 					foreach ($this->options as $id => $option) {
-						$checked = ($this->isChecked ($id)) ? ' checked="checked"' : '';
-						$html .= '<label><input value="'.htmlspecialchars($id).'"'.$checked.$attributes.' /> <span>'.htmlspecialchars($option).'</span></label>';
+						$checked = ($this->isChecked ($id)) ? ' '.$htmlSelected : '';
+						$html .= sprintf($htmlOption, ' value="'.htmlspecialchars($id).'"'.$checked.$attributes, htmlspecialchars($option));
 					}
+					$html = sprintf($htmlOptionsWrapper, $html, ' id="'.htmlspecialchars($this->attributes['id']).'"');
 					break;
 			}
 		}
