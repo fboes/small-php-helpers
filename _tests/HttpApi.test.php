@@ -36,6 +36,22 @@ class HttpApiTest extends Tester {
 		$this->assertEquals(get_class($result), 'SimpleXMLElement');
 		$this->outputLine($api);
 	}
+
+	/*
+	public function testMemoization () {
+		$baseUrl = 'http://3960.org/';
+
+		require_once('../Memoization.class.php');
+
+		$api = new HttpApi($baseUrl, HttpApi::RETURN_TYPE_HTML);
+		$api->setMemoization(new Memoization());
+		$this->assertTrue(is_object($api));
+		$this->outputLine($api);
+
+		$result = $api->get(array('a' => 'b'));
+		$this->assertTrue(!empty($result));
+	}
+	*/
 }
 
 HttpApiTest::doTest();

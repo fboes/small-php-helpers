@@ -1,5 +1,10 @@
 <?php
-
+/**
+ * @class HttpApi
+ *
+ * @author      Frank Bo"es <info@3960.org>
+ * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+ */
 class HttpApi {
 	protected $baseUrl;
 	protected $replyType;
@@ -9,8 +14,9 @@ class HttpApi {
 	protected $lastUrl;
 	protected $lastPostFields;
 
-	protected $memoizationTable = array();
+	protected $memoizationObject;
 	protected $memoizationExpire = 5;
+
 
 	public $lastMemoizationKey;
 	public $lastHttpStatusCode;
@@ -47,65 +53,85 @@ class HttpApi {
 		$this->httpPassword = (string)$password;
 	}
 
+	public function setMemoization ($memoizationObject) {
+		if (!is_object($memoizationObject)) {
+			error_log ('Memoization object is no object');
+			exit();
+		}
+		elseif (
+			!method_exists($memoizationObject, 'get')
+			|| !method_exists($memoizationObject, 'set')
+		) {
+			error_log ('Missing method "get" or "set" in Memoization object');
+			exit();
+		}
+		$this->memoizationObject = $memoizationObject;
+	}
+
 	/**
 	 * [get description]
-	 * @param  array  $data Array of query parameters, with KEY => VALUE
-	 * @param  string $url  URL for this request. $this->baseUrl will be prepended
+	 * @param  array  $query Array of query parameters, with KEY => VALUE
+	 * @param  string $url   URL for this request. $this->baseUrl will be prepended
 	 * @return mixed  see $this->doRequest
 	 */
-	public function get (array $data = array(), $url = NULL) {
-		return $this->doRequest($data, $url, self::HTTP_GET);
+	public function get (array $query = array(), $url = NULL) {
+		return $this->doRequest($query, $url, self::HTTP_GET);
 	}
 
 	/**
 	 * [post description]
-	 * @param  array  $data Array of query parameters, with KEY => VALUE
-	 * @param  string $url  URL for this request. $this->baseUrl will be prepended
+	 * @param  array  $query Array of query parameters, with KEY => VALUE
+	 * @param  string $url   URL for this request. $this->baseUrl will be prepended
 	 * @return mixed  see $this->doRequest
 	 */
-	public function post (array $data, $url = NULL) {
-		return $this->doRequest($data, $url, self::HTTP_POST);
+	public function post (array $query, $url = NULL) {
+		return $this->doRequest($query, $url, self::HTTP_POST);
 	}
 
 	/**
 	 * [put description]
-	 * @param  array  $data Array of query parameters, with KEY => VALUE
-	 * @param  string $url  URL for this request. $this->baseUrl will be prepended
+	 * @param  array  $query Array of query parameters, with KEY => VALUE
+	 * @param  string $url   URL for this request. $this->baseUrl will be prepended
 	 * @return mixed  see $this->doRequest
 	 */
-	public function put (array $data, $url = NULL) {
-		return $this->doRequest($data, $url, self::HTTP_PUT);
+	public function put (array $query, $url = NULL) {
+		return $this->doRequest($query, $url, self::HTTP_PUT);
 	}
 
 	/**
 	 * [delete description]
-	 * @param  array  $data Array of query parameters, with KEY => VALUE
-	 * @param  string $url  URL for this request. $this->baseUrl will be prepended
+	 * @param  array  $query Array of query parameters, with KEY => VALUE
+	 * @param  string $url   URL for this request. $this->baseUrl will be prepended
 	 * @return mixed  see $this->doRequest
 	 */
-	public function delete (array $data, $url = NULL) {
-		return $this->doRequest($data, $url, self::HTTP_DELETE);
+	public function delete (array $query, $url = NULL) {
+		return $this->doRequest($query, $url, self::HTTP_DELETE);
 	}
 
 	/**
 	 * Do actual request
-	 * @param  array  $data Array of query parameters, with KEY => VALUE
-	 * @param  string $url  URL for this request. $this->baseUrl will be prepended
-	 * @param  string $type i.e. 'GET', 'POST'
+	 * @param  array  $query Array of query parameters, with KEY => VALUE
+	 * @param  string $url   URL for this request. $this->baseUrl will be prepended
+	 * @param  string $type  i.e. 'GET', 'POST'
 	 * @return mixed  see $this->convertReply
 	 */
-	public function doRequest (array $data = NULL, $url = NULL, $type = self::HTTP_GET) {
+	public function doRequest (array $query = NULL, $url = NULL, $type = self::HTTP_GET) {
 		$url  = $this->baseUrl . (string)$url;
-		$type = (string)$type;
-		$data = http_build_query($data);
-		$this->lastMemoizationKey = $type . ' ' .$url . '?' . $data;
-
 		if (empty($url)) {
 			throw new Exception('Empty URL');
 		}
+		$type = (string)$type;
+		$this->lastMemoizationKey = $type . ' ' .$url;
+		if (!empty($query)) {
+			$query = http_build_query($query);
+			$this->lastMemoizationKey .= '?' . $query;
+		}
 
-		$memoization = $this->memoizationGet($this->lastMemoizationKey);
-		if ($this->memoizationExpire && !empty($memoization)) {
+
+		if (!empty($this->memoization)) {
+			$memoization = $this->memoizationObject->get($this->lastMemoizationKey);
+		}
+		if (!empty($memoization) && !empty($this->memoizationExpire)) {
 			$this->lastReply = $memoization;
 			$this->lastHttpStatusCode = 200;
 		}
@@ -118,27 +144,27 @@ class HttpApi {
 			switch ($type) {
 				case self::HTTP_POST:
 					$curlOptions[CURLOPT_POST] = TRUE;
-					if (!empty($data)) {
-						$curlOptions[CURLOPT_POSTFIELDS] = $data;
+					if (!empty($query)) {
+						$curlOptions[CURLOPT_POSTFIELDS] = $query;
 					}
 					break;
 				case self::HTTP_PUT:
 					$curlOptions[CURLOPT_POST] = TRUE;
 					$curlOptions[CURLOPT_CUSTOMREQUEST] = $type;
-					if (!empty($data)) {
-						$curlOptions[CURLOPT_POSTFIELDS] = $data;
+					if (!empty($query)) {
+						$curlOptions[CURLOPT_POSTFIELDS] = $query;
 					}
 					break;
 				case self::HTTP_DELETE:
 					$curlOptions[CURLOPT_POST] = TRUE;
 					$curlOptions[CURLOPT_CUSTOMREQUEST] = $type;
-					if (!empty($data)) {
-						$curlOptions[CURLOPT_POSTFIELDS] = $data;
+					if (!empty($query)) {
+						$curlOptions[CURLOPT_POSTFIELDS] = $query;
 					}
 					break;
 				default:
-					if (!empty($data)) {
-						$curlOptions[CURLOPT_URL] .= '?'.$data;
+					if (!empty($query)) {
+						$curlOptions[CURLOPT_URL] .= '?'.$query;
 					}
 					break;
 			}
@@ -168,8 +194,8 @@ class HttpApi {
 				if (!empty($reply)) {
 					$this->lastReply = $this->convertReply($reply);
 				}
-				if ($this->memoizationExpire){
-					$this->memoizationSet($this->lastMemoizationKey, $this->lastReply, $this->memoizationExpire);
+				if (!empty($this->memoizationObject) && !empty($this->memoizationExpire)){
+					$this->memoizationObject->set($this->lastMemoizationKey, $this->lastReply, $this->memoizationExpire);
 				}
 			}
 			curl_close($ch);
@@ -226,66 +252,5 @@ class HttpApi {
 				return $data;
 				break;
 		}
-	}
-
-	/**
-	 * Get data for $key
-	 * @param  string $key The key to fetch.
-	 * @return mixed       [description]
-	 */
-	protected function memoizationGet ($key) {
-		$key = (string)$key;
-		if (!empty($this->memoizationTable[$key])) {
-			$memo = $this->memoizationTable[$key];
-			if (!empty($memo->expire) && $memo->expire < time()) {
-				$this->memoizationDelete($key);
-				return NULL;
-			}
-			else {
-				return $memo->var;
-			}
-		}
-		return NULL;
-	}
-
-	/**
-	 * [memoizationSet description]
-	 * @param  string $key    The key that will be associated with the item.
-	 * @param  mixed  $data   The variable to store.
-	 * @param  int    $expire Expiration time of the item. If it's equal to zero, the item will never expire. You can also use Unix timestamp or a number of seconds starting from current time, but in the latter case the number of seconds may not exceed 2592000 (30 days).
-	 * @return bool           [description]
-	 */
-	protected function memoizationSet ($key, $var, $expire = 0) {
-		if (!empty($expire) && $expire < 2592000) {
-			$expire += time();
-		}
-		$this->memoizationTable[(string)$key] = (object)array(
-			'expire' => $expire,
-			'var'    => $var
-		);
-		return TRUE;
-	}
-
-	/**
-	 * Delete specific key
-	 * @param  string $key [description]
-	 * @return bool        [description]
-	 */
-	public function memoizationDelete ($key) {
-		$key = (string)$key;
-		if (!empty($key) && !empty($this->memoizationTable[$key])) {
-			unset($this->memoizationTable[$key]);
-			return TRUE;
-		}
-		return FALSE;
-	}
-
-	/**
-	 * [memoizationFlush description]
-	 * @return bool [description]
-	 */
-	public function memoizationFlush () {
-		$this->memoizationTable = array();
-		return TRUE;
 	}
 }
