@@ -20,11 +20,12 @@ class HttpApiTest extends Tester {
 	}
 
 	public function testObjectInvocation () {
-		$baseUrl = 'http://3960.org/';
+		$baseUrl = 'http://www.3960.org';
 		$api = new HttpApi($baseUrl, HttpApi::REPLY_TYPE_HTML);
 		$result = $api->get(array('a' => 'b'));
 		$this->assertTrue(!empty($result), 'Result received');
 		$this->assertTrue(!$api->isLastRequestError(), 'Last request was no error');
+		#$this->outputLine($api);
 	}
 
 	public function testXmlConversion () {
@@ -59,7 +60,7 @@ class HttpApiTest extends Tester {
 		$result = $api->get(array(), '404.html');
 		$this->assertTrue(!empty($result), 'Result received');
 		$this->assertTrue($api->isLastRequestError(), 'Last request was error');
-		$this->outputLine($api);
+		#$this->outputLine($api);
 	}
 
 	/*

@@ -15,8 +15,10 @@ class HttpApi {
 	protected $memoizationObject;
 	protected $memoizationExpire = 5;
 
+	protected $targetEncoding = 'UTF-8';
+
 	/**
-	 * [$lastRequest description]
+	 * Properties of last request
 	 * @var object
 	 */
 	public $lastRequest;
@@ -57,14 +59,14 @@ class HttpApi {
 	 * @param   string $url [description]
 	 * @return  HttpApi self
 	 */
-	protected function clearLastrequest ($url = NULL) {
+	protected function clearLastrequest () {
 		$this->lastRequest = (object)array(
-			'url' => $url,
-			'postFields' => NULL,
-			'mimeType' => NULL,
+			'url'            => NULL,
+			'postFields'     => NULL,
+			'mimeType'       => NULL,
 			'memoizationKey' => NULL,
 			'httpStatusCode' => NULL,
-			'reply' => NULL,
+			'reply'          => NULL,
 		);
 		return $this;
 	}
@@ -138,7 +140,7 @@ class HttpApi {
 	 * @param  string $url   URL for this request. $this->baseUrl will be prepended
 	 * @return mixed  see $this->doRequest
 	 */
-	public function delete (array $query, $url = NULL) {
+	public function delete (array $query = array(), $url = NULL) {
 		return $this->doRequest($query, $url, self::HTTP_METHOD_DELETE);
 	}
 
@@ -252,7 +254,7 @@ class HttpApi {
 	}
 
 	/**
-	 * Get last URL from last call. This may be different fromt he URL you requested because of redirects.
+	 * Get last URL from last call. This may be different from the URL you requested because of redirects.
 	 * @return string URL
 	 */
 	public function getLastUrl () {
@@ -266,7 +268,12 @@ class HttpApi {
 	 * @return mixed             [description]
 	 */
 	protected function convertReply ($data, $replyMimeType = NULL) {
-		# TODO: convert input encoding
+		if (function_exists('mb_detect_encoding')) {
+			$foundEncoding = mb_detect_encoding($data);
+			if ($foundEncoding != $this->targetEncoding) {
+				$data = mb_convert_encoding($data, $this->targetEncoding, $foundEncoding);
+			}
+		}
 		if (empty($replyMimeType)) {
 			$replyMimeType = $this->standardReplyMimeType;
 		}
