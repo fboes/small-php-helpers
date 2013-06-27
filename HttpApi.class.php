@@ -7,52 +7,85 @@
  */
 class HttpApi {
 	protected $baseUrl;
-	protected $replyType;
+	protected $standardReplyMimeType;
 	protected $httpUsername;
 	protected $httpPassword;
 
-	protected $lastUrl;
-	protected $lastPostFields;
 
 	protected $memoizationObject;
 	protected $memoizationExpire = 5;
 
+	/**
+	 * [$lastRequest description]
+	 * @var object
+	 */
+	public $lastRequest;
 
-	public $lastMemoizationKey;
-	public $lastHttpStatusCode;
-	public $lastReply;
+	const REPLY_TYPE_PLAIN   = 'text/plain';
+	const REPLY_TYPE_JSON    = 'application/json';
+	const REPLY_TYPE_HTML    = 'text/html';
+	const REPLY_TYPE_XHTML   = 'application/xhtml+xml';
+	const REPLY_TYPE_XML     = 'text/xml';
 
-	const RETURN_TYPE_PLAIN = 'PLAIN';
-	const RETURN_TYPE_JSON  = 'JSON';
-	const RETURN_TYPE_HTML  = 'HTML';
-	const RETURN_TYPE_XHTML = 'XHTML';
-	const RETURN_TYPE_XML   = 'XML';
-
-	const HTTP_GET    = 'GET';
-	const HTTP_POST   = 'POST';
-	const HTTP_PUT    = 'PUT';
-	const HTTP_DELETE = 'DELETE';
+	const HTTP_METHOD_GET    = 'GET';
+	const HTTP_METHOD_POST   = 'POST';
+	const HTTP_METHOD_PUT    = 'PUT';
+	const HTTP_METHOD_DELETE = 'DELETE';
 
 	/**
 	 * Invoke HttpApi object
 	 * @param string $baseUrl   [description]
-	 * @param string $replyType [description]
+	 * @param string $standardReplyMimeType set to NULL if you want to use auto-detection of reply MIME type
 	 */
-	public function __construct ($baseUrl = NULL, $replyType = self::RETURN_TYPE_PLAIN) {
-		$this->baseUrl   = (string)$baseUrl;
-		$this->replyType = (string)$replyType;
+	public function __construct ($baseUrl = NULL, $standardReplyMimeType = self::REPLY_TYPE_PLAIN) {
+		$this->baseUrl               = (string)$baseUrl;
+		$this->standardReplyMimeType = (string)$standardReplyMimeType;
+		$this->clearLastrequest();
+	}
+
+	/**
+	 * Static constructor for chaining
+	 * @see $this->__construct
+	 * @return  HttpApi self
+	 */
+	public static function init ($baseUrl = NULL, $standardReplyMimeType = self::REPLY_TYPE_PLAIN) {
+		return new self($baseUrl, $standardReplyMimeType);
+	}
+
+	/**
+	 * [clearLastrequest description]
+	 * @param   string $url [description]
+	 * @return  HttpApi self
+	 */
+	protected function clearLastrequest ($url = NULL) {
+		$this->lastRequest = (object)array(
+			'url' => $url,
+			'postFields' => NULL,
+			'mimeType' => NULL,
+			'memoizationKey' => NULL,
+			'httpStatusCode' => NULL,
+			'reply' => NULL,
+		);
+		return $this;
 	}
 
 	/**
 	 * Set HTTP authentication credentials for all requests
 	 * @param string $username [description]
 	 * @param string $password [description]
+	 * @return  HttpApi self
 	 */
 	public function setHttpCredentials ($username, $password) {
 		$this->httpUsername = (string)$username;
 		$this->httpPassword = (string)$password;
+		return $this;
 	}
 
+	/**
+	 * Add Memoization object to be used as query cache. This objects needs to have at least these methods: set($key, $data) and get($key)
+	 * @param Object $memoizationObject [description]
+	 * @return  HttpApi self
+	 */
 	public function setMemoization ($memoizationObject) {
 		if (!is_object($memoizationObject)) {
 			error_log ('Memoization object is no object');
@@ -66,98 +99,105 @@ class HttpApi {
 			exit();
 		}
 		$this->memoizationObject = $memoizationObject;
+		return $this;
 	}
 
 	/**
-	 * [get description]
+	 * Perform a GET-request. Matches "read"
 	 * @param  array  $query Array of query parameters, with KEY => VALUE
 	 * @param  string $url   URL for this request. $this->baseUrl will be prepended
 	 * @return mixed  see $this->doRequest
 	 */
 	public function get (array $query = array(), $url = NULL) {
-		return $this->doRequest($query, $url, self::HTTP_GET);
+		return $this->doRequest($query, $url, self::HTTP_METHOD_GET);
 	}
 
 	/**
-	 * [post description]
+	 * Perform a POST-request. Matches "update"
 	 * @param  array  $query Array of query parameters, with KEY => VALUE
 	 * @param  string $url   URL for this request. $this->baseUrl will be prepended
 	 * @return mixed  see $this->doRequest
 	 */
 	public function post (array $query, $url = NULL) {
-		return $this->doRequest($query, $url, self::HTTP_POST);
+		return $this->doRequest($query, $url, self::HTTP_METHOD_POST);
 	}
 
 	/**
-	 * [put description]
+	 * Perform a PUT-request. Matches "create"
 	 * @param  array  $query Array of query parameters, with KEY => VALUE
 	 * @param  string $url   URL for this request. $this->baseUrl will be prepended
 	 * @return mixed  see $this->doRequest
 	 */
 	public function put (array $query, $url = NULL) {
-		return $this->doRequest($query, $url, self::HTTP_PUT);
+		return $this->doRequest($query, $url, self::HTTP_METHOD_PUT);
 	}
 
 	/**
-	 * [delete description]
+	 * Perform a DELETE-request. Matches "delete"
 	 * @param  array  $query Array of query parameters, with KEY => VALUE
 	 * @param  string $url   URL for this request. $this->baseUrl will be prepended
 	 * @return mixed  see $this->doRequest
 	 */
 	public function delete (array $query, $url = NULL) {
-		return $this->doRequest($query, $url, self::HTTP_DELETE);
+		return $this->doRequest($query, $url, self::HTTP_METHOD_DELETE);
 	}
 
 	/**
-	 * Do actual request
-	 * @param  array  $query Array of query parameters, with KEY => VALUE
-	 * @param  string $url   URL for this request. $this->baseUrl will be prepended
-	 * @param  string $type  i.e. 'GET', 'POST'
+	 * Do actual request. This will follow redirects, if there are any.
+	 * @param  array  $query       Array of query parameters, with KEY => VALUE
+	 * @param  string $url         URL for this request. $this->baseUrl will be prepended
+	 * @param  string $httpMethod  i.e. 'GET', 'POST', 'PUT', 'DELETE'
 	 * @return mixed  see $this->convertReply
 	 */
-	public function doRequest (array $query = NULL, $url = NULL, $type = self::HTTP_GET) {
+	public function doRequest (array $query = NULL, $url = NULL, $httpMethod = self::HTTP_METHOD_GET) {
+		$this->clearLastrequest();
 		$url  = $this->baseUrl . (string)$url;
 		if (empty($url)) {
 			throw new Exception('Empty URL');
 		}
-		$type = (string)$type;
-		$this->lastMemoizationKey = $type . ' ' .$url;
+		$httpMethod = (string)$httpMethod;
+		$this->lastRequest->memoizationKey = $httpMethod . ' ' .$url;
 		if (!empty($query)) {
 			$query = http_build_query($query);
-			$this->lastMemoizationKey .= '?' . $query;
+			$this->lastRequest->memoizationKey .= '?' . $query;
 		}
 
 
 		if (!empty($this->memoization)) {
-			$memoization = $this->memoizationObject->get($this->lastMemoizationKey);
+			$memoization = $this->memoizationObject->get($this->lastRequest->memoizationKey);
 		}
 		if (!empty($memoization) && !empty($this->memoizationExpire)) {
-			$this->lastReply = $memoization;
-			$this->lastHttpStatusCode = 200;
+			$this->lastRequest->reply = $memoization;
+			$this->lastRequest->httpStatusCode = 200;
 		}
 		else {
 			$ch = curl_init();
 
 			$curlOptions = array();
-			$curlOptions[CURLOPT_URL] = $url;
+			$curlOptions[CURLOPT_URL]            = $url;
+			$curlOptions[CURLOPT_HEADER]         = 0;
+			$curlOptions[CURLOPT_RETURNTRANSFER] = TRUE;
+			$curlOptions[CURLOPT_CONNECTTIMEOUT] = 15;
+			$curlOptions[CURLOPT_FOLLOWLOCATION] = TRUE;
+			$curlOptions[CURLOPT_MAXREDIRS]      = 2;
 
-			switch ($type) {
-				case self::HTTP_POST:
+			switch ($httpMethod) {
+				case self::HTTP_METHOD_POST:
 					$curlOptions[CURLOPT_POST] = TRUE;
 					if (!empty($query)) {
 						$curlOptions[CURLOPT_POSTFIELDS] = $query;
 					}
 					break;
-				case self::HTTP_PUT:
+				case self::HTTP_METHOD_PUT:
 					$curlOptions[CURLOPT_POST] = TRUE;
-					$curlOptions[CURLOPT_CUSTOMREQUEST] = $type;
+					$curlOptions[CURLOPT_CUSTOMREQUEST] = $httpMethod;
 					if (!empty($query)) {
 						$curlOptions[CURLOPT_POSTFIELDS] = $query;
 					}
 					break;
-				case self::HTTP_DELETE:
+				case self::HTTP_METHOD_DELETE:
 					$curlOptions[CURLOPT_POST] = TRUE;
-					$curlOptions[CURLOPT_CUSTOMREQUEST] = $type;
+					$curlOptions[CURLOPT_CUSTOMREQUEST] = $httpMethod;
 					if (!empty($query)) {
 						$curlOptions[CURLOPT_POSTFIELDS] = $query;
 					}
@@ -173,56 +213,68 @@ class HttpApi {
 				$curlOptions[CURLOPT_USERPWD]  = $this->httpUsername . ':' . $this->httpPassword;
 			}
 
-			$curlOptions[CURLOPT_HEADER] = 0;
-			$curlOptions[CURLOPT_RETURNTRANSFER] = TRUE;
-			$curlOptions[CURLOPT_CONNECTTIMEOUT] = 15;
-
 			curl_setopt_array($ch, $curlOptions);
-			$this->lastUrl        = $curlOptions[CURLOPT_URL];
-			$this->lastPostFields = !empty($curlOptions[CURLOPT_POSTFIELDS])
+			$this->lastRequest->url            = $curlOptions[CURLOPT_URL];
+			$this->lastRequest->postFields     = !empty($curlOptions[CURLOPT_POSTFIELDS])
 				? $curlOptions[CURLOPT_POSTFIELDS]
 				: NULL
 			;
 			$reply = curl_exec($ch);
 
-			$this->lastReply = NULL;
 			if(curl_errno($ch)) {
 				throw new Exception('Curl Error: '.curl_error($ch));
 			}
 			else {
-				$this->lastHttpStatusCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE );
+				$this->lastRequest->httpStatusCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				$this->lastRequest->url            = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+				$this->lastRequest->mimeType       = preg_replace('#\s?;.+$#','',curl_getinfo($ch, CURLINFO_CONTENT_TYPE));
 				if (!empty($reply)) {
-					$this->lastReply = $this->convertReply($reply);
+					$this->lastRequest->reply = $this->convertReply($reply, empty($this->standardReplyMimeType)
+						? $this->lastRequest->mimeType
+						: $this->standardReplyMimeType
+					);
 				}
 				if (!empty($this->memoizationObject) && !empty($this->memoizationExpire)){
-					$this->memoizationObject->set($this->lastMemoizationKey, $this->lastReply, $this->memoizationExpire);
+					$this->memoizationObject->set($this->lastRequest->memoizationKey, $this->lastRequest->reply, $this->memoizationExpire);
 				}
 			}
 			curl_close($ch);
 		}
-		return $this->lastReply;
+		return $this->lastRequest->reply;
 	}
 
 	/**
-	 * Check if last HTTP sdtatus show the last request to be an error
+	 * Check if last HTTP status show the last request to be an error
 	 * @return boolean [description]
 	 */
 	public function isLastRequestError () {
-		return $this->lastHttpStatusCode < 400;
+		return $this->lastRequest->httpStatusCode >= 400;
 	}
 
 	/**
-	 * Convert HTTP answer according to selected $this->replyType to PHP-native represantation
-	 * @param  string $data [description]
-	 * @return mixed        [description]
+	 * Get last URL from last call. This may be different fromt he URL you requested because of redirects.
+	 * @return string URL
 	 */
-	protected function convertReply ($data) {
-		# TODO: output encoding
-		switch ($this->replyType) {
-			case self::RETURN_TYPE_JSON:
+	public function getLastUrl () {
+		return $this->lastRequest->url;
+	}
+
+	/**
+	 * Convert HTTP answer according to selected $replyMimeType to PHP-native represantation
+	 * @param  string $data      [description]
+	 * @param  string $replyMimeType Convert according to this type. If none is given, if will use the standard standardReplyMimeType defined in $this->__construct
+	 * @return mixed             [description]
+	 */
+	protected function convertReply ($data, $replyMimeType = NULL) {
+		# TODO: convert input encoding
+		if (empty($replyMimeType)) {
+			$replyMimeType = $this->standardReplyMimeType;
+		}
+		switch ($replyMimeType) {
+			case self::REPLY_TYPE_JSON:
 				return json_decode($data);
 				break;
-			case self::RETURN_TYPE_HTML:
+			case self::REPLY_TYPE_HTML:
 				if (class_exists('tidy')){
 					$tidy = new tidy(NULL, array(
 						'clean' => 1,
@@ -233,7 +285,7 @@ class HttpApi {
 				}
 				return $data;
 				break;
-			case self::RETURN_TYPE_XHTML:
+			case self::REPLY_TYPE_XHTML:
 				if (class_exists('tidy')){
 					$tidy = new tidy(NULL, array(
 						'clean' => 1,
@@ -245,7 +297,7 @@ class HttpApi {
 				}
 				return simplexml_load_string($data);
 				break;
-			case self::RETURN_TYPE_XML:
+			case self::REPLY_TYPE_XML:
 				return simplexml_load_string($data);
 				break;
 			default:
