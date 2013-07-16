@@ -13,6 +13,9 @@ This set of small libraries is intended as easy shortcuts for everyday situation
 * Tester: Simple unit test in case PhpUnit is not deployable
 * toolshed: Missing PHP-functions like quoted <code>echo()</code> or a better replacement for <code>empty()</code>
 
-Author:      Frank Boës <info@3960.org>
+Legal stuff
+-----------
 
-Copyright:   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+Author: [Frank Boës](http://3960.org)
+
+Copyright & license: See LICENSE.txt

@@ -69,8 +69,8 @@ class Messages {
   public function addMessageOnAssert ($assert, $message, $messageFail = '') {
     if (empty($messageFail)) {
       $messageFail = str_replace(
-        array(' success',' succeeded', ' exists', ' is', ' has'),
-        array(' fail',' failed', ' does not exist', ' is not', ' has not'),
+        array(' success',' succeeded', 'successful',      'exist',        'exists',         ' is',     ' has',     'have',     'was'),
+        array(' fail',   ' failed',    'not successful',  'do not exist', 'does not exist', ' is not', ' has not', 'have not', 'was not'),
         $message
       );
     }
