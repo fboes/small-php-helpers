@@ -5,7 +5,7 @@
  * This is quite intentional, so you may replace this functionality here with Memcache instead.
  *
  * @author      Frank Bo"es <info@3960.org>
- * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+ * @copyright   MIT License (MIT)
  */
 class Memoization {
 	protected $table = array();

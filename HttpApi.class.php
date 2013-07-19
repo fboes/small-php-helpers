@@ -3,13 +3,14 @@
  * @class HttpApi
  *
  * @author      Frank Bo"es <info@3960.org>
- * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+ * @copyright   MIT License (MIT)
  */
 class HttpApi {
 	protected $baseUrl;
 	protected $standardReplyMimeType;
 	protected $httpUsername;
 	protected $httpPassword;
+	protected $cookies = array();
 
 
 	protected $memoizationObject;
@@ -80,6 +81,17 @@ class HttpApi {
 	public function setHttpCredentials ($username, $password) {
 		$this->httpUsername = (string)$username;
 		$this->httpPassword = (string)$password;
+		return $this;
+	}
+
+	/**
+	 * Setcookie to use with all consecutive requests
+	 * @param string $key   [description]
+	 * @param string $value [description]
+	 * @return  HttpApi self
+	 */
+	public function setCookie ($key, $value) {
+		$this->cookies[(string)$key] = (string)$value;
 		return $this;
 	}
 
@@ -213,6 +225,13 @@ class HttpApi {
 			if (!empty($this->httpUsername) || !empty($this->httpPassword)) {
 				$curlOptions[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
 				$curlOptions[CURLOPT_USERPWD]  = $this->httpUsername . ':' . $this->httpPassword;
+			}
+			if (!empty($this->cookies)) {
+				$cookies = array();
+				foreach ($this->cookies as $key => $value) {
+					$cookies[] = $key.'='.$value;
+				}
+				$curlOptions[CURLOPT_COOKIE] = implode('; ', $cookies);
 			}
 
 			curl_setopt_array($ch, $curlOptions);

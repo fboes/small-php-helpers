@@ -4,7 +4,7 @@
  * Add mutiple sources for a media object, get the optimal HTML
  *
  * @author      Frank Bo"es <info@3960.org>
- * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+ * @copyright   MIT License (MIT)
  */
 
 class Media {

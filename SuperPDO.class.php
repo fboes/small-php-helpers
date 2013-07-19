@@ -5,13 +5,13 @@
  * Extends functionaliyt of PDO
  *
  * @author      Frank Bo"es <info@3960.org>
- * @copyright   Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+ * @copyright   MIT License (MIT)
  */
-class SuperPDO extends PDO 
+class SuperPDO extends PDO
 {
     public $lastCmd = '';
 
-    
+
     /**
      * Open Mysql-PDO
      *
@@ -33,15 +33,15 @@ class SuperPDO extends PDO
      * @param   string  $file   Absolute or relative filename
      * @return  SuperPDO
      */
-    public static function openSqlite ($file) 
+    public static function openSqlite ($file)
     {
-        if (!preg_match('#^/#',$file)) 
+        if (!preg_match('#^/#',$file))
         {
             $file = dirname($_SERVER['SCRIPT_FILENAME']).'/'.$file;
         }
         return new self('sqlite:'.$file);
     }
-    
+
     /**
      * Quotes an array for inserting / updating operations
      *
@@ -53,7 +53,7 @@ class SuperPDO extends PDO
     public function quoteArray (array $data, $separator = ',', $withKey = TRUE)
     {
         $set = array();
-        foreach ($data as $key => $value) 
+        foreach ($data as $key => $value)
         {
             $set[] = ($withKey)
                 ? addslashes($key).'='.$this->quote($value)
@@ -62,7 +62,7 @@ class SuperPDO extends PDO
         }
         return (implode($separator,$set));
     }
-    
+
     /**
      * Insert array into table. Will do proper quoting.
      *
@@ -73,7 +73,7 @@ class SuperPDO extends PDO
      */
     public function insert ($table, array $data, $options = NULL)
     {
-        $this->lastCmd = 
+        $this->lastCmd =
             'INSERT '.addslashes($options)
             .' INTO '.addslashes($table)
             .'('.implode(',',array_keys($data)).')'
@@ -87,7 +87,7 @@ class SuperPDO extends PDO
      * Insert multiple datasets. Will do proper quoting.
      *
      * @param   string  $table  Name of the table
-     * @param   array   $multiData   array with associative arrays with 
+     * @param   array   $multiData   array with associative arrays with
      *  FIELDNAME => FIELDVALUE
      * @param   string  $options    Like 'DELAYED'. Optional, defaults to NULL
      * @return  bool
@@ -101,7 +101,7 @@ class SuperPDO extends PDO
         }
         return $this->commit();
     }
-    
+
     /**
      * Replace array into table. Will do proper quoting.
      *
@@ -112,7 +112,7 @@ class SuperPDO extends PDO
      */
     public function replace ($table, array $data, $options = NULL)
     {
-        $this->lastCmd = 
+        $this->lastCmd =
             'REPLACE '.addslashes($options)
             .' INTO '.addslashes($table)
             .'('.implode(',',array_keys($data)).')'
@@ -121,7 +121,7 @@ class SuperPDO extends PDO
         $sth = $this->prepare($this->lastCmd);
         return $sth->execute($data);
     }
-    
+
     /**
      * Update array into table. Will do proper quoting.
      *
@@ -134,7 +134,7 @@ class SuperPDO extends PDO
      */
     public function update ($table, array $data, $where, $options = NULL)
     {
-        $this->lastCmd = 
+        $this->lastCmd =
             'UPDATE '.addslashes($options)
             .' '.addslashes($table)
             .' SET '.$this->quoteArray($data)
@@ -163,7 +163,7 @@ class SuperPDO extends PDO
             default:
                 return $ts;
                 break;
-        } 
+        }
     }
 }
 ?>
