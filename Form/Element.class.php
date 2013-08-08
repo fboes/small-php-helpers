@@ -180,8 +180,8 @@ class FormElement {
 	 * @return  FormElement [description]
 	 */
 	public function addError ($type, $msg) {
-		$this->addClass('error');
-		$this->addClass('error-'.$type);
+		$this->addClass('invalid');
+		$this->addClass('invalid-'.$type);
 		$this->errors[] = $msg;
 		return $this;
 	}
@@ -193,7 +193,7 @@ class FormElement {
 	 * @param string $htmlLabelRequired
 	 * @return string HTML
 	 */
-	public function returnHtml ($htmlFieldWrapper = "<span>%1\$s%2\$s</span>\n", $htmlLabelWrapper = "%s", $htmlLabelRequired = " *", $htmlErrorWrapper = '<span class="error">%s</span>') {
+	public function returnHtml ($htmlFieldWrapper = "<span>%1\$s%2\$s</span>\n", $htmlLabelWrapper = "%s", $htmlLabelRequired = " *", $htmlErrorWrapper = '<span class="invalid">%s</span>') {
 		if (!empty($this->attributes)) {
 			// get form field
 			switch ($this->html) {

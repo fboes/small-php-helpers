@@ -120,7 +120,7 @@ class Form {
 	}
 
 	/**
-	 * Set HTML to wrap aorund label text, e.g. "%s:"
+	 * Set HTML to wrap around label text, e.g. "%s:"
 	 * @param string $html with %s being the actual label text
 	 */
 	public function setLabelWrapper ($html = "%s") {
@@ -134,10 +134,10 @@ class Form {
 	}
 
 	/**
-	 * Set HTML to wrap aorund label text, e.g. "%s:"
+	 * Set HTML to wrap around error messages, e.g. "%s:"
 	 * @param string $html with %s being the actual label text
 	 */
-	public function setErrorWrapper ($html = '<span class="error">%s</span>') {
+	public function setErrorWrapper ($html = '<span class="invalid">%s</span>') {
 		if (strpos($html,'%s') !== FALSE) {
 			$this->htmlErrorWrapper = $html;
 		}
@@ -437,18 +437,18 @@ class Form {
 		return $return;
 	}
 
-  /**
-   * Check if any form element has errors
-   * @return int number of form elements with errors, which means 0 / FALSE means no errors.
-   */
+	/**
+	 * Check if any form element has errors
+	 * @return int number of form elements with errors, which means 0 / FALSE means no errors.
+	 */
 	public function hasErrors () {
-	  $errors = 0;
-	  foreach ($this->formElements as $element) {
-	    if (!empty($element->errors)) {
-	      $errors += count($element->errors);
-	    }
-	  }
-	  return $errors;
+		$errors = 0;
+		foreach ($this->formElements as $element) {
+			if (!empty($element->errors)) {
+				$errors += count($element->errors);
+			}
+		}
+		return $errors;
 	}
 
 	/**
