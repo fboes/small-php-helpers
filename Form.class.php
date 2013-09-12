@@ -8,21 +8,25 @@
  * - data-preservekeys: Keep keys for numerical values
  * - default: Set value if no other value is present
  *
- * Other element attributes (see http://www.whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.html):
+ * Other element attributes (see http://www.whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.html & http://baymard.com/labs/touch-keyboard-types):
  * - accept
- * - autocomplete
- * - autofocus
+ * - autocapitalize="on|off"
+ * - autocomplete="on|off"
+ * - autocorrect="on|off"
+ * - autofocus="autofocus"
  * - dirname
- * - disabled
+ * - disabled="disabled"
  * - inputmode
- * - maxlength
- * - max
- * - min
+ * - max="\d"
+ * - maxlength="\d"
+ * - min="\d"
+ * - multiple="multiple"
  * - name
+ * - novalidate="novalidate"
  * - pattern
  * - placeholder
- * - readonly
- * - step
+ * - readonly="readonly"
+ * - step="\d"
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   MIT License (MIT)
@@ -179,7 +183,26 @@ class Form {
 	}
 
 	/**
-	 * Add input field
+	 * Add input field. SOm einput types will spawn a data-pattern-attribute containing rules to validate this field via JavaScript.
+	 * Supported input types:
+	 * - color
+	 * - date
+	 * - datetime
+	 * - datetime-local
+	 * - email
+	 * - file
+	 * - hidden
+	 * - month
+	 * - number
+	 * - password
+	 * - range
+	 * - search
+	 * - tel
+	 * - text
+	 * - time
+	 * - url
+	 * - week
+	 *
 	 * @param  string $html like '<input name="test" />'
 	 * @return Form       [description]
 	 */
