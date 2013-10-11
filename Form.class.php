@@ -113,7 +113,7 @@ class Form {
 	 * Add HTML to wrap around every form field, but not free-form html.
 	 * @param string $html with %1$s being the label, %2$s being the actual form field, %3$s being the optional error message
 	 */
-	public function setFieldWrapper ($html = "<span class=\"form-field\">%1\$s%2\$s%3\$s</span>\n") {
+	public function setFieldWrapper ($html = "<div class=\"form-field\">%1\$s%2\$s%3\$s</div>\n") {
 		if (strpos($html,'%1$s') !== FALSE && strpos($html,'%2$s') !== FALSE) {
 			$this->htmlFieldWrapper = $html;
 		}
