@@ -224,10 +224,10 @@ function asciify ($str) {
  * @return string	  [description]
  */
 function make_id ($str) {
-	if (!preg_match('#^[A-Za-z][A-Za-z0-9\-_\:\.]*$#', $str)) {
+	if (!preg_match('#^[A-Za-z][A-Za-z0-9\-_]*$#', $str)) {
 		$str = preg_replace(
-			array('#^[^A-Za-z]#','#[^A-Za-z0-9\-_\:\.]#', '#(_)_+#'),
-			array('id_$0',	   '_',					 '$1'),
+			array('#^[^A-Za-z]#','#[^A-Za-z0-9\-_]#', '#(_)_+#'),
+			array('id_$0',       '_',                 '$1'),
 			$str
 		);
 	}
