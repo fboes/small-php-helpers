@@ -265,19 +265,19 @@ function get_value (&$v, $defaultValue = NULL) {
  * @return array with array(x=>y)
  */
 function make_array ($string) {
-  $return = array();
-  $lines = preg_split('#[\r\n]+#', trim($string));
-  if (!empty($lines)) {
-    foreach ($lines as $line) {
-      if (preg_match('#^(.+):(.+)$#',trim($line),$matches)) {
-        $return[trim($matches[1])] = trim($matches[2]);
-      }
-      else {
-      	$return[] = trim($line);
-      }
-    }
-  }
-  return $return;
+	$return = array();
+	$lines = preg_split('#[\r\n]+#', trim($string));
+	if (!empty($lines)) {
+		foreach ($lines as $line) {
+			if (preg_match('#^(.+):(.+)$#',trim($line),$matches)) {
+				$return[trim($matches[1])] = trim($matches[2]);
+			}
+			else {
+				$return[] = trim($line);
+			}
+		}
+	}
+	return $return;
 }
 
 /**
