@@ -324,6 +324,27 @@ function safe_filename ($filename, $directory, $allowedPattern = NULL) {
 	return $directory . $filename;
 }
 
+/**
+ * Return complete URL from partial url
+ * @param  string $urlPart [description]
+ * @return string          [description]
+ */
+function returnCompleteUrl ($urlPart) {
+	$urlPartt = trim($urlPart);
+	if (!preg_match('#^[a-z]+://#', $urlPart)) {
+		$protocol = (!empty($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] == 'https') ? 'https' : 'http';
+		$protocol .= '://';
+		if (!preg_match('#^www#', $urlPart)) {
+			$protocol .= $_SERVER['HTTP_HOST'];
+			if (!preg_match('#^/#', $urlPart)) {
+				$protocol .= '/';
+			}
+		}
+		$urlPart = $protocol.$urlPart;
+	}
+	return $urlPart;
+}
+
 if (!function_exists('_')) {
 	function _ ($string) {
 		return $string;
