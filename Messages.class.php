@@ -126,7 +126,7 @@ class Messages {
 	 * @return  Messages [description]
 	 */
 	public function storeInSession () {
-		if (!empty($_SESSION)) {
+		if (isset($_SESSION)) {
 			$_SESSION[self::SESSION_OBJECT] = serialize($this);
 		}
 		else {
@@ -141,7 +141,7 @@ class Messages {
 	 */
 	public function restoreFromSession () {
 		if (!empty($_SESSION[self::SESSION_OBJECT])) {
-			$that = serialize($_SESSION[self::SESSION_OBJECT]);
+			$that = unserialize($_SESSION[self::SESSION_OBJECT]);
 			$thatVars = get_object_vars($that);
 			foreach ($thatVars as $varName => $varValue) {
 				$this->$varName = $varValue;
