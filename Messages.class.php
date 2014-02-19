@@ -146,6 +146,7 @@ class Messages {
 			foreach ($thatVars as $varName => $varValue) {
 				$this->$varName = $varValue;
 			}
+			unset($_SESSION[self::SESSION_OBJECT]);
 		}
 		return $this;
 	}
