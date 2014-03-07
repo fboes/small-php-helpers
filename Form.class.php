@@ -319,7 +319,7 @@ class Form {
 				$element->addError('maxlength',_('Field data is to long.'));
 			}
 		}
-    $element->addErrorsOnRequired();
+    	$element->addErrorsOnRequired();
 
 		return $this->storeElement($element);
 	}
@@ -363,7 +363,7 @@ class Form {
 		if ($element->attributes['type'] == 'checkbox') {
 			$element->attributes['name'] .= '[]';
 		}
-		$element->setAttributesByArray($this->getdefaultElementAttributes($element->attributes['name']), TRUE);
+		$element->setAttributesByArray($this->getdefaultElementAttributes($element->attributes['name']));
 		$element->addDefaultValue();
 
 		// Manipulate attributes

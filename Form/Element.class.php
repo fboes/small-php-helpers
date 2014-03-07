@@ -61,16 +61,9 @@ class FormElement {
 		return $attributes;
 	}
 
-	/**
-	 * [setAttributesByArray description]
-	 * @param array   $attributes [description]
-	 * @param boolean $noValue    [description]
-	 */
-	public function setAttributesByArray (array $attributes, $noValue = FALSE) {
+	public function setAttributesByArray (array $attributes) {
 		foreach ($attributes as $attribute => $value) {
-			if (!$noValue || $attribute != 'value') {
-				$this->setOnEmpty($attribute, $value);
-			}
+			$this->setOnEmpty($attribute, $value);
 		}
 	}
 
@@ -327,7 +320,7 @@ class FormElement {
 					}
 					break;
 				case Form::HTML_CHECKBOXES:
-					$attributes = $this->returnAttributesAsHtml($this->attributes, array('id'));
+					$attributes = $this->returnAttributesAsHtml($this->attributes, array('id','value'));
 					foreach ($this->options as $id => $option) {
 						$checked = ($this->isChecked ($id)) ? ' '.$htmlSelected : '';
 						$html .= sprintf($htmlOption, ' value="'.htmlspecialchars($id).'"'.$checked.$attributes, htmlspecialchars($option));
