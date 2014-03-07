@@ -61,9 +61,16 @@ class FormElement {
 		return $attributes;
 	}
 
-	public function setAttributesByArray (array $attributes) {
+	/**
+	 * [setAttributesByArray description]
+	 * @param array   $attributes [description]
+	 * @param boolean $noValue    [description]
+	 */
+	public function setAttributesByArray (array $attributes, $noValue = FALSE) {
 		foreach ($attributes as $attribute => $value) {
-			$this->setOnEmpty($attribute, $value);
+			if (!$noValue || $attribute != 'value') {
+				$this->setOnEmpty($attribute, $value);
+			}
 		}
 	}
 

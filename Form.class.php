@@ -53,7 +53,7 @@ class Form {
 	const HTML_SELECT_OPTION              = '<option%1$s>%2$s</option>';
 	const HTML_SELECT_OPTIONS_WRAPPER     = '%1$s';
 	const HTML_CHECKBOXES                 = '%2$s';
-	const HTML_CHECKBOXES_OPTION          = '<li><label><input%1$s /> <span>%2$s</span></label></li>';
+	const HTML_CHECKBOXES_OPTION          = "<li><label><input%1\$s /> <span>%2\$s</span></label></li>\n";
 	const HTML_CHECKBOXES_OPTIONS_WRAPPER = '<ul%2$s>%1$s</ul>';
 	const HTML_BUTTON                     = '<button%1$s>%2$s</button>';
 
@@ -363,7 +363,7 @@ class Form {
 		if ($element->attributes['type'] == 'checkbox') {
 			$element->attributes['name'] .= '[]';
 		}
-		$element->setAttributesByArray($this->getdefaultElementAttributes($element->attributes['name']));
+		$element->setAttributesByArray($this->getdefaultElementAttributes($element->attributes['name']), TRUE);
 		$element->addDefaultValue();
 
 		// Manipulate attributes
@@ -371,7 +371,6 @@ class Form {
 		$element->addClass  ('checkbox');
 		$element->addClass  ('checkbox-'.$element->attributes['type']);
 		$element->addErrorsOnRequired();
-
 		return $this->storeElement($element);
 	}
 
