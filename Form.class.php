@@ -54,7 +54,7 @@ class Form {
 	const HTML_SELECT_OPTIONS_WRAPPER     = '%1$s';
 	const HTML_CHECKBOXES                 = '%2$s';
 	const HTML_CHECKBOXES_OPTION          = "<li><label><input%1\$s /> <span>%2\$s</span></label></li>\n";
-	const HTML_CHECKBOXES_OPTIONS_WRAPPER = '<ul%2$s>%1$s</ul>';
+	const HTML_CHECKBOXES_OPTIONS_WRAPPER = '<ul class="form-optionlist"%2$s>%1$s</ul>';
 	const HTML_BUTTON                     = '<button%1$s>%2$s</button>';
 
 	const ATTRIBUTE_CONTENT      = '_content';
