@@ -1,7 +1,7 @@
 <?php
 
-require('../Tester.class.php');
-require('../HttpApi.class.php');
+require('../Tester.php');
+require('../HttpApi.php');
 
 class HttpApiTest extends Tester {
 	public function testSimple () {
@@ -67,7 +67,7 @@ class HttpApiTest extends Tester {
 	public function testMemoization () {
 		$baseUrl = 'http://3960.org/';
 
-		require_once('../Memoization.class.php');
+		require_once('../Memoization.php');
 
 		$api = new HttpApi($baseUrl, HttpApi::REPLY_TYPE_HTML);
 		$api->setMemoization(new Memoization());

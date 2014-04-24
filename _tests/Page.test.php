@@ -1,7 +1,7 @@
 <?php
 
-require('../Tester.class.php');
-require('../Page.class.php');
+require('../Tester.php');
+require('../Page.php');
 
 class PageTest extends Tester {
 

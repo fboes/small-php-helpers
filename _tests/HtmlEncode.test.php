@@ -1,7 +1,7 @@
 <?php
 
-require('../Tester.class.php');
-require('../HtmlEncode.class.php');
+require('../Tester.php');
+require('../HtmlEncode.php');
 
 class HtmlEncodeTest extends Tester {
 	public function testSimple () {

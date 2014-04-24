@@ -1,4 +1,6 @@
 <?php
+# namespace fboes\SmallPhpHelpers;
+
 /**
  * @class Media
  * Add mutiple sources for a media object, get the optimal HTML

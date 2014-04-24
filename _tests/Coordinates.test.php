@@ -1,7 +1,7 @@
 <?php
 
-require('../Tester.class.php');
-require('../Coordinates.class.php');
+require('../Tester.php');
+require('../Coordinates.php');
 
 class CoordinatesTest extends Tester {
 	public function dataSimple () {

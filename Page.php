@@ -1,4 +1,6 @@
 <?php
+# namespace fboes\SmallPhpHelpers;
+
 /**
  * @class Page
  * Page meta data and linking functionality

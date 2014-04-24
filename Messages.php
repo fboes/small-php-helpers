@@ -1,4 +1,6 @@
 <?php
+# namespace fboes\SmallPhpHelpers;
+
 /**
  * @class Messages
  * Collect status messages from your controller for output to the user.

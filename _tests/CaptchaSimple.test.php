@@ -1,7 +1,7 @@
 <?php
 
-require('../Tester.class.php');
-require('../Captcha/Simple.class.php');
+require('../Tester.php');
+require('../Captcha/Simple.php');
 
 class CaptchaSimpleTest extends Tester {
 	public function testSimple () {

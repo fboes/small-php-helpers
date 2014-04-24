@@ -1,4 +1,5 @@
 <?php
+# namespace fboes\SmallPhpHelpers;
 
 interface InterfaceCaptcha {
 	public function __construct ($salt);

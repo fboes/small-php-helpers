@@ -1,13 +1,15 @@
 <?php
+# namespace fboes\SmallPhpHelpers\Media;
+# use fboes\SmallPhpHelpers\Media;
+
+require_once('../Media.php');
+
 /**
  * @class MediaAudio
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   MIT License (MIT)
  */
-
-require_once('../Media.class.php');
-
 class MediaAudio extends Media {
 	protected $fileEndingsToMimeType = array(
 		// HTML5

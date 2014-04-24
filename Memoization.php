@@ -1,4 +1,6 @@
 <?php
+# namespace fboes\SmallPhpHelpers;
+
 /**
  * @class Memoization
  * You may notice the similiarities to http://www.php.net/manual/en/book.memcache.php.

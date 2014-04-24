@@ -1,6 +1,6 @@
 <?php
 
-require('../Tester.class.php');
+require('../Tester.php');
 require('../toolshed.php');
 
 class toolshedTest extends Tester {

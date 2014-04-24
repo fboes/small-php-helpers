@@ -1,4 +1,6 @@
 <?php
+# namespace fboes\SmallPhpHelpers;
+
 /**
  * @class Tester
  * Mini-Unit-Test (in case PhpUnit ist not available)

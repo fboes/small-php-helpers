@@ -1,4 +1,5 @@
 <?php
+# namespace fboes\SmallPhpHelpers;
 
 class Image {
   protected $filename;

@@ -1,7 +1,7 @@
 <?php
 
-require('../Tester.class.php');
-require('../Messages.class.php');
+require('../Tester.php');
+require('../Messages.php');
 
 class MessagesTest extends Tester {
 	public function testSimple () {

@@ -1,5 +1,8 @@
 <?php
-require('../Captcha.interface.php');
+# namespace fboes\SmallPhpHelpers\Captcha;
+# use fboes\SmallPhpHelpers\Captcha;
+
+require('../InterfaceCaptcha.php');
 
 /**
  * @class CaptchaSimple

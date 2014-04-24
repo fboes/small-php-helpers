@@ -1,12 +1,14 @@
 <?php
+# namespace fboes\SmallPhpHelpers;
+
 /**
- * @class HtmlEcnode
+ * @class XmlEncode
  * Convert PHP construct to XML
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   MIT License (MIT)
  */
-class HtmlEncode {
+class XmlEncode {
 	public $data;
 
 	/**
@@ -24,12 +26,12 @@ class HtmlEncode {
 	public function output () {
 		$type = "";
 		if (is_array($this->data)) {
-			$type = ' array';
+			$type = ' type="array"';
 		}
 		elseif (is_object($this->data)) {
-			$type = ' object';
+			$type = ' type="object"';
 		}
-		return '<div class="html-encode'.$type.'">'.$this->outputNode($this->data).'</div>';
+		return '<?xml version="1.0" encoding="UTF-8"?><response'.$type.'>'.$this->outputNode($this->data).'</response>';
 	}
 
 	/**
@@ -46,24 +48,27 @@ class HtmlEncode {
 			$return = htmlspecialchars($data);
 		}
 		elseif (is_array($data)) {
-			$return .= '<ul>';
 			foreach ($data as $key => $value) {
 				$type = "";
 				if (is_array($value)) {
-					$type = ' class="array"';
+					$type = ' type="array"';
 				}
 				elseif (is_object($value)) {
-					$type = ' class="object"';
+					$type = ' type="object"';
 				}
 				elseif (is_integer($value)) {
-					$type = ' class="integer"';
+					$type = ' type="integer"';
 				}
 				elseif (is_bool($value)) {
-					$type = ' class="boolean"';
+					$type = ' type="boolean"';
 				}
-				$return .= '<li'.$type.'><strong>'.htmlspecialchars($key).'</strong>: <span>'.$this->outputNode($value).'</span></li>';
+				if (is_integer($key) || preg_match('#^[0-9]#',$key)) {
+					$return .= '<item key="'.htmlspecialchars($key).'"'.$type.'>'.$this->outputNode($value).'</item>';
+				}
+				else {
+					$return .= '<'.$key.$type.'>'.$this->outputNode($value).'</'.$key.'>';
+				}
 			}
-			$return .= '</ul>';
 		}
 		elseif (is_object($data)) {
 			$objData = get_object_vars($data);

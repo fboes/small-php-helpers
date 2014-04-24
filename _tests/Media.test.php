@@ -1,9 +1,9 @@
 <?php
 
-require('../Tester.class.php');
-require('../Media.class.php');
-require('../Media/Audio.class.php');
-require('../Media/Video.class.php');
+require('../Tester.php');
+require('../Media.php');
+require('../Media/Audio.php');
+require('../Media/Video.php');
 
 class MediaTest extends Tester {
 	public function testMedia () {

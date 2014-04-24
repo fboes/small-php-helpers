@@ -1,7 +1,7 @@
 <?php
 
-require('../Tester.class.php');
-require('../SuperPDO.class.php');
+require('../Tester.php');
+require('../SuperPDO.php');
 
 class SuperPDOTest extends Tester {
 	public function testSimple () {

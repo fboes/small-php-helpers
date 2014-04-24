@@ -1,4 +1,6 @@
 <?php
+# namespace fboes\SmallPhpHelpers;
+
 /**
  * @class Integration
  * Integrate content from other plattforms, like video plyers etc

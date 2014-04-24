@@ -1,7 +1,7 @@
 <?php
 
-require('../Tester.class.php');
-require('../Form.class.php');
+require('../Tester.php');
+require('../Form.php');
 
 class FormTest extends Tester {
 	public function testSimple () {

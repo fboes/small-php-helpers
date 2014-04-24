@@ -1,4 +1,5 @@
 <?php
+# namespace fboes\SmallPhpHelpers;
 
 class Conversion {
 	const UNIT_MILE_INT = 1609.344;

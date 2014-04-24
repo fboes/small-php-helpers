@@ -1,8 +1,10 @@
 <?php
+# namespace fboes\SmallPhpHelpers;
+# use \PDO;
 
 /**
  * @class SuperPDO
- * Extends functionaliyt of PDO
+ * Extends functionality of PDO
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   MIT License (MIT)
@@ -40,6 +42,16 @@ class SuperPDO extends PDO
 			$file = dirname($_SERVER['SCRIPT_FILENAME']).'/'.$file;
 		}
 		return new self('sqlite:'.$file);
+	}
+
+	/**
+	 * Prepare DB for communication in UTF8
+	 * @return [type] [description]
+	 */
+	public function useUft8 () {
+		if ($this->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql') {
+			return $this->exec('SET NAMES utf8');
+		}
 	}
 
 	/**
@@ -81,6 +93,40 @@ class SuperPDO extends PDO
 		;
 		$sth = $this->prepare($this->lastCmd);
 		return $sth->execute($data);
+	}
+
+	/**
+	 * Select from table. Will do proper quoting, but for order
+	 *
+	 * @param   string  $table  Name of the table
+	 * @param   array   $data   associative array with FIELDNAME => FIELDVALUE
+	 * @param   string  $order  Optional
+	 * @param   int     $count  Optional
+	 * @param   int     $offset Optional
+	 * @return  PDOStatement
+	 */
+	public function select ($table, array $data, $order = '', $count = NULL, $offset = 0)
+	{
+		$where = array();
+		foreach ($data as $key => $value) {
+			$where[] = $key.' = :'.$key;
+		}
+		$this->lastCmd =
+			'SELECT *'
+			.' FROM '.addslashes($table)
+		;
+		if (!empty($where)) {
+			$this->lastCmd .= ' WHERE '.implode(' AND ', $where);
+		}
+		if (!empty($order)) {
+			$this->lastCmd .= ' ORDER BY '.$order;
+		}
+		if (!empty($count)) {
+			$this->lastCmd .= ' LIMIT '.(int)$offset.','.(int)$count;
+		}
+		$sth = $this->prepare($this->lastCmd);
+		$sth->execute($data);
+		return $sth;
 	}
 
 	/**
@@ -166,4 +212,3 @@ class SuperPDO extends PDO
 		}
 	}
 }
-?>

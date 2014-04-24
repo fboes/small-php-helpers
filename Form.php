@@ -1,4 +1,9 @@
 <?php
+# namespace fboes\SmallPhpHelpers;
+# use fboes\SmallPhpHelpers\Form\Element;
+
+require_once('Form/Element.php');
+
 /**
  * @class Form
  * Build simple forms
@@ -31,9 +36,6 @@
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   MIT License (MIT)
  */
-
-require_once('Form/Element.class.php');
-
 class Form {
 	public $defaultElementAttributes = array();
 	public $formElements = array();

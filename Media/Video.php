@@ -1,4 +1,9 @@
 <?php
+# namespace fboes\SmallPhpHelpers\Media;
+# use fboes\SmallPhpHelpers\Media;
+
+require_once('../Media.php');
+
 /**
  * @class MediaVideo
  * see http://camendesign.com/code/video_for_everybody
@@ -6,9 +11,6 @@
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   MIT License (MIT)
  */
-
-require_once('../Media.class.php');
-
 class MediaVideo extends Media {
 	protected $fileEndingsToMimeType = array(
 		// HTML5

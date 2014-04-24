@@ -1,4 +1,6 @@
 <?php
+# namespace fboes\SmallPhpHelpers;
+
 /**
  * Small set of general helpers (aka "The missing PHP functions")
  *
@@ -350,4 +352,3 @@ if (!function_exists('_')) {
 		return $string;
 	}
 }
-?>

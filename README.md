@@ -13,6 +13,15 @@ This set of small libraries is intended as easy shortcuts for everyday situation
 * Tester: Simple unit test in case PhpUnit is not deployable
 * toolshed: Missing PHP-functions like quoted <code>echo()</code> or a better replacement for <code>empty()</code>
 
+Integration in Symfony & Silex
+------------------------------
+
+# Search and replace `require` with `# require`
+# Search and replace `# namespace` with `namespace`
+# Search and replace `# use` with `user`
+# Put files in folder matching namespace
+# Think of some clever way to use `toolshed.php` :smirk:
+
 Legal stuff
 -----------
 

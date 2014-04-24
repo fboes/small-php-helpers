@@ -1,6 +1,6 @@
 <?php
 
-require('../Tester.class.php');
+require('../Tester.php');
 
 class TesterTest extends Tester {
 	public $seeIfIAmHere = TRUE;

@@ -1,7 +1,7 @@
 <?php
 
-require('../Tester.class.php');
-require('../Conversion.class.php');
+require('../Tester.php');
+require('../Conversion.php');
 
 class ConversionTest extends Tester {
 	public function testDistanceOutput () {
