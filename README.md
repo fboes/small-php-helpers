@@ -16,11 +16,11 @@ This set of small libraries is intended as easy shortcuts for everyday situation
 Integration in Symfony & Silex
 ------------------------------
 
-# Search and replace `require` with `# require`
-# Search and replace `# namespace` with `namespace`
-# Search and replace `# use` with `user`
-# Put files in folder matching namespace
-# Think of some clever way to use `toolshed.php` :smirk:
+1. Search and replace `require` with `# require`
+2. Search and replace `# namespace` with `namespace`
+3. Search and replace `# use` with `user`
+4. Put files in folder matching namespace
+5. Think of some clever way to use `toolshed.php` :smirk:
 
 Legal stuff
 -----------
