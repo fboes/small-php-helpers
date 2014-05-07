@@ -18,7 +18,7 @@ Integration in Symfony & Silex
 
 1. Search and replace `require` with `# require`
 2. Search and replace `# namespace` with `namespace`
-3. Search and replace `# use` with `user`
+3. Search and replace `# use` with `use`
 4. Put files in folder matching namespace
 5. Think of some clever way to use `toolshed.php` :smirk:
 
