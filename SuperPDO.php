@@ -120,16 +120,17 @@ class SuperPDO extends PDO
 	 * @param   string  $order  Optional
 	 * @param   int     $count  Optional
 	 * @param   int     $offset Optional
+	 * @param   string  $values Optional, defaults to '*'
 	 * @return  PDOStatement
 	 */
-	public function selectJoin ($table, array $where, $join = '', array $order = array(), $count = NULL, $offset = 0)
+	public function selectJoin ($table, array $where, $join = '', array $order = array(), $count = NULL, $offset = 0, $values = '*')
 	{
 		$whereArray = array();
 		foreach ($where as $key => $value) {
 			$whereArray[] = $table.'.'.$key.' = :'.$key;
 		}
 		$this->lastCmd =
-			'SELECT *'
+			'SELECT '.$values
 			.' FROM '.addslashes($table)
 		;
 		if (!empty($join)) {
@@ -213,6 +214,31 @@ class SuperPDO extends PDO
 	}
 
 	/**
+	 * Delete from table. Will do proper quoting
+	 *
+	 * @param   string  $table  Name of the table
+	 * @param   array   $data   associative array with FIELDNAME => FIELDVALUE
+	 * @return  PDOStatement
+	 */
+	public function delete ($table, array $where)
+	{
+		$whereArray = array();
+		foreach ($where as $key => $value) {
+			$whereArray[] = $table.'.'.$key.' = :'.$key;
+		}
+		$this->lastCmd =
+			'DELETE'
+			.' FROM '.addslashes($table)
+		;
+		if (!empty($whereArray)) {
+			$this->lastCmd .= ' WHERE '.implode(' AND ', $whereArray);
+		}
+		$this->lastData = $where;
+		$sth = $this->prepare($this->lastCmd);
+		return $sth->execute($this->lastData);
+	}
+
+	/**
 	 * Returns any given string as proper date / datetime representation to
 	 * be inserted into db. Will change time format according to DB type.
 	 *
@@ -239,7 +265,7 @@ class SuperPDO extends PDO
 	 * Debug last command by showing prepared statements as excecutable statements
 	 * @return string SQL
 	 */
-	public function returnLastCommand () {
+	public function getLastCommand () {
 		$cmd = $this->lastCmd;
 		foreach ($this->lastData as $key => $value) {
 			$cmd = str_replace(':'.$key, $this->quote($value), $cmd);
