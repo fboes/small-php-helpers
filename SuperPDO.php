@@ -12,7 +12,7 @@
 class SuperPDO extends PDO
 {
 	public $lastCmd = '';
-
+	public $lastData = array();
 
 	/**
 	 * Open Mysql-PDO
@@ -91,8 +91,9 @@ class SuperPDO extends PDO
 			.'('.implode(',',array_keys($data)).')'
 			.' VALUES(:'.implode(',:',array_keys($data)).')'
 		;
+		$this->lastData = $data;
 		$sth = $this->prepare($this->lastCmd);
-		return $sth->execute($data);
+		return $sth->execute($this->lastData);
 	}
 
 	/**
@@ -105,28 +106,48 @@ class SuperPDO extends PDO
 	 * @param   int     $offset Optional
 	 * @return  PDOStatement
 	 */
-	public function select ($table, array $data, $order = '', $count = NULL, $offset = 0)
+	public function select ($table, array $where, array $order = array(), $count = NULL, $offset = 0)
 	{
-		$where = array();
-		foreach ($data as $key => $value) {
-			$where[] = $key.' = :'.$key;
+		return $this->selectJoin($table, $where, NULL, $order, $count, $offset);
+	}
+
+	/**
+	 * Select from table. Will do proper quoting, but for order
+	 *
+	 * @param   string  $table  Name of the table
+	 * @param   array   $data   associative array with FIELDNAME => FIELDVALUE
+	 * @param   string  $join   some unquoted SQL
+	 * @param   string  $order  Optional
+	 * @param   int     $count  Optional
+	 * @param   int     $offset Optional
+	 * @return  PDOStatement
+	 */
+	public function selectJoin ($table, array $where, $join = '', array $order = array(), $count = NULL, $offset = 0)
+	{
+		$whereArray = array();
+		foreach ($where as $key => $value) {
+			$whereArray[] = $table.'.'.$key.' = :'.$key;
 		}
 		$this->lastCmd =
 			'SELECT *'
 			.' FROM '.addslashes($table)
 		;
-		if (!empty($where)) {
-			$this->lastCmd .= ' WHERE '.implode(' AND ', $where);
+		if (!empty($join)) {
+			$this->lastCmd .= ' '.$join;
+		}
+		if (!empty($whereArray)) {
+			$this->lastCmd .= ' WHERE '.implode(' AND ', $whereArray);
 		}
 		if (!empty($order)) {
-			$this->lastCmd .= ' ORDER BY '.$order;
+			$this->lastCmd .= ' ORDER BY '.$table.'.'.implode(', '.$table.'.', $order);
 		}
 		if (!empty($count)) {
 			$this->lastCmd .= ' LIMIT '.(int)$offset.','.(int)$count;
 		}
+		$this->lastData = $where;
 		$sth = $this->prepare($this->lastCmd);
-		$sth->execute($data);
-		return $sth;
+		$sth->execute($this->lastData);
+		return $sth->fetchAll();
 	}
 
 	/**
@@ -164,8 +185,9 @@ class SuperPDO extends PDO
 			.'('.implode(',',array_keys($data)).')'
 			.' VALUES(:'.implode(',:',array_keys($data)).')'
 		;
+		$this->lastData = $data;
 		$sth = $this->prepare($this->lastCmd);
-		return $sth->execute($data);
+		return $sth->execute($this->lastData);
 	}
 
 	/**
@@ -186,6 +208,7 @@ class SuperPDO extends PDO
 			.' SET '.$this->quoteArray($data)
 			.' WHERE '.$where
 		;
+		$this->lastData = $data;
 		return $this->exec($this->lastCmd);
 	}
 
@@ -210,5 +233,17 @@ class SuperPDO extends PDO
 				return $ts;
 				break;
 		}
+	}
+
+	/**
+	 * Debug last command by showing prepared statements as excecutable statements
+	 * @return string SQL
+	 */
+	public function returnLastCommand () {
+		$cmd = $this->lastCmd;
+		foreach ($this->lastData as $key => $value) {
+			$cmd = str_replace(':'.$key, $this->quote($value), $cmd);
+		}
+		return $cmd;
 	}
 }
