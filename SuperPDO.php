@@ -49,7 +49,7 @@ class SuperPDO extends PDO
 	 * @return [type] [description]
 	 */
 	public function useUft8 () {
-		if ($this->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql') {
+		if ($this->getAttribute(self::ATTR_DRIVER_NAME) === 'mysql') {
 			return $this->exec('SET NAMES utf8');
 		}
 	}
@@ -148,7 +148,7 @@ class SuperPDO extends PDO
 		$this->lastData = $where;
 		$sth = $this->prepare($this->lastCmd);
 		$sth->execute($this->lastData);
-		return $sth->fetchAll();
+		return $sth->fetchAll(self::FETCH_ASSOC);
 	}
 
 	/**
@@ -250,7 +250,7 @@ class SuperPDO extends PDO
 	public function returnDate ($someDate, $asDatetime = TRUE)
 	{
 		$ts = strtotime($someDate);
-		switch ($this->getAttribute(PDO::ATTR_DRIVER_NAME))
+		switch ($this->getAttribute(self::ATTR_DRIVER_NAME))
 		{
 			case 'mysql':
 				return date('Y-m-d'.($asDatetime ? ' H:i:s' : ''), $ts);
