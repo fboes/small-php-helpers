@@ -132,7 +132,7 @@ class Messages {
 			$_SESSION[self::SESSION_OBJECT] = serialize($this);
 		}
 		else {
-			throw new Exception('Missing initialized session.');
+			throw new \Exception('Missing initialized session.');
 		}
 		return $this;
 	}

@@ -169,7 +169,7 @@ class HttpApi {
 		$this->clearLastrequest();
 		$url  = $this->baseUrl . (string)$url;
 		if (empty($url)) {
-			throw new Exception('Empty URL');
+			throw new \Exception('Empty URL');
 		}
 		$httpMethod = (string)$httpMethod;
 		$this->lastRequest->memoizationKey = $httpMethod . ' ' .$url;
@@ -245,7 +245,7 @@ class HttpApi {
 			$reply = curl_exec($ch);
 
 			if(curl_errno($ch)) {
-				throw new Exception('Curl Error: '.curl_error($ch));
+				throw new \Exception('Curl Error: '.curl_error($ch));
 			}
 			else {
 				$this->lastRequest->httpStatusCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);

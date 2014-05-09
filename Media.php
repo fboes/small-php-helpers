@@ -57,7 +57,7 @@ class Media {
 			$this->mediaObjects[$mimeType] = $url;
 		}
 		else {
-			throw new Exception('Could not identify MIME type for '.$url.' (or MIME type is not allowed)');
+			throw new \Exception('Could not identify MIME type for '.$url.' (or MIME type is not allowed)');
 		}
 		return $this;
 	}

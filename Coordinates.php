@@ -116,7 +116,7 @@ class Coordinates {
 	 */
 	public function getDistanceToCoordinates (Coordinates $coordinates) {
 		if ($this->getPlanetMeanRadius() != $coordinates->getPlanetMeanRadius()) {
-			throw new Exception('Mean radius does not match, coordinates seem to be on different planets');
+			throw new \Exception('Mean radius does not match, coordinates seem to be on different planets');
 		}
 		$dLat = deg2rad($coordinates->latitude  - $this->latitude);
 		$dLon = deg2rad($coordinates->longitude - $this->longitude);

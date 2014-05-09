@@ -132,7 +132,7 @@ class FormElement {
 	public function makeId ($basicId = '') {
 		if (empty($this->attributes['id'])) {
 			if (empty($this->attributes['name'])) {
-				throw new Exception('Missing attribute "id" or "name"');
+				throw new \Exception('Missing attribute "id" or "name"');
 			}
 			$this->attributes['id'] = (!empty($basicId) ? $basicId.'-' : '') . $this->attributes['name'];
 		}
@@ -160,7 +160,7 @@ class FormElement {
 	 */
 	public function throwExceptionOnEmpty ($key) {
 		if (Form::is_blank($this->attributes[$key])) {
-			throw new Exception('Missing attribute "'.$key.'"');
+			throw new \Exception('Missing attribute "'.$key.'"');
 		}
 		return $this;
 	}

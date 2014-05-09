@@ -31,7 +31,7 @@ class Page {
 		$this->description = $description;
 
 		if (!$this->isAbsoluteUrl($url)) {
-			throw new Exception('No protocol identifier found in URL, please use absolute URL');
+			throw new \Exception('No protocol identifier found in URL, please use absolute URL');
 		}
 
 		$this->url   = $url;
@@ -99,7 +99,7 @@ class Page {
 	 */
 	public function opengraphMeta ($imageUrl, $type = 'article') {
 		if (!$this->isAbsoluteUrl($imageUrl)) {
-			throw new Exception('No protocol identifier found in image URL, please use absolute URL');
+			throw new \Exception('No protocol identifier found in image URL, please use absolute URL');
 		}
 		return
 			'<meta property="og:site_name" content="'.htmlspecialchars($this->sitename).'" />'."\n"

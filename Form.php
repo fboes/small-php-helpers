@@ -105,7 +105,7 @@ class Form {
 				}
 			}
 			else {
-				throw new Exception("Attributes need to be given as array");
+				throw new \Exception("Attributes need to be given as array");
 			}
 		}
 		return $this;
@@ -120,7 +120,7 @@ class Form {
 			$this->htmlFieldWrapper = $html;
 		}
 		else {
-			throw new Exception('Wrong format for HTML field wrapper, missing "%1$s" or "%2$s"');
+			throw new \Exception('Wrong format for HTML field wrapper, missing "%1$s" or "%2$s"');
 		}
 		return $this;
 	}
@@ -134,7 +134,7 @@ class Form {
 			$this->htmlLabelWrapper = $html;
 		}
 		else {
-			throw new Exception('Wrong format for HTML label wrapper, missing "%s"');
+			throw new \Exception('Wrong format for HTML label wrapper, missing "%s"');
 		}
 		return $this;
 	}
@@ -148,7 +148,7 @@ class Form {
 			$this->htmlErrorWrapper = $html;
 		}
 		else {
-			throw new Exception('Wrong format for HTML Error wrapper, missing "%s"');
+			throw new \Exception('Wrong format for HTML Error wrapper, missing "%s"');
 		}
 		return $this;
 	}
@@ -335,7 +335,7 @@ class Form {
 		$element = new FormElement(self::HTML_SELECT, $html, $options);
 		$element->throwExceptionOnEmpty('name');
 		if (empty($options)) {
-			throw new Exception ('No options given');
+			throw new \Exception ('No options given');
 		}
 		if (!empty($element->attributes['multiple'])) {
 			$element->attributes['name'] .= '[]';
@@ -359,7 +359,7 @@ class Form {
 		$element = new FormElement(self::HTML_CHECKBOXES, $html, $options);
 		$element->throwExceptionOnEmpty('name');
 		if (empty($options)) {
-			throw new Exception ('No options given');
+			throw new \Exception ('No options given');
 		}
 		$element->setOnEmpty('type', 'checkbox');
 		if ($element->attributes['type'] == 'checkbox') {

@@ -89,7 +89,7 @@ class Tester {
 			if (method_exists($this, $possibleProvider)) {
 				$data = $this->$possibleProvider();
 				if (!is_array($data)) {
-					throw new Exception('Wrong return value in '.$possibleProvider);
+					throw new \Exception('Wrong return value in '.$possibleProvider);
 				}
 			}
 
@@ -109,7 +109,7 @@ class Tester {
 
 				if (!empty($dataSet)) {
 					if (!is_array($dataSet)) {
-						throw new Exception('Wrong return value in '.$possibleProvider);
+						throw new \Exception('Wrong return value in '.$possibleProvider);
 					}
 					call_user_func_array(array($this, $m), $dataSet);
 				}
@@ -183,7 +183,7 @@ class Tester {
 	 */
 	public function assertRegExp ($regExp, $value, $message = 'Expecting %s to match regular expression %s') {
 		if (!is_string($regExp)) {
-			throw new Exception('Malformed test expression used in '.__METHOD__);
+			throw new \Exception('Malformed test expression used in '.__METHOD__);
 		}
 		elseif (!is_string($value)) {
 			return $this->assertTrue(FALSE, 'Expecting %s to be a string', $this->literalize($value));
@@ -200,7 +200,7 @@ class Tester {
 	 */
 	public function assertFunctionExists ($functionName, $message = 'Expecting function %s() to exist') {
 		if (!is_string($functionName)) {
-			throw new Exception('Malformed function name used in '.__METHOD__);
+			throw new \Exception('Malformed function name used in '.__METHOD__);
 		}
 		return $this->assertTrue(function_exists($functionName), sprintf($message, $functionName));
 	}
@@ -214,10 +214,10 @@ class Tester {
 	 */
 	public function assertMethodExists ($methodName, $className, $message = 'Expecting class %s to have method %s') {
 		if (!is_string($methodName)) {
-			throw new Exception('Malformed method name used in '.__METHOD__);
+			throw new \Exception('Malformed method name used in '.__METHOD__);
 		}
 		if (!is_string($className)) {
-			throw new Exception('Malformed class name used in '.__METHOD__);
+			throw new \Exception('Malformed class name used in '.__METHOD__);
 		}
 		if (!class_exists($className)) {
 			return $this->assertTrue(FALSE, sprintf('Expecting %s to be a classname', $this->literalize($className)));
@@ -236,10 +236,10 @@ class Tester {
 	 */
 	public function assertClassHasAttribute ($attributeName, $className, $message = 'Expecting class %s to have attribute %s') {
 		if (!is_string($attributeName)) {
-			throw new Exception('Malformed attribute name used in '.__METHOD__);
+			throw new \Exception('Malformed attribute name used in '.__METHOD__);
 		}
 		if (!is_string($className)) {
-			throw new Exception('Malformed class name used in '.__METHOD__);
+			throw new \Exception('Malformed class name used in '.__METHOD__);
 		}
 		if (!class_exists($className)) {
 			return $this->assertTrue(FALSE, sprintf('Expecting %s to be a classname', $this->literalize($className)));
@@ -257,7 +257,7 @@ class Tester {
 	 */
 	public function assertValidXml ($xml, $xsdUri = NULL, $message = 'Expecting string to be valid XML') {
 		if (!is_string($xml)) {
-			throw new Exception('XML is not a string in '.__METHOD__);
+			throw new \Exception('XML is not a string in '.__METHOD__);
 		}
 
 		libxml_use_internal_errors(TRUE);
@@ -266,7 +266,7 @@ class Tester {
 
 		if ($success && !empty($xsdUri)) {
 			if (!is_string($xsdUri)) {
-				throw new Exception('XSD-URI is not a string in '.__METHOD__);
+				throw new \Exception('XSD-URI is not a string in '.__METHOD__);
 			}
 			$success = $tempDom->schemaValidate($xsdUri);
 			return $this->assertTrue(FALSE, sprintf('Expecting XML to validate against XSD %s', $this->literalize($xsdUri)));
@@ -292,7 +292,7 @@ class Tester {
 	 */
 	public function assertValidHtml ($html, $message = 'Expecting string to be valid HTML (snippet)') {
 		if (!is_string($html)) {
-			throw new Exception('HTML is not a string in '.__METHOD__);
+			throw new \Exception('HTML is not a string in '.__METHOD__);
 		}
 
 		libxml_use_internal_errors(TRUE);
