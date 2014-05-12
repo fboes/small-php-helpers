@@ -83,7 +83,7 @@ class Entities {
 		foreach ($ids as $key => $value) {
 			$idArray['id_'.$key] = $value;
 		}
-		$idFieldname = $this->entityPrototype->getFieldIndex();
+		$idFieldname = $this->entityPrototype->getFieldPrimaryIndex();
 		$this->db->lastCmd =
 			'SELECT '.$values
 			.' FROM '.addslashes($this->tableName)
@@ -95,7 +95,11 @@ class Entities {
 		$this->db->lastData = $idArray;
 		$sth = $this->db->prepare($this->db->lastCmd);
 		$sth->execute($this->db->lastData);
-		return $sth->fetchAll( \PDO::FETCH_CLASS, $this->entityClass );
+		$results = $sth->fetchAll( \PDO::FETCH_CLASS, $this->entityClass );
+		foreach ($results as &$r) {
+			$r->postFetch();
+		}
+		return $results;
 	}
 
 	/**
@@ -118,7 +122,7 @@ class Entities {
 		foreach ($ids as $key => $value) {
 			$idArray['id_'.$key] = $value;
 		}
-		$idFieldname = $this->entityPrototype->getFieldIndex();
+		$idFieldname = $this->entityPrototype->getFieldPrimaryIndex();
 		$this->db->lastCmd =
 			'DELETE '
 			.' FROM '.addslashes($this->tableName)
@@ -139,6 +143,7 @@ class Entities {
 	 */
 	public function get (array $where = array(), array $order = array(), $count = NULL, $offset = 0) {
 		$this->getDb();
+		$values = '*';
 		$whereArray = array();
 		foreach ($where as $key => $value) {
 			$whereArray[] = $this->tableName.'.'.$key.' = :'.$key;
@@ -162,7 +167,11 @@ class Entities {
 		$this->db->lastData = $where;
 		$sth = $this->db->prepare($this->db->lastCmd);
 		$sth->execute($this->db->lastData);
-		return $sth->fetchAll( \PDO::FETCH_CLASS, $this->db->entityClass );
+		return $sth->fetchAll( \PDO::FETCH_CLASS, $this->entityClass );
+		foreach ($results as &$r) {
+			$r->postFetch();
+		}
+		return $results;
 	}
 
 	/**
@@ -187,7 +196,7 @@ class Entities {
 			$this->db->update(
 				$this->tableName,
 				$entity->getStorableArray(),
-				$entity->getFieldIndex().'='.$this->db->quote($id)
+				$entity->getFieldPrimaryIndex().'='.$this->db->quote($id)
 			);
 		}
 		return $id;
@@ -203,5 +212,13 @@ class Entities {
 			return $this->db->getLastCommand();
 		}
 		return NULL;
+	}
+
+	/**
+	 * Get field name of Entity in which the primary index is stored
+	 * @return string Fieldname
+	 */
+	public function getFieldPrimaryIndex () {
+		return $this->entityPrototype->getFieldPrimaryIndex();
 	}
 }

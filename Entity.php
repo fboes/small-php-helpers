@@ -11,8 +11,9 @@ class Entity {
 	 * Set this variable to match the col containing the Primary Index
 	 * @var string
 	 */
-	protected $fieldIndex = 'id';
+	protected $fieldPrimaryIndex = 'id';
 	protected $joinStatement; # TODO: Handling of JOINs - and handling of results from JOINs
+	# add more variables here
 
 	/**
 	 * [__construct description]
@@ -28,7 +29,7 @@ class Entity {
 	public function getStorableArray ($isNew = FALSE) {
 		$data = (array)$this;
 		foreach ($data as $key => $value) {
-			if ($key == $this->fieldIndex || strpos($key, '*') === 1) {
+			if ($key == $this->fieldPrimaryIndex || strpos($key, '*') === 1) {
 				unset($data[$key]);
 			}
 		}
@@ -39,15 +40,31 @@ class Entity {
 		elseif (isset($data['date_create']) || is_null($data['date_create'])) {
 			unset ($data['date_create']);
 		}
+		# add more operations here
 		return $data;
+	}
+
+	/**
+	 * Convert variables after fetching, e.g. convert SQL datetime to PHP timestamp, or convert strings to integer
+	 * @return Entity $this
+	 */
+	public function postFetch () {
+		if (!empty($this->date_create)) {
+			$this->date_create = strtotime($this->date_create);
+		}
+		if (!empty($this->date_update)) {
+			$this->date_update = strtotime($this->date_update);
+		}
+		# add more operations here
+		return $this;
 	}
 
 	/**
 	 * Get fieldname of Entity that can be used as primary index.
 	 * @return string fieldname
 	 */
-	public function getFieldIndex () {
-		return $this->fieldIndex;
+	public function getFieldPrimaryIndex () {
+		return $this->fieldPrimaryIndex;
 	}
 
 	/**
@@ -64,8 +81,8 @@ class Entity {
 	 * @return string [description]
 	 */
 	public function getId () {
-		if (!empty($this->fieldIndex)) {
-			#return $this->$this->fieldIndex; # TODO: This is wrong
+		if (!empty($this->fieldPrimaryIndex)) {
+			#return $this->$this->fieldPrimaryIndex; # TODO: This is wrong
 		}
 		return NULL;
 	}

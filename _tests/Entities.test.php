@@ -25,22 +25,41 @@ class EntitiesTest extends Tester {
 		#$this->outputLine($tests);
 
 		$result = $tests->getById(1);
-		$this->assertTrue(empty($result));
+		$this->assertTrue(empty($result), 'No result returned');
 
 		$data = new Test();
 		$data->text = 'Lorem ipsum…';
 
 		$newId = $tests->store($data);
-		$this->assertTrue(!empty($newId), 'Id is returned');
+		$this->assertTrue(!empty($newId), 'Data written and ID returned');
 		$this->outputLine($newId);
 
 		$result = $tests->getById($newId);
-		$this->assertTrue(!empty($result));
+		$this->outputLine($result);
+		$this->assertTrue(!empty($result), 'Result returned');
+		$this->assertTrue(is_subclass_of($result, 'Entity'), 'Results is subclass of Entity');
 		$this->outputLine($tests->getLastCommand());
 
-		$result = $tests->deleteById($newId);
-		$this->assertTrue($result);
+		$this->assertTrue(!empty($tests->getFieldPrimaryIndex()), 'Primary index is not empty');
+		$this->assertTrue(!empty($result->getFieldPrimaryIndex()), 'Primary index is not empty');
+
+		$result = $tests->getByIds(array(
+			$tests->getFieldPrimaryIndex() => $newId
+		));
+		$this->outputLine($result);
+		$this->assertTrue(!empty($result), 'Result returned');
+		$this->assertTrue(is_array($result), 'Results in array returned');
 		$this->outputLine($tests->getLastCommand());
+
+		$result = $tests->get(array(
+			$tests->getFieldPrimaryIndex() => $newId
+		));
+		$this->outputLine($tests->getLastCommand());
+		$this->assertTrue(!empty($result), 'Result returned');
+
+		$result = $tests->deleteById($newId);
+		$this->outputLine($tests->getLastCommand());
+		$this->assertTrue($result);
 	}
 
 }
