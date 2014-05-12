@@ -37,8 +37,10 @@ class EntitiesTest extends Tester {
 		$result = $tests->getById($newId);
 		$this->outputLine($result);
 		$this->assertTrue(!empty($result), 'Result returned');
-		$this->assertTrue(is_subclass_of($result, 'Entity'), 'Results is subclass of Entity');
 		$this->outputLine($tests->getLastCommand());
+		$this->assertTrue(is_subclass_of($result, 'Entity'), 'Results is subclass of Entity');
+		$this->assertTrue(!empty($result->getId()), 'Result has ID');
+		$this->outputLine($result->getId());
 
 		$this->assertTrue(!empty($tests->getFieldPrimaryIndex()), 'Primary index is not empty');
 		$this->assertTrue(!empty($result->getFieldPrimaryIndex()), 'Primary index is not empty');

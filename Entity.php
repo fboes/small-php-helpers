@@ -82,7 +82,7 @@ class Entity {
 	 */
 	public function getId () {
 		if (!empty($this->fieldPrimaryIndex)) {
-			#return $this->$this->fieldPrimaryIndex; # TODO: This is wrong
+			return $this->{$this->fieldPrimaryIndex};
 		}
 		return NULL;
 	}
