@@ -31,8 +31,14 @@ class EntitiesTest extends Tester {
 		$data->text = 'Lorem ipsum…';
 
 		$newId = $tests->store($data);
-		$this->assertTrue(!empty($newId), 'Data written and ID returned');
+		$this->outputLine($tests->getLastCommand());
 		$this->outputLine($newId);
+		$this->outputLine($data);
+		$this->assertTrue(!empty($newId), 'Data written and ID returned');
+
+		$secondNewId = $tests->store($data);
+		$this->outputLine($tests->getLastCommand());
+		$this->assertEquals($newId, $secondNewId);
 
 		$result = $tests->getById($newId);
 		$this->outputLine($result);

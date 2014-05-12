@@ -33,7 +33,7 @@ class Entities {
 		if (empty($this->entityClass)) {
 			throw new \Exception ('No entityClass set in '.get_class($this));
 		} elseif (!is_subclass_of($this->entityClass, 'Entity')) {
-			throw new \Exception ('entityClass has to be of type Entity in '.get_class($this));
+			throw new \Exception ('entityClass has to be a sublass of Entity in '.get_class($this));
 		}
 		$this->entityPrototype = new $this->entityClass;
 	}
@@ -57,30 +57,58 @@ class Entities {
 
 	/**
 	 * Update or insert entity into table
-	 * @param  Entity $entity [description]
+	 * @param  Entity $entity as reference; after storing your Entity may be altered (e.g. new ID, dates changed, etc.)
 	 * @return string         new ID of row in DB
 	 */
-	public function store ($entity) {
+	public function store (&$entity) {
+		$id = $entity->getId();
+		if (empty($id)) {
+			$id = $this->insert($entity);
+		}
+		else {
+			$this->update($entity, $id);
+		}
+		return $id;
+	}
+
+	/**
+	 * Insert entity into DB
+	 * @param  Entity  $entity [description]
+	 * @return integer         ID of new row, or '-1' if operation failed
+	 */
+	public function insert (&$entity) {
 		if (get_class($entity) != $this->entityClass) {
 			throw new \Exception ('Entity has to be of type '.$this->entityClass.' in '.get_class($this));
 		}
-		$id = $entity->getId();
 		$this->getDb();
-		if (empty($id)) {
-			$this->db->insert(
-				$this->entityPrototype->getTableName(),
-				$entity->getStorableArray(TRUE)
-			);
-			$id = $this->db->lastInsertId();
+		if ($this->db->insert(
+			$entity->getTableName(),
+			$entity->getStorableArray(TRUE)
+		)) {
+			$entity->{$entity->getFieldPrimaryIndex()} = $this->db->lastInsertId();
+			return $entity->{$entity->getFieldPrimaryIndex()};
 		}
 		else {
-			$this->db->update(
-				$this->entityPrototype->getTableName(),
-				$entity->getStorableArray(),
-				$entity->getFieldPrimaryIndex().'='.$this->db->quote($id)
-			);
+			return -1;
 		}
-		return $id;
+	}
+
+	/**
+	 * Update entity in DB
+	 * @param  Entity  $entity [description]
+	 * @param  Mixed   $id     [description]
+	 * @return Boolean         [description]
+	 */
+	public function update (&$entity, $id) {
+		if (get_class($entity) != $this->entityClass) {
+			throw new \Exception ('Entity has to be of type '.$this->entityClass.' in '.get_class($this));
+		}
+		$this->getDb();
+		return $this->db->update(
+			$entity->getTableName(),
+			$entity->getStorableArray(),
+			$entity->getFieldPrimaryIndex().'='.$this->db->quote($id)
+		);
 	}
 
 	// --------------------------------------------------
@@ -131,7 +159,7 @@ class Entities {
 
 	/**
 	 * Get a single Entities by ID
-	 * @param  integer $id [description]
+	 * @param  Mixed  $id [description]
 	 * @return Entity      or NULL
 	 */
 	public function getById ($id) {
@@ -178,7 +206,7 @@ class Entities {
 
 	/**
 	 * Delete an Entity by ID
-	 * @param  integer $id [description]
+	 * @param  Mixed $id [description]
 	 * @return boolean
 	 */
 	public function deleteById ($id) {
@@ -215,10 +243,12 @@ class Entities {
 	 * Use for debugging last SQL query
 	 * @return string SQL
 	 */
-	public function getLastCommand () {
-		#var_dump($this->db);
+	public function getLastCommand ($extended = FALSE) {
 		if (!empty($this->db)) {
-			return $this->db->getLastCommand();
+			return $extended
+				? print_r($this->db, 1)
+				: $this->db->getLastCommand()
+			;
 		}
 		return NULL;
 	}
