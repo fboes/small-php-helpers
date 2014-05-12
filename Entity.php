@@ -12,7 +12,7 @@ class Entity {
 	 * @var string
 	 */
 	protected $fieldPrimaryIndex = 'id';
-	protected $joinStatement; # TODO: Handling of JOINs - and handling of results from JOINs
+	protected $statementJoin; # TODO: Handling of JOINs - and handling of results from JOINs
 	# add more variables here
 
 	/**
@@ -72,8 +72,8 @@ class Entity {
 	 * This may be useful to automatically join other entities
 	 * @return string SQL
 	 */
-	public function getJoinStatement () {
-		return $this->joinStatement;
+	public function getStatementJoin () {
+		return $this->statementJoin;
 	}
 
 	/**
