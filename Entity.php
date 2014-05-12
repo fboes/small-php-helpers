@@ -45,18 +45,26 @@ class Entity {
 	 * @return array with FIELDNAME => VALUE
 	 */
 	public function getStorableArray ($isNew = FALSE) {
+		$now = time();
+		if (property_exists($this, 'date_update')) {
+			$this->date_update = $now;
+		}
+		if (property_exists($this, 'date_create') && $isNew) {
+			$this->date_create = $now;
+		}
+
 		$data = (array)$this;
 		foreach ($data as $key => $value) {
-			if ($key == $this->fieldPrimaryIndex || strpos($key, '*') === 1) {
+			if ($key == $this->fieldPrimaryIndex || strpos($key, '*') === 1 || (!$isNew && $key == 'date_create')) {
 				unset($data[$key]);
+			} else {
+				switch ($key) {
+					case 'date_update':
+					case 'date_create':
+						$data[$key] = date('Y-m-d H:i:s', $value);
+						break;
+				}
 			}
-		}
-		$data['date_update'] = date('Y-m-d H:i:s');
-		if (!isset($data['date_create']) && $isNew) {
-			$data['date_create'] = date('Y-m-d H:i:s');
-		}
-		elseif (isset($data['date_create']) || is_null($data['date_create'])) {
-			unset ($data['date_create']);
 		}
 		# add more operations here
 		return $data;
