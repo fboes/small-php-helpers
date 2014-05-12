@@ -11,12 +11,6 @@ class Entities {
 	protected $dbDsn;
 	protected $dbUser;
 	protected $dbPassword;
-
-	/**
-	 * Set this string to match the (SQL)-tablename containing the rows
-	 * @var string
-	 */
-	protected $tableName = '';
 	/**
 	 * Set this string to match the class name of an instance of Entities. Entities has to match the row structure of a single row.
 	 * @var string
@@ -36,9 +30,6 @@ class Entities {
 		$this->dbDsn       = $dbDsn;
 		$this->dbUser      = $dbUser;
 		$this->dbPassword  = $dbPassword;
-		if (empty($this->tableName)) {
-			throw new \Exception ('Tablename has to be set for '.get_class($this).', "'.$this->tableName.'" given');
-		}
 		if (empty($this->entityClass)) {
 			throw new \Exception ('No entityClass set in '.get_class($this));
 		} elseif (!is_subclass_of($this->entityClass, 'Entity')) {
@@ -60,6 +51,84 @@ class Entities {
 		return $this->db;
 	}
 
+	// --------------------------------------------------
+	// CREATE / UPDATE
+	// --------------------------------------------------
+
+	/**
+	 * Update or insert entity into table
+	 * @param  Entity $entity [description]
+	 * @return string         new ID of row in DB
+	 */
+	public function store ($entity) {
+		if (get_class($entity) != $this->entityClass) {
+			throw new \Exception ('Entity has to be of type '.$this->entityClass.' in '.get_class($this));
+		}
+		$id = $entity->getId();
+		$this->getDb();
+		if (empty($id)) {
+			$this->db->insert(
+				$this->entityPrototype->getTableName(),
+				$entity->getStorableArray(TRUE)
+			);
+			$id = $this->db->lastInsertId();
+		}
+		else {
+			$this->db->update(
+				$this->entityPrototype->getTableName(),
+				$entity->getStorableArray(),
+				$entity->getFieldPrimaryIndex().'='.$this->db->quote($id)
+			);
+		}
+		return $id;
+	}
+
+	// --------------------------------------------------
+	// READ
+	// --------------------------------------------------
+
+	/**
+	 * Select multiple Entities
+	 * @param  array   $where  [description]
+	 * @param  array   $order  [description]
+	 * @param  integer $count  [description]
+	 * @param  integer $offset [description]
+	 * @return array           of Entities
+	 */
+	public function get (array $where = array(), array $order = array(), $count = NULL, $offset = 0) {
+		$this->getDb();
+		$values = $this->entityPrototype->getExpressionSelect();
+		$join   = $this->entityPrototype->getStatementJoin();
+		$whereArray = array();
+		foreach ($where as $key => $value) {
+			$whereArray[] = $this->entityPrototype->getTableName().'.'.$key.' = :'.$key;
+		}
+		$this->db->lastCmd =
+			'SELECT '.$values
+			.' FROM '.addslashes($this->entityPrototype->getTableName())
+		;
+		if (!empty($join)) {
+			$this->db->lastCmd .= ' '.$join;
+		}
+		if (!empty($whereArray)) {
+			$this->db->lastCmd .= ' WHERE '.implode(' AND ', $whereArray);
+		}
+		if (!empty($order)) {
+			$this->db->lastCmd .= ' ORDER BY '.$this->entityPrototype->getTableName().'.'.implode(', '.$this->entityPrototype->getTableName().'.', $order);
+		}
+		if (!empty($count)) {
+			$this->db->lastCmd .= ' LIMIT '.(int)$offset.','.(int)$count;
+		}
+		$this->db->lastData = $where;
+		$sth = $this->db->prepare($this->db->lastCmd);
+		$sth->execute($this->db->lastData);
+		return $sth->fetchAll( \PDO::FETCH_CLASS, $this->entityClass );
+		foreach ($results as &$r) {
+			$r->postFetch();
+		}
+		return $results;
+	}
+
 	/**
 	 * Get a single Entities by ID
 	 * @param  integer $id [description]
@@ -78,7 +147,8 @@ class Entities {
 	 */
 	public function getByIds (array $ids, array $order = array()) {
 		$this->getDb();
-		$values = '*';
+		$values = $this->entityPrototype->getExpressionSelect();
+		$join   = $this->entityPrototype->getStatementJoin();
 		$idsArray = array();
 		foreach ($ids as $key => $value) {
 			$idArray['id_'.$key] = $value;
@@ -86,11 +156,11 @@ class Entities {
 		$idFieldname = $this->entityPrototype->getFieldPrimaryIndex();
 		$this->db->lastCmd =
 			'SELECT '.$values
-			.' FROM '.addslashes($this->tableName)
-			.' WHERE '.$this->tableName.'.'.$idFieldname.' IN (:'.implode(',:', array_keys($idArray)).')'
+			.' FROM '.addslashes($this->entityPrototype->getTableName())
+			.' WHERE '.$this->entityPrototype->getTableName().'.'.$idFieldname.' IN (:'.implode(',:', array_keys($idArray)).')'
 		;
 		if (!empty($order)) {
-			$this->db->lastCmd .= ' ORDER BY '.$this->tableName.'.'.implode(', '.$this->tableName.'.', $order);
+			$this->db->lastCmd .= ' ORDER BY '.$this->entityPrototype->getTableName().'.'.implode(', '.$this->entityPrototype->getTableName().'.', $order);
 		}
 		$this->db->lastData = $idArray;
 		$sth = $this->db->prepare($this->db->lastCmd);
@@ -101,6 +171,10 @@ class Entities {
 		}
 		return $results;
 	}
+
+	// --------------------------------------------------
+	// DELETE
+	// --------------------------------------------------
 
 	/**
 	 * Delete an Entity by ID
@@ -125,82 +199,17 @@ class Entities {
 		$idFieldname = $this->entityPrototype->getFieldPrimaryIndex();
 		$this->db->lastCmd =
 			'DELETE '
-			.' FROM '.addslashes($this->tableName)
-			.' WHERE '.$this->tableName.'.'.$idFieldname.' IN (:'.implode(',:', array_keys($idArray)).')'
+			.' FROM '.addslashes($this->entityPrototype->getTableName())
+			.' WHERE '.$this->entityPrototype->getTableName().'.'.$idFieldname.' IN (:'.implode(',:', array_keys($idArray)).')'
 		;
 		$this->db->lastData = $idArray;
 		$sth = $this->db->prepare($this->db->lastCmd);
 		return $sth->execute($this->db->lastData);
 	}
 
-	/**
-	 * Select multiple Entities
-	 * @param  array   $where  [description]
-	 * @param  array   $order  [description]
-	 * @param  integer $count  [description]
-	 * @param  integer $offset [description]
-	 * @return array           of Entities
-	 */
-	public function get (array $where = array(), array $order = array(), $count = NULL, $offset = 0) {
-		$this->getDb();
-		$values = '*';
-		$whereArray = array();
-		foreach ($where as $key => $value) {
-			$whereArray[] = $this->tableName.'.'.$key.' = :'.$key;
-		}
-		$this->db->lastCmd =
-			'SELECT '.$values
-			.' FROM '.addslashes($this->tableName)
-		;
-		if (!empty($join)) {
-			$this->db->lastCmd .= ' '.$join;
-		}
-		if (!empty($whereArray)) {
-			$this->db->lastCmd .= ' WHERE '.implode(' AND ', $whereArray);
-		}
-		if (!empty($order)) {
-			$this->db->lastCmd .= ' ORDER BY '.$this->tableName.'.'.implode(', '.$this->tableName.'.', $order);
-		}
-		if (!empty($count)) {
-			$this->db->lastCmd .= ' LIMIT '.(int)$offset.','.(int)$count;
-		}
-		$this->db->lastData = $where;
-		$sth = $this->db->prepare($this->db->lastCmd);
-		$sth->execute($this->db->lastData);
-		return $sth->fetchAll( \PDO::FETCH_CLASS, $this->entityClass );
-		foreach ($results as &$r) {
-			$r->postFetch();
-		}
-		return $results;
-	}
-
-	/**
-	 * Update or insert entity into table
-	 * @param  Entity $entity [description]
-	 * @return string         new ID of row in DB
-	 */
-	public function store ($entity) {
-		if (get_class($entity) != $this->entityClass) {
-			throw new \Exception ('Entity has to be of type '.$this->entityClass.' in '.get_class($this));
-		}
-		$id = $entity->getId();
-		$this->getDb();
-		if (empty($id)) {
-			$this->db->insert(
-				$this->tableName,
-				$entity->getStorableArray(TRUE)
-			);
-			$id = $this->db->lastInsertId();
-		}
-		else {
-			$this->db->update(
-				$this->tableName,
-				$entity->getStorableArray(),
-				$entity->getFieldPrimaryIndex().'='.$this->db->quote($id)
-			);
-		}
-		return $id;
-	}
+	// --------------------------------------------------
+	// OTHER STUFF
+	// --------------------------------------------------
 
 	/**
 	 * Use for debugging last SQL query

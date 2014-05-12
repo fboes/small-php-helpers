@@ -7,11 +7,11 @@ require('../Entity.php');
 
 class Tests extends Entities {
 	protected $entityClass = 'Test';
-	protected $tableName = 'test';
 
 }
 
 class Test extends Entity {
+	protected $tableName = 'test';
 	public $id;
 	public $text;
 	public $date_update;

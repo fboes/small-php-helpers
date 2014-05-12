@@ -8,17 +8,35 @@
  */
 class Entity {
 	/**
+	 * Set this string to match the (SQL)-tablename containing the rows
+	 * @var string
+	 */
+	protected $tableName         = '';
+	/**
 	 * Set this variable to match the col containing the Primary Index
 	 * @var string
 	 */
 	protected $fieldPrimaryIndex = 'id';
-	protected $statementJoin; # TODO: Handling of JOINs - and handling of results from JOINs
+	/**
+	 * Optional (SQL) join statement to be used on every select query
+	 * @var string
+	 */
+	protected $statementJoin     = '';
+	/**
+	 * Optional: Which (SQL) fields to fetch
+	 * @var string
+	 */
+	protected $expressionSelect  = '*';
+
 	# add more variables here
 
 	/**
 	 * [__construct description]
 	 */
 	public function __construct () {
+		if (empty($this->tableName)) {
+			throw new \Exception ('Tablename has to be set for '.get_class($this).', "'.$this->tableName.'" given');
+		}
 	}
 
 	/**
@@ -74,6 +92,22 @@ class Entity {
 	 */
 	public function getStatementJoin () {
 		return $this->statementJoin;
+	}
+
+	/**
+	 * Get (SQL) select expression (fields to fetch) for a regular select
+	 * @return string SQL
+	 */
+	public function getExpressionSelect () {
+		return $this->expressionSelect;
+	}
+
+	/**
+	 * Get (SQL) table name for all queries
+	 * @return string SQL
+	 */
+	public function getTableName () {
+		return $this->tableName;
 	}
 
 	/**
