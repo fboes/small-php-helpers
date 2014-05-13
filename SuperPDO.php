@@ -76,6 +76,20 @@ class SuperPDO extends PDO
 	}
 
 	/**
+	 * Convert keys of an array to SQL usable for prepared statements
+	 * @param  array  $data  FIELDNAME => VALUE
+	 * @param  string $table Optional
+	 * @return string        TABLE.KEY = :KEY
+	 */
+	public function buildPreparedArray (array $data, $table = '') {
+		$preparedArray = array();
+		foreach ($data as $key => $value) {
+			$preparedArray[] = (!empty($table) ? $table.'.' : '').$key.' = :'.$key;
+		}
+		return $preparedArray;
+	}
+
+	/**
 	 * Insert array into table. Will do proper quoting.
 	 *
 	 * @param   string  $table  Name of the table
@@ -100,13 +114,13 @@ class SuperPDO extends PDO
 	 * Select from table. Will do proper quoting, but for order
 	 *
 	 * @param   string  $table  Name of the table
-	 * @param   array   $data   associative array with FIELDNAME => FIELDVALUE
+	 * @param   string  $where  SQL-statement for WHERE-clause; you may want to use $this->quoteArray
 	 * @param   string  $order  Optional
 	 * @param   int     $count  Optional
 	 * @param   int     $offset Optional
 	 * @return  PDOStatement
 	 */
-	public function select ($table, array $where, array $order = array(), $count = NULL, $offset = 0)
+	public function select ($table, $where = '1', array $order = array(), $count = NULL, $offset = 0)
 	{
 		return $this->selectJoin($table, $where, NULL, $order, $count, $offset);
 	}
@@ -115,7 +129,7 @@ class SuperPDO extends PDO
 	 * Select from table. Will do proper quoting, but for order
 	 *
 	 * @param   string  $table  Name of the table
-	 * @param   array   $data   associative array with FIELDNAME => FIELDVALUE
+	 * @param   string  $where  SQL-statement for WHERE-clause; you may want to use $this->quoteArray
 	 * @param   string  $join   some unquoted SQL
 	 * @param   string  $order  Optional
 	 * @param   int     $count  Optional
@@ -123,12 +137,8 @@ class SuperPDO extends PDO
 	 * @param   string  $values Optional, defaults to '*'
 	 * @return  PDOStatement
 	 */
-	public function selectJoin ($table, array $where, $join = '', array $order = array(), $count = NULL, $offset = 0, $values = '*')
+	public function selectJoin ($table, $where = '1', $join = '', array $order = array(), $count = NULL, $offset = 0, $values = '*')
 	{
-		$whereArray = array();
-		foreach ($where as $key => $value) {
-			$whereArray[] = $table.'.'.$key.' = :'.$key;
-		}
 		$this->lastCmd =
 			'SELECT '.$values
 			.' FROM '.addslashes($table)
@@ -136,8 +146,8 @@ class SuperPDO extends PDO
 		if (!empty($join)) {
 			$this->lastCmd .= ' '.$join;
 		}
-		if (!empty($whereArray)) {
-			$this->lastCmd .= ' WHERE '.implode(' AND ', $whereArray);
+		if (!empty($where)) {
+			$this->lastCmd .= ' WHERE '.$where;
 		}
 		if (!empty($order)) {
 			$this->lastCmd .= ' ORDER BY '.$table.'.'.implode(', '.$table.'.', $order);
@@ -145,9 +155,9 @@ class SuperPDO extends PDO
 		if (!empty($count)) {
 			$this->lastCmd .= ' LIMIT '.(int)$offset.','.(int)$count;
 		}
-		$this->lastData = $where;
+		$this->lastData = NULL;
 		$sth = $this->prepare($this->lastCmd);
-		$sth->execute($this->lastData);
+		$sth->execute();
 		return $sth->fetchAll(self::FETCH_ASSOC);
 	}
 
@@ -197,7 +207,6 @@ class SuperPDO extends PDO
 	 * @param   string  $table  Name of the table
 	 * @param   array   $data   associative array with FIELDNAME => FIELDVALUE
 	 * @param   string  $where  SQL-string denoting which fields to update.
-	 *  You may want to use $this->quoteArray(array(),' AND ')
 	 * @param   string  $options    Like 'DELAYED'. Optional, defaults to NULL
 	 * @return  bool
 	 */
@@ -206,11 +215,12 @@ class SuperPDO extends PDO
 		$this->lastCmd =
 			'UPDATE '.addslashes($options)
 			.' '.addslashes($table)
-			.' SET '.$this->quoteArray($data)
+			.' SET :'.implode(',:',array_keys($data))
 			.' WHERE '.$where
 		;
 		$this->lastData = $data;
-		return $this->exec($this->lastCmd);
+		$sth = $this->prepare($this->lastCmd);
+		return $sth->execute($this->lastData);
 	}
 
 	/**
@@ -222,16 +232,12 @@ class SuperPDO extends PDO
 	 */
 	public function delete ($table, array $where)
 	{
-		$whereArray = array();
-		foreach ($where as $key => $value) {
-			$whereArray[] = $table.'.'.$key.' = :'.$key;
-		}
 		$this->lastCmd =
 			'DELETE'
 			.' FROM '.addslashes($table)
 		;
-		if (!empty($whereArray)) {
-			$this->lastCmd .= ' WHERE '.implode(' AND ', $whereArray);
+		if (!empty($where)) {
+			$this->lastCmd .= ' WHERE '.implode(' AND ', $this->buildPreparedArray($where, $table));
 		}
 		$this->lastData = $where;
 		$sth = $this->prepare($this->lastCmd);

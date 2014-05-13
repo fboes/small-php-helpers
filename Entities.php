@@ -127,10 +127,6 @@ class Entities {
 		$this->getDb();
 		$values = $this->entityPrototype->getExpressionSelect();
 		$join   = $this->entityPrototype->getStatementJoin();
-		$whereArray = array();
-		foreach ($where as $key => $value) {
-			$whereArray[] = $this->entityPrototype->getTableName().'.'.$key.' = :'.$key;
-		}
 		$this->db->lastCmd =
 			'SELECT '.$values
 			.' FROM '.addslashes($this->entityPrototype->getTableName())
@@ -138,8 +134,8 @@ class Entities {
 		if (!empty($join)) {
 			$this->db->lastCmd .= ' '.$join;
 		}
-		if (!empty($whereArray)) {
-			$this->db->lastCmd .= ' WHERE '.implode(' AND ', $whereArray);
+		if (!empty($where)) {
+			$this->db->lastCmd .= ' WHERE '.implode(' AND ', $this->db->buildPreparedArray($where, $table));
 		}
 		if (!empty($order)) {
 			$this->db->lastCmd .= ' ORDER BY '.$this->entityPrototype->getTableName().'.'.implode(', '.$this->entityPrototype->getTableName().'.', $order);
@@ -211,15 +207,13 @@ class Entities {
 	 */
 	public function delete (array $where) {
 		$this->getDb();
-		$whereArray = array();
-		foreach ($where as $key => $value) {
-			$whereArray[] = $this->entityPrototype->getTableName().'.'.$key.' = :'.$key;
-		}
 		$this->db->lastCmd =
 			'DELETE '
 			.' FROM '.addslashes($this->entityPrototype->getTableName())
-			.' WHERE '.implode(' AND ', $whereArray)
 		;
+		if (!empty($where)) {
+			$this->db->lastCmd .= ' WHERE '.implode(' AND ', $this->db->buildPreparedArray($where, $table));
+		}
 		$this->db->lastData = $where;
 		$sth = $this->db->prepare($this->db->lastCmd);
 		return $sth->execute($this->db->lastData);

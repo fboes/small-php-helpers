@@ -34,7 +34,7 @@ class EntitiesTest extends Tester {
 		$this->outputLine($tests->getLastCommand());
 		$this->outputLine($newId);
 		$this->outputLine($data);
-		$this->assertTrue(!empty($newId), 'Data written and ID returned');
+		$this->assertTrue(!empty($newId), 'Data written and ID returned for ->store');
 
 		$secondNewId = $tests->store($data);
 		$this->outputLine($tests->getLastCommand());
@@ -42,7 +42,7 @@ class EntitiesTest extends Tester {
 
 		$result = $tests->getById($newId);
 		$this->outputLine($result);
-		$this->assertTrue(!empty($result), 'Result returned');
+		$this->assertTrue(!empty($result), 'Result returned for ->getById');
 		$this->outputLine($tests->getLastCommand());
 		$this->assertTrue(is_subclass_of($result, 'Entity'), 'Results is subclass of Entity');
 		$this->assertTrue(!empty($result->getId()), 'Result has ID');
@@ -55,7 +55,7 @@ class EntitiesTest extends Tester {
 			$tests->getFieldPrimaryIndex() => $newId
 		));
 		$this->outputLine($result);
-		$this->assertTrue(!empty($result), 'Result returned');
+		$this->assertTrue(!empty($result), 'Result returned for ->getByIds');
 		$this->assertTrue(is_array($result), 'Results in array returned');
 		$this->outputLine($tests->getLastCommand());
 
@@ -63,7 +63,7 @@ class EntitiesTest extends Tester {
 			$tests->getFieldPrimaryIndex() => $newId
 		));
 		$this->outputLine($tests->getLastCommand());
-		$this->assertTrue(!empty($result), 'Result returned');
+		$this->assertTrue(!empty($result), 'Result returned for ->get');
 
 		$result = $tests->deleteById($newId);
 		$this->outputLine($tests->getLastCommand());
