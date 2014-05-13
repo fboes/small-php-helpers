@@ -46,7 +46,7 @@ class Entities {
 		if (empty($this->db)) {
 			$this->db = new SuperPDO($this->dbDsn, $this->dbUser, $this->dbPassword);
 			$this->db->useUft8();
-			$this->db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_CLASS);
+			$this->db->setAttribute(SuperPDO::ATTR_DEFAULT_FETCH_MODE, SuperPDO::FETCH_CLASS);
 		}
 		return $this->db;
 	}
@@ -150,7 +150,7 @@ class Entities {
 		$this->db->lastData = $where;
 		$sth = $this->db->prepare($this->db->lastCmd);
 		$sth->execute($this->db->lastData);
-		return $sth->fetchAll( \PDO::FETCH_CLASS, $this->entityClass );
+		return $sth->fetchAll( SuperPDO::FETCH_CLASS, $this->entityClass );
 		foreach ($results as &$r) {
 			$r->postFetch();
 		}
@@ -193,7 +193,7 @@ class Entities {
 		$this->db->lastData = $idArray;
 		$sth = $this->db->prepare($this->db->lastCmd);
 		$sth->execute($this->db->lastData);
-		$results = $sth->fetchAll( \PDO::FETCH_CLASS, $this->entityClass );
+		$results = $sth->fetchAll( SuperPDO::FETCH_CLASS, $this->entityClass );
 		foreach ($results as &$r) {
 			$r->postFetch();
 		}
@@ -203,6 +203,27 @@ class Entities {
 	// --------------------------------------------------
 	// DELETE
 	// --------------------------------------------------
+
+	/**
+	 * Delete Entities by condition(s)
+	 * @param  array  $where FIELDNAME => condition
+	 * @return boolean       [description]
+	 */
+	public function delete (array $where) {
+		$this->getDb();
+		$whereArray = array();
+		foreach ($where as $key => $value) {
+			$whereArray[] = $this->entityPrototype->getTableName().'.'.$key.' = :'.$key;
+		}
+		$this->db->lastCmd =
+			'DELETE '
+			.' FROM '.addslashes($this->entityPrototype->getTableName())
+			.' WHERE '.implode(' AND ', $whereArray)
+		;
+		$this->db->lastData = $where;
+		$sth = $this->db->prepare($this->db->lastCmd);
+		return $sth->execute($this->db->lastData);
+	}
 
 	/**
 	 * Delete an Entity by ID
