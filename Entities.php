@@ -117,13 +117,13 @@ class Entities {
 
 	/**
 	 * Select multiple Entities
-	 * @param  array   $where  [description]
-	 * @param  array   $order  [description]
-	 * @param  integer $count  [description]
-	 * @param  integer $offset [description]
-	 * @return array           of Entities
+	 * @param  array   $whereArray  [description]
+	 * @param  array   $order       [description]
+	 * @param  integer $count       [description]
+	 * @param  integer $offset      [description]
+	 * @return array                of Entities
 	 */
-	public function get (array $where = array(), array $order = array(), $count = NULL, $offset = 0) {
+	public function get (array $whereArray = array(), array $order = array(), $count = NULL, $offset = 0) {
 		$this->getDb();
 		$values = $this->entityPrototype->getExpressionSelect();
 		$join   = $this->entityPrototype->getStatementJoin();
@@ -134,8 +134,8 @@ class Entities {
 		if (!empty($join)) {
 			$this->db->lastCmd .= ' '.$join;
 		}
-		if (!empty($where)) {
-			$this->db->lastCmd .= ' WHERE '.implode(' AND ', $this->db->buildPreparedArray($where, $table));
+		if (!empty($whereArray)) {
+			$this->db->lastCmd .= ' WHERE '.implode(' AND ', $this->db->buildPreparedArray($whereArray, $table));
 		}
 		if (!empty($order)) {
 			$this->db->lastCmd .= ' ORDER BY '.$this->entityPrototype->getTableName().'.'.implode(', '.$this->entityPrototype->getTableName().'.', $order);
@@ -143,7 +143,7 @@ class Entities {
 		if (!empty($count)) {
 			$this->db->lastCmd .= ' LIMIT '.(int)$offset.','.(int)$count;
 		}
-		$this->db->lastData = $where;
+		$this->db->lastData = $whereArray;
 		$sth = $this->db->prepare($this->db->lastCmd);
 		$sth->execute($this->db->lastData);
 		return $sth->fetchAll( SuperPDO::FETCH_CLASS, $this->entityClass );
@@ -202,19 +202,19 @@ class Entities {
 
 	/**
 	 * Delete Entities by condition(s)
-	 * @param  array  $where FIELDNAME => condition
-	 * @return boolean       [description]
+	 * @param  array  $whereArray FIELDNAME => condition
+	 * @return boolean            [description]
 	 */
-	public function delete (array $where) {
+	public function delete (array $whereArray) {
 		$this->getDb();
 		$this->db->lastCmd =
-			'DELETE '
+			'DELETE'
 			.' FROM '.addslashes($this->entityPrototype->getTableName())
 		;
-		if (!empty($where)) {
-			$this->db->lastCmd .= ' WHERE '.implode(' AND ', $this->db->buildPreparedArray($where, $table));
+		if (!empty($whereArray)) {
+			$this->db->lastCmd .= ' WHERE '.implode(' AND ', $this->db->buildPreparedArray($whereArray, $table));
 		}
-		$this->db->lastData = $where;
+		$this->db->lastData = $whereArray;
 		$sth = $this->db->prepare($this->db->lastCmd);
 		return $sth->execute($this->db->lastData);
 	}
@@ -241,7 +241,7 @@ class Entities {
 		}
 		$idFieldname = $this->entityPrototype->getFieldPrimaryIndex();
 		$this->db->lastCmd =
-			'DELETE '
+			'DELETE'
 			.' FROM '.addslashes($this->entityPrototype->getTableName())
 			.' WHERE '.$this->entityPrototype->getTableName().'.'.$idFieldname.' IN (:'.implode(',:', array_keys($idArray)).')'
 		;

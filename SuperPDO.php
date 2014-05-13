@@ -100,7 +100,8 @@ class SuperPDO extends PDO
 	public function insert ($table, array $data, $options = NULL)
 	{
 		$this->lastCmd =
-			'INSERT '.addslashes($options)
+			'INSERT'
+			.(!empty($options) ? ' '.addslashes($options) : '')
 			.' INTO '.addslashes($table)
 			.'('.implode(',',array_keys($data)).')'
 			.' VALUES(:'.implode(',:',array_keys($data)).')'
@@ -191,7 +192,8 @@ class SuperPDO extends PDO
 	public function replace ($table, array $data, $options = NULL)
 	{
 		$this->lastCmd =
-			'REPLACE '.addslashes($options)
+			'REPLACE'
+			.(!empty($options) ? ' '.addslashes($options) : '')
 			.' INTO '.addslashes($table)
 			.'('.implode(',',array_keys($data)).')'
 			.' VALUES(:'.implode(',:',array_keys($data)).')'
@@ -206,14 +208,15 @@ class SuperPDO extends PDO
 	 *
 	 * @param   string  $table  Name of the table
 	 * @param   array   $data   associative array with FIELDNAME => FIELDVALUE
-	 * @param   string  $where  SQL-string denoting which fields to update.
+	 * @param   string  $where  SQL-statement for WHERE-clause; you may want to use $this->quoteArray
 	 * @param   string  $options    Like 'DELAYED'. Optional, defaults to NULL
 	 * @return  bool
 	 */
 	public function update ($table, array $data, $where, $options = NULL)
 	{
 		$this->lastCmd =
-			'UPDATE '.addslashes($options)
+			'UPDATE'
+			.(!empty($options) ? ' '.addslashes($options) : '')
 			.' '.addslashes($table)
 			.' SET :'.implode(',:',array_keys($data))
 			.' WHERE '.$where
@@ -227,18 +230,16 @@ class SuperPDO extends PDO
 	 * Delete from table. Will do proper quoting
 	 *
 	 * @param   string  $table  Name of the table
-	 * @param   array   $data   associative array with FIELDNAME => FIELDVALUE
+	 * @param   string  $where  SQL-statement for WHERE-clause; you may want to use $this->quoteArray
 	 * @return  PDOStatement
 	 */
-	public function delete ($table, array $where)
+	public function delete ($table, $where)
 	{
 		$this->lastCmd =
 			'DELETE'
 			.' FROM '.addslashes($table)
+			.' WHERE '.$where;
 		;
-		if (!empty($where)) {
-			$this->lastCmd .= ' WHERE '.implode(' AND ', $this->buildPreparedArray($where, $table));
-		}
 		$this->lastData = $where;
 		$sth = $this->prepare($this->lastCmd);
 		return $sth->execute($this->lastData);
