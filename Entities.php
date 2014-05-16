@@ -160,14 +160,21 @@ class Entities {
 	public function getTotalCountForLastGet () {
 		$newCmd = $this->db->lastCmd;
 		if (strpos($newCmd, 'SELECT') !== FALSE) {
-			$newCmd = preg_replace('# LIMIT \d.*$#is', '', $newCmd);
-			$newCmd = preg_replace('#^(SELECT )(.+)( FROM)#is', '$1COUNT(*)$3', $newCmd);
+			if (strpos($newCmd, ' SQL_CALC_FOUND_ROWS ') !== FALSE) {
+				$this->db->lastCmd  = 'SELECT FOUND_ROWS()';
+				$this->db->lastData = array();
+			}
+			else {
+				$newCmd = preg_replace('# LIMIT \d.*$#is', '', $newCmd);
+				$newCmd = preg_replace('#^(SELECT )(.+)( FROM)#is', '$1COUNT(*)$3', $newCmd);
 
-			$this->db->lastCmd  = $newCmd;
+				$this->db->lastCmd  = $newCmd;
 
+			}
 			$sth = $this->db->prepare($this->db->lastCmd);
 			$sth->execute($this->db->lastData);
 			$results = $sth->fetchAll( SuperPDO::FETCH_BOTH );
+
 			return !empty($results[0][0]) ? (int)$results[0][0] : -1;
 		}
 		return -1;
