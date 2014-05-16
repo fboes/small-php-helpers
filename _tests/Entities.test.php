@@ -59,6 +59,11 @@ class EntitiesTest extends Tester {
 		$this->assertTrue(is_array($result), 'Results in array returned');
 		$this->outputLine($tests->getLastCommand());
 
+		$result = $tests->getTotalCountForLastGet();
+		$this->outputLine($tests->getLastCommand());
+		$this->assertTrue(is_integer($result), 'Result returned for ->getTotalCountForLastGet is integer');
+		$this->assertTrue($result >= 1, 'Result returned for ->getTotalCountForLastGet is >= 1');
+
 		$result = $tests->get(array(
 			$tests->getFieldPrimaryIndex() => $newId
 		));

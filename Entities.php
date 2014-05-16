@@ -146,11 +146,31 @@ class Entities {
 		$this->db->lastData = $whereArray;
 		$sth = $this->db->prepare($this->db->lastCmd);
 		$sth->execute($this->db->lastData);
-		return $sth->fetchAll( SuperPDO::FETCH_CLASS, $this->entityClass );
+		$results = $sth->fetchAll( SuperPDO::FETCH_CLASS, $this->entityClass );
 		foreach ($results as &$r) {
 			$r->postFetch();
 		}
 		return $results;
+	}
+
+	/**
+	 * After doing a select this will give you the number of total rows (without LIMIT) affected by this query
+	 * @return integer numer of rows or -1 if no appropiate command was found
+	 */
+	public function getTotalCountForLastGet () {
+		$newCmd = $this->db->lastCmd;
+		if (strpos($newCmd, 'SELECT') !== FALSE) {
+			$newCmd = preg_replace('# LIMIT \d.*$#is', '', $newCmd);
+			$newCmd = preg_replace('#^(SELECT )(.+)( FROM)#is', '$1COUNT(*)$3', $newCmd);
+
+			$this->db->lastCmd  = $newCmd;
+
+			$sth = $this->db->prepare($this->db->lastCmd);
+			$sth->execute($this->db->lastData);
+			$results = $sth->fetchAll( SuperPDO::FETCH_BOTH );
+			return !empty($results[0][0]) ? (int)$results[0][0] : -1;
+		}
+		return -1;
 	}
 
 	/**
