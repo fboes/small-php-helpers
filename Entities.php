@@ -135,7 +135,7 @@ class Entities {
 			$this->db->lastCmd .= ' '.$join;
 		}
 		if (!empty($whereArray)) {
-			$this->db->lastCmd .= ' WHERE '.implode(' AND ', $this->db->buildPreparedArray($whereArray, $table));
+			$this->db->lastCmd .= ' WHERE '.implode(' AND ', $this->db->buildPreparedArray($whereArray, $this->entityPrototype->getTableName()));
 		}
 		if (!empty($order)) {
 			$this->db->lastCmd .= ' ORDER BY '.$this->entityPrototype->getTableName().'.'.implode(', '.$this->entityPrototype->getTableName().'.', $order);

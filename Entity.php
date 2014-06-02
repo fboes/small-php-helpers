@@ -55,7 +55,7 @@ class Entity {
 
 		$data = (array)$this;
 		foreach ($data as $key => $value) {
-			if ($key == $this->fieldPrimaryIndex || strpos($key, '*') === 1 || (!$isNew && $key == 'date_create')) {
+			if ($key == $this->fieldPrimaryIndex || strpos($key, '*') === 1 || strpos($key, '_') === 0 || (!$isNew && $key == 'date_create')) {
 				unset($data[$key]);
 			} else {
 				switch ($key) {
