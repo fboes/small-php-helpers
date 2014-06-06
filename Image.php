@@ -3,81 +3,116 @@
 
 class Image {
   protected $filename;
-  protected $imageInfo = array();
-  protected $cachePath = '';
-  protected $docRoot   = '';
-  protected $width     = 0;
-  protected $height    = 0;
+  protected $width     = 100;
+  protected $height    = 100;
+  protected $mode;
+  protected $background;
+
+  const MODE_CROP          = 'crop';
+  const MODE_ENLARGE_CROP  = 'enlarge-crop';
+  const MODE_BORDER        = 'border';
+
+  protected $pathImageMagick = '';
 
   /**
    * [__construct description]
-   * @param string $filename  relative path to docroot
-   * @param string $cachePath absolute path
-   * @param string $docRoot   absolute path
+   * @param string $filename  absolute path
    */
-  public function __construct($filename, $cachePath, $docRoot) {
-    $this->cachePath = $cachePath;
-    $this->docRoot = $docRoot;
+  public function __construct($filename) {
     $this->filename = $filename;
+    $this->setMode(self::MODE_CROP);
   }
 
-  public function isFile () {
-    return file_exists($this->docRoot.$this->filename);
+  /**
+   * [init description]
+   * @param  [type] $filename [description]
+   * @return self             Object
+   */
+  public static function init($filename) {
+    return self($filename);
   }
 
+  /**
+   * [setWidth description]
+   * @param  integer $width [description]
+   * @return self           Object
+   */
   public function setWidth ($width) {
-    return $this->width = abs((int)$width);
+    $this->width = abs((int)$width);
+    return $this;
   }
 
+  /**
+   * [setHeight description]
+   * @param  integer $height [description]
+   * @return self            Object
+   */
   public function setHeight ($height) {
-    return $this->height = abs((int)$height);
+    $this->height = abs((int)$height);
+    return $this;
   }
 
-  public function buildImage () {
-    $image = getimagesize($this->docRoot.$this->filename);
-    $image['width']  = $image[0];
-    $image['height'] = $image[1];
-    $image['ratio']  = $image['width'] / $image['height'];
-
-    if (empty($this->width)) {
-      $this->width  = floor($this->height / $image['height'] * $image['width']);
+  /**
+   * [setMode description]
+   * @param  string $mode either Image::MODE_CROP or Image::MODER_BORDER
+   * @return self         Object
+   */
+  public function setMode ($mode, $background = 'white') {
+    if (!in_array($mode, array(
+      self::MODE_CROP,
+      self::MODE_ENLARGE_CROP,
+      self::MODE_BORDER
+    ))) {
+      throw new \Exception('Illegal mode selected for image resizing');
     }
-    elseif (empty($this->height)) {
-      $this->height = floor($this->width  / $image['width'] * $image['height']);
-    }
-    $this->imageInfo = $image;
-    if ($this->width != $image['width'] && $this->height != $image['height']) {
-      $cmd =
-        'convert'
-        .' -strip -interlace Plane -gaussian-blur 0.05 -quality 85%'
-        .' '.escapeshellarg($this->docRoot.$this->filename)
-        .' -resize '.(int)$this->width.'x'.(int)$this->height
-        .' '.escapeshellarg($this->cachePath.$this->getCacheFilename())
-      ;
-      exec($cmd);
-    }
-    return TRUE;
+    $this->mode       = $mode;
+    $this->background = $background;
+    return $this;
   }
 
-  public function getCacheFilename () {
-    return
-      str_replace('/','_',
-        preg_replace(
-          '#_\d+x\d+$#',
-          '',
-          preg_replace('#\.(.+?)$#','',$this->filename)
-        )
-      )
-      .'-'.$this->width.'x'.$this->height.'.jpg'
+  /**
+   * Resize image, by either cropping or adding a border.
+   * @param  string  $target absolute filename of target file
+   * @param  array   $config with keys ('gravity', 'background')
+   * @return boolean         success
+   */
+  public function buildImage ($target, array $config = array()) {
+    $src = $this->filename;
+    if (empty($this->mode) || $this->mode === self::MODE_BORDER || $this->mode === self::MODE_CROP) {
+      $enlargeAndCrop = NULL;
+    }
+    else {
+      $enlargeAndCrop = '^';
+      if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        $enlargeAndCrop .= '^';
+      }
+    }
+    $tgtWidth  = $this->width;
+    $tgtHeight = $this->height;
+
+    if (!empty($this->mode) && $this->mode === self::MODE_CROP) {
+      $imgProp = getimagesize($src);
+      $srcRatio = $imgProp[0] / $imgProp[1];
+      $ratio = $this->width / $this->height;
+      if ($srcRatio < $ratio) {
+        $tgtWidth  = $tgtWidth  * $srcRatio / $ratio;
+      }
+      else {
+        $tgtHeight = $tgtHeight / $srcRatio * $ratio;
+      }
+    }
+
+    $cmd =
+      $this->pathImageMagick . 'convert'
+      .' -strip -interlace Plane -quality 85%'
+      .' '.escapeshellarg($src)
+      .' -resize '    .((int)$this->width).'x'.((int)$this->height).$enlargeAndCrop
+      .' -gravity '   .escapeshellarg(!empty($config['gravity'])? $config['gravity']: 'center')
+      .' -background '.escapeshellarg(!empty($this->background) ? $this->background : 'white')
+      .' -extent '    .((int)$tgtWidth).'x'.((int)$tgtHeight)
+      .' '.escapeshellarg($tgt)
     ;
+    $success = system($cmd, $retval);
+    return $success;
   }
-
-  public function hasCache () {
-    return file_exists($this->getCacheFilename());
-  }
-
-  public function returnCacheUrl () {
-    return dirname($_SERVER['SCRIPT_URI']).'/'.basename($this->cachePath).'/'.$this->getCacheFilename();
-  }
-
 }
