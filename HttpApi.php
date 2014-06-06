@@ -14,11 +14,12 @@ class HttpApi {
 	protected $httpPassword;
 	protected $cookies = array();
 
-
 	protected $memoizationObject;
 	protected $memoizationExpire = 5;
 
 	protected $targetEncoding = 'UTF-8';
+
+	protected $allowUnsafe = FALSE;
 
 	/**
 	 * Properties of last request
@@ -94,6 +95,15 @@ class HttpApi {
 	 */
 	public function setCookie ($key, $value) {
 		$this->cookies[(string)$key] = (string)$value;
+		return $this;
+	}
+
+	/**
+	 * Allow unsafe HTTP requests, e.g. do not check HTTPs authentity
+	 * @return  HttpApi self
+	 */
+	public function allowUnsafe () {
+		$this->allowUnsafe = TRUE;
 		return $this;
 	}
 
@@ -196,6 +206,10 @@ class HttpApi {
 			$curlOptions[CURLOPT_CONNECTTIMEOUT] = 15;
 			$curlOptions[CURLOPT_FOLLOWLOCATION] = TRUE;
 			$curlOptions[CURLOPT_MAXREDIRS]      = 2;
+			if ($this->allowUnsafe) {
+				$curlOptions[CURLOPT_SSL_VERIFYPEER] = 0;
+				$curlOptions[CURLOPT_SSL_VERIFYHOST] = 0;
+			}
 
 			switch ($httpMethod) {
 				case self::HTTP_METHOD_POST:
