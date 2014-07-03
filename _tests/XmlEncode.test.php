@@ -20,8 +20,10 @@ class XmlEncodeTest extends Tester {
 
 	public function testXml ($a) {
 		$obj = new XmlEncode($a);
-		$this->assertValidXml($obj->output());
+		$output = $obj->output();
 
+		$this->outputLine($output);
+		$this->assertValidXml($output);
 	}
 }
 
