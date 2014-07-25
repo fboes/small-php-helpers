@@ -23,6 +23,11 @@ Integration in Symfony & Silex
 4. Put files in folder matching namespace
 5. Think of some clever way to use `toolshed.php` :smirk:
 
+Version
+-------
+
+Version: 1.2 (2014-07-25)
+
 Legal stuff
 -----------
 
