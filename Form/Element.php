@@ -78,12 +78,10 @@ class FormElement {
 	 */
 	public function convertAttribute ($name, $value) {
 		if ($name == 'class') {
-			return
-			 explode(' ',$value);
+			return explode(' ',$value);
 		}
-		elseif (strpos($name, 'data-') === 0 && strpos($value, '[') === 0) {
-			return
-			 json_decode($value);
+		elseif (strpos($name, 'data-json-') === 0) {
+			return json_decode($value);
 		}
 		else {
 			return $value;

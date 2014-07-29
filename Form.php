@@ -67,12 +67,7 @@ class Form {
 	 */
 	public function __construct(array $defaultValues = array()) {
 		if (!empty($defaultValues)) {
-			foreach ($defaultValues as $key => $value) {
-				if (empty($this->defaultElementAttributes[$key])) {
-					$this->defaultElementAttributes[$key] = array();
-				}
-				$this->defaultElementAttributes[$key]['value'] = $value;
-			}
+			$this->setDefaultValues($defaultValues);
 		}
 		$this->setFieldWrapper();
 		$this->setLabelWrapper();
@@ -87,6 +82,19 @@ class Form {
 	 */
 	public static function init (array $defaultValues = array()) {
 		return new static($defaultValues);
+	}
+
+
+	/**
+	 * Set default values for form
+	 * @param array $defaultValues Set default values for all form fields, e.g. text=test for <input name="test" value="text" />
+	 */
+	public function setDefaultValues ($defaultValues) {
+		$newValues = array();
+		foreach ($defaultValues as $key => $value) {
+			$newValues[$key] = array('value' => $value);
+		}
+		return $this->setDefaultElementAttributes($newValues);
 	}
 
 	/**
@@ -106,6 +114,12 @@ class Form {
 			}
 			else {
 				throw new \Exception("Attributes need to be given as array");
+			}
+		}
+		foreach ($this->formElements as &$element) {
+			if (!empty($element->attributes['name'])) {
+				$element->setAttributesByArray($this->getdefaultElementAttributes($element->attributes['name']));
+				$element->addDefaultValue();
 			}
 		}
 		return $this;
@@ -185,7 +199,7 @@ class Form {
 	}
 
 	/**
-	 * Add input field. SOm einput types will spawn a data-pattern-attribute containing rules to validate this field via JavaScript.
+	 * Add input field. Some input types will spawn a data-pattern-attribute containing rules to validate this field via JavaScript.
 	 * Supported input types:
 	 * - color
 	 * - date
@@ -220,39 +234,41 @@ class Form {
 		$element->addClass  ('input');
 		$element->addClass  ($element->attributes['type']);
 		$element->addErrorsOnRequired();
-		if (!Form::is_blank($element->attributes['maxlength'])) {
-			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {
-				$element->addError('maxlength',_('Field data is to long.'));
-			}
-		}
 		switch ($element->attributes['type']) {
 			case 'color':
 				$element->setOnEmpty('data-pattern', '#[A-Fa-f0-9]{6}');
 				$element->setOnEmpty('title', _('Expecting web color'));
+				$element->setOnEmpty('maxlength', 7);
 				break;
 			case 'date':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]');
 				$element->setOnEmpty('title', _('Expecting date like 2020-12-31'));
+				$element->setOnEmpty('maxlength', 10);
 				break;
 			case 'time':
 				$element->setOnEmpty('data-pattern', '[0-2][\d]:[0-5][\d](:[0-5]\d(\.\d)?)?');
 				$element->setOnEmpty('title', _('Expecting time like 23:59'));
+				$element->setOnEmpty('maxlength', 8);
 				break;
 			case 'datetime':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]T[0-2]\d:[0-5]\d(:[0-5]\d(\.\d)?)?Z');
 				$element->setOnEmpty('title', _('Expecting date like 2020-12-31T23:59Z'));
+				$element->setOnEmpty('maxlength', 10 + 2 + 5);
 				break;
 			case 'week':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-W[0-5][\d]');
 				$element->setOnEmpty('title', _('Expecting week like 2020-W52'));
+				$element->setOnEmpty('maxlength', 8);
 				break;
 			case 'month':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]');
 				$element->setOnEmpty('title', _('Expecting month like 2020-12'));
+				$element->setOnEmpty('maxlength', 7);
 				break;
 			case 'datetime-local':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]T[0-2]\d:[0-5]\d(:[0-5]\d(\.\d)?)?');
 				$element->setOnEmpty('title', _('Expecting date like 2020-12-31T23:59'));
+				$element->setOnEmpty('maxlength', 10 + 1 + 5);
 				break;
 			case 'email':
 				$element->setOnEmpty('data-pattern', '\S+@\S+');
@@ -267,6 +283,11 @@ class Form {
 				$element->setOnEmpty('data-pattern', 'http(s)?://\S+');
 				$element->setOnEmpty('title', _('Expecting valid URL, starting with http'));
 				break;
+		}
+		if (!Form::is_blank($element->attributes['maxlength'])) {
+			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {
+				$element->addError('maxlength',_('Field data is to long.'));
+			}
 		}
 		if (!Form::is_blank($element->attributes['value'])) {
 			if (!Form::is_blank($element->attributes['pattern']) || !Form::is_blank($element->attributes['data-pattern'])) {
@@ -511,5 +532,37 @@ class Form {
 			}
 			return $str;
 		}
+	}
+
+	/**
+	 * Get an array of all form-elements with their respective pattern-attribute
+	 * @return array with NAME => ATTRIBUTE-VALUE
+	 */
+	public function getNamesForPattern () {
+		return $this->getNamesForAttribute('pattern');
+	}
+
+	/**
+	 * Get an array of all form-elements with their respective required-attribute
+	 * @return array with NAME => ATTRIBUTE-VALUE
+	 */
+	public function getNamesForRequired () {
+		return $this->getNamesForAttribute('required');
+	}
+
+	/**
+	 * Get an array of all form-elements with their respective pattern-attribute
+	 * @param  string $attribute attribute name
+	 * @return array             with NAME => ATTRIBUTE-VALUE
+	 */
+	public function getNamesForAttribute ($attribute) {
+		$elements = array();
+		foreach ($this->formElements as $e) {
+			if (!empty($e->attributes['name'])) {
+				$name = $e->attributes['name'];
+				$elements[$name] = !empty($e->attributes[$attribute]) ? $e->attributes[$attribute] : NULL;
+			}
+		}
+		return $elements;
 	}
 }
