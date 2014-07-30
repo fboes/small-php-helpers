@@ -119,6 +119,10 @@ class FormElement {
 				$this->attributes['value'] = $this->attributes['default'];
 			}
 		}
+		if (!Form::is_blank($this->attributes['type']) && !Form::is_blank($this->attributes['value']) && $this->attributes['type'] === 'file') {
+			$this->setOnEmpty('data-output', $this->attributes['value']);
+			unset($this->attributes['value']);
+		}
 		return $this;
 	}
 
@@ -220,6 +224,10 @@ class FormElement {
 					if (!empty($this->options)) {
 						$formElement .= $this->makeOptions(Form::HTML_INPUT_OPTION, Form::HTML_INPUT_OPTIONS_WRAPPER);
 					}
+					if (!Form::is_blank($this->attributes['data-output'])) {
+						$formElement .= '<output for="'.htmlspecialchars($this->attributes['id']).'">'.htmlspecialchars($this->attributes['data-output']).'</output>';
+					}
+
 					break;
 			}
 			// get label

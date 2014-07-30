@@ -11,6 +11,7 @@ require_once('Form/Element.php');
  * Element special attributes:
  * - data-label: Add label to element
  * - data-preservekeys: Keep keys for numerical values
+ * - data-output: Generate an <output> behind this field and show value
  * - default: Set value if no other value is present
  *
  * Other element attributes (see http://www.whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.html & http://baymard.com/labs/touch-keyboard-types):
