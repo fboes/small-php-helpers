@@ -50,6 +50,39 @@ function _paragraph ($string, $withLinks = FALSE) {
 }
 
 /**
+ * Does some mor output converting into HTML using a simple subset of Textile
+ * @param  string  $string     [description]
+ * @param  boolean $singleLine [description]
+ * @return string              [description]
+ */
+function _textile ($string, $singleLine = FALSE) {
+	$str = htmlspecialchars($str);
+	if (!$singleLine) {
+		$str = '<p>'.$str.'</p>';
+		$str = preg_replace('/\n\n+/s','<\/p><p>',$str);
+		$str = preg_replace('/\n/s','<br \/>',$str);
+		$str = preg_replace('/(<\/p>)(<p>)/s','$1\n$2',$str);
+		$str = preg_replace('/<p>h(\d)\.\s(.+?)<\/p>/s','<h$1>$2<\/h$1>',$str);
+		$str = preg_replace('/<p>h(\d)\(#([a-zA-Z0-9_-]+)\)\.\s(.+?)<\/p>/s','<h$1 id="$2">$3<\/h$1>',$str);
+		$str = preg_replace('/(<p>)(&gt;|bq\.)\s(.+?)(<\/p>)/s','<blockquote>$1$3$4<\/blockquote>',$str);
+		$str = preg_replace('/<\/blockquote>(\s*)<blockquote>/s','$1',$str);
+		$str = preg_replace('/<p>\*\s(.+?)<\/p>/s','<ul><li>$1<\/li><\/ul>',$str);
+		$str = preg_replace('/<p>#\s(.+?)<\/p>/s','<ol><li>$1<\/li><\/ol>',$str);
+		$str = preg_replace('/<br \/>(\*|#)\s/s','<\/li><li>',$str);
+		#$str = preg_replace('/<p>\|(.+?)\|<\/p>/s','<table><tr><td>$1</td></tr></table>',$str);
+		#$str = preg_replace('/\|<br \/>\|/s','</td></tr>\n<tr><td>',$str);
+		#$str = preg_replace('/\|/s','</td><td>',$str);
+	}
+	else {
+		$str = preg_replace('/\n+/s','<br \/>',$str);
+	}
+	$str = preg_replace('/\*(\S.*?\S)\*/s','<strong>$1<\/strong>',$str);
+	$str = preg_replace('/_(\S.*?\S)_/s','<em>$1<\/em>',$str);
+	$str = preg_replace('/&quot;(.+?)&quot;\:([^<\s]+[^\.<!\?\s])/s','<a href=\"$2\">$1<\/a>',$str);
+	return $str;
+}
+
+/**
  * Like print_r, but safe for HTML-Output. You may also wnt to try _print_r(var_dump(…));
  *
  * @param   mixed   $mixed
