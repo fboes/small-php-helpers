@@ -220,6 +220,11 @@ class Form {
 	 * - url
 	 * - week
 	 *
+	 * There are also some special types:
+	 *
+	 * - address
+	 * - creditcard-number
+	 *
 	 * @param  string $html like '<input name="test" />'
 	 * @return Form       [description]
 	 */
@@ -246,25 +251,10 @@ class Form {
 				$element->setOnEmpty('title', _('Expecting date like 2020-12-31'));
 				$element->setOnEmpty('maxlength', 10);
 				break;
-			case 'time':
-				$element->setOnEmpty('data-pattern', '[0-2][\d]:[0-5][\d](:[0-5]\d(\.\d)?)?');
-				$element->setOnEmpty('title', _('Expecting time like 23:59'));
-				$element->setOnEmpty('maxlength', 8);
-				break;
 			case 'datetime':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]T[0-2]\d:[0-5]\d(:[0-5]\d(\.\d)?)?Z');
 				$element->setOnEmpty('title', _('Expecting date like 2020-12-31T23:59Z'));
 				$element->setOnEmpty('maxlength', 10 + 2 + 5);
-				break;
-			case 'week':
-				$element->setOnEmpty('data-pattern', '[\d]{4}-W[0-5][\d]');
-				$element->setOnEmpty('title', _('Expecting week like 2020-W52'));
-				$element->setOnEmpty('maxlength', 8);
-				break;
-			case 'month':
-				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]');
-				$element->setOnEmpty('title', _('Expecting month like 2020-12'));
-				$element->setOnEmpty('maxlength', 7);
 				break;
 			case 'datetime-local':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]T[0-2]\d:[0-5]\d(:[0-5]\d(\.\d)?)?');
@@ -274,15 +264,48 @@ class Form {
 			case 'email':
 				$element->setOnEmpty('data-pattern', '\S+@\S+');
 				$element->setOnEmpty('title', _('Expecting valid email address'));
+				$element->setOnEmpty('autocapitalize', 'off');
+				$element->setOnEmpty('autocorrect', 'off');
+				break;
+			case 'month':
+				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]');
+				$element->setOnEmpty('title', _('Expecting month like 2020-12'));
+				$element->setOnEmpty('maxlength', 7);
 				break;
 			case 'number':
 			case 'range':
 				$element->setOnEmpty('data-pattern', '\-?(\d+)?(\.)?\d+([eE]\-?\d+)?');
 				$element->setOnEmpty('title', _('Expecting numerical value'));
 				break;
+			case 'time':
+				$element->setOnEmpty('data-pattern', '[0-2][\d]:[0-5][\d](:[0-5]\d(\.\d)?)?');
+				$element->setOnEmpty('title', _('Expecting time like 23:59'));
+				$element->setOnEmpty('maxlength', 8);
+				break;
 			case 'url':
 				$element->setOnEmpty('data-pattern', 'http(s)?://\S+');
 				$element->setOnEmpty('title', _('Expecting valid URL, starting with http'));
+				$element->setOnEmpty('autocapitalize', 'off');
+				$element->setOnEmpty('autocorrect', 'off');
+				break;
+			case 'week':
+				$element->setOnEmpty('data-pattern', '[\d]{4}-W[0-5][\d]');
+				$element->setOnEmpty('title', _('Expecting week like 2020-W52'));
+				$element->setOnEmpty('maxlength', 8);
+				break;
+
+			// Special cases
+			case 'address':
+				$element->attributes['type'] = 'text';
+				$element->setOnEmpty('autocorrect', 'off');
+				break;
+			case 'creditcard-number':
+				$element->attributes['type'] = 'text';
+				$element->setOnEmpty('pattern', '\d*');
+				$element->setOnEmpty('maxlength', 16);
+				$element->setOnEmpty('title', _('Expecting valid credit card number'));
+				$element->setOnEmpty('novalidate', 'novalidate');
+				$element->setOnEmpty('autocorrect', 'off');
 				break;
 		}
 		if (!Form::is_blank($element->attributes['maxlength'])) {

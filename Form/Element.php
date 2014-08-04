@@ -225,7 +225,7 @@ class FormElement {
 						$formElement .= $this->makeOptions(Form::HTML_INPUT_OPTION, Form::HTML_INPUT_OPTIONS_WRAPPER);
 					}
 					if (!Form::is_blank($this->attributes['data-output'])) {
-						$formElement .= '<output for="'.htmlspecialchars($this->attributes['id']).'">'.htmlspecialchars($this->attributes['data-output']).'</output>';
+						$formElement .= '<output name="'.htmlspecialchars($this->attributes['id'].'-output').'" for="'.htmlspecialchars($this->attributes['id']).'">'.htmlspecialchars($this->attributes['data-output']).'</output>';
 					}
 
 					break;
