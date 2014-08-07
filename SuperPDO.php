@@ -26,7 +26,7 @@ class SuperPDO extends PDO
 	public static function openMysql ($host, $db, $usr = NULL, $pwd = NULL)
 	{
 		$dsn = 'mysql:host='.$host.';dbname='.$db;
-		return new self($dsn, $username, $password);
+		return new self($dsn, $usr, $pwd);
 	}
 
 	/**
