@@ -218,7 +218,7 @@ class SuperPDO extends PDO
 			'UPDATE'
 			.(!empty($options) ? ' '.addslashes($options) : '')
 			.' '.addslashes($table)
-			.' SET :'.implode(',:',array_keys($data))
+			.' SET '.implode(',',$this->buildPreparedArray($data))
 			.' WHERE '.$where
 		;
 		$this->lastData = $data;
