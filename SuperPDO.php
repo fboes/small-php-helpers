@@ -242,7 +242,7 @@ class SuperPDO extends PDO
 		;
 		$this->lastData = $where;
 		$sth = $this->prepare($this->lastCmd);
-		return $sth->execute($this->lastData);
+		return $sth->execute();
 	}
 
 	/**
