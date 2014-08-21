@@ -48,7 +48,7 @@ class SuperPDO extends PDO
 	 * Prepare DB for communication in UTF8
 	 * @return [type] [description]
 	 */
-	public function useUft8 () {
+	public function useUtf8 () {
 		if ($this->getAttribute(self::ATTR_DRIVER_NAME) === 'mysql') {
 			return $this->exec('SET NAMES utf8');
 		}
