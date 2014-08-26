@@ -6,6 +6,11 @@
  * @class SuperPDO
  * Extends functionality of PDO
  *
+ * $pdo = new SuperPDO('mysql:host=localhost;dbname=testdb;charset=utf8','usr','pwd');
+ * $pdo->useUtf8();
+ * $pdo->setAttribute(SuperPDO::ATTR_DEFAULT_FETCH_MODE, SuperPDO::FETCH_OBJ);
+ *
+ *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   MIT License (MIT)
  */
@@ -25,7 +30,7 @@ class SuperPDO extends PDO
 	 */
 	public static function openMysql ($host, $db, $usr = NULL, $pwd = NULL)
 	{
-		$dsn = 'mysql:host='.$host.';dbname='.$db;
+		$dsn = 'mysql:host='.$host.';dbname='.$db.';charset=utf8'; # PHP 5.3.6
 		return new self($dsn, $usr, $pwd);
 	}
 
@@ -159,7 +164,7 @@ class SuperPDO extends PDO
 		$this->lastData = NULL;
 		$sth = $this->prepare($this->lastCmd);
 		$sth->execute();
-		return $sth->fetchAll(self::FETCH_ASSOC);
+		return $sth->fetchAll();
 	}
 
 	/**
