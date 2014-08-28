@@ -225,6 +225,8 @@ class Form {
 	 * - address
 	 * - creditcard-number
 	 *
+	 * Instead of "step" it is possible to use "decimals". So 'decimals="2"' translates to 'step="0.1"'
+	 *
 	 * @param  string $html like '<input name="test" />'
 	 * @return Form       [description]
 	 */
@@ -240,6 +242,23 @@ class Form {
 		$element->addClass  ('input');
 		$element->addClass  ($element->attributes['type']);
 		$element->addErrorsOnRequired();
+		if (!empty($element->attributes['decimals'])) {
+			switch ((int)$element->attributes['decimals']) {
+				case 0:
+					$element->attributes['step'] = 1;
+					break;
+				case 1:
+					$element->attributes['step'] = 0.1;
+					break;
+				case 2:
+					$element->attributes['step'] = 0.01;
+					break;
+				default:
+					$element->attributes['step'] = 10 / (pow(10, $decimals + 1));
+					break;
+			}
+			unset($element->attributes['decimals']);
+		}
 		switch ($element->attributes['type']) {
 			case 'color':
 				$element->setOnEmpty('data-pattern', '#[A-Fa-f0-9]{6}');
