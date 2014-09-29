@@ -71,10 +71,14 @@ class CsvInterface {
 	 */
 	public function writeLine (array $line, $locking = TRUE) {
 		$storeData = $this->normalizeLine($line);
-		fseek($this->fp, 0, SEEK_END);
+		if ($locking) {
+			fseek($this->fp, 0, SEEK_END);
+		}
 		flock($this->fp, LOCK_EX);
 		$success = fputcsv($this->fp, $storeData, $this->delimiter, $this->enclosure);
-		flock($this->fp, LOCK_UN);
+		if ($locking) {
+			flock($this->fp, LOCK_UN);
+		}
 		$this->data[] = $storeData;
 		return $success;
 	}
