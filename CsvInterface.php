@@ -18,6 +18,9 @@ class CsvInterface {
 	protected $filename;
 	protected $data = array();
 
+	protected $encodingFile;
+	protected $encodingScript = 'UTF-8';
+
 	/**
 	 * Create / Open file
 	 * @param string $filename [description]
@@ -31,6 +34,14 @@ class CsvInterface {
 			throw new Exception('Error creating file handle for '.$this->filename);
 
 		}
+	}
+
+	/**
+	 * See http://de1.php.net/mb_convert_encoding & http://de1.php.net/manual/de/mbstring.supported-encodings.php
+	 * @param string $encodingFile e.g. 'Windows-1252'
+	 */
+	public function setEncoding ($encodingFile) {
+		$this->encodingFile = $encodingFile;
 	}
 
 	/**
@@ -57,10 +68,34 @@ class CsvInterface {
 				;
 			}
 			if (!empty($line)) {
+				if (!empty($this->encodingFile)) {
+					foreach ($line as $key => $value) {
+						$line[$key] = mb_convert_encoding($value,$this->encodingScript,$this->encodingFile);
+					}
+				}
 				$this->data[] = $line;
 			}
 		}
 		return $this->data;
+	}
+
+	/**
+	 * Remoe a line from $this->data where $key = $value
+	 * @param  string  $key   [description]
+	 * @param  string  $value [description]
+	 * @return integer        Number of lines removed
+	 */
+	public function removeLineByData ($key, $value) {
+		$deleted = 0;
+		if (!empty($this->data)) {
+			foreach ($this->data as $lineKey => $line) {
+				if (!empty($line[$key]) && $line[$key] == $value) {
+					unset($this->data[$lineKey]);
+					$deleted ++;
+				}
+			}
+		}
+		return $deleted;
 	}
 
 	/**
@@ -124,6 +159,9 @@ class CsvInterface {
 					? $line[$name]
 					: ''
 				;
+				if (!empty($this->encodingFile)) {
+					$storeData[$name] = mb_convert_encoding($storeData[$name],$this->encodingFile,$this->encodingScript);
+				}
 			}
 		}
 		else {
