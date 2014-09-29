@@ -99,6 +99,30 @@ class CsvInterface {
 	}
 
 	/**
+	 * Add single lines to internal representation of data
+	 * @param  array   $line [description]
+	 * @return boolean       [description]
+	 */
+	public function addLine (array $line) {
+		$storeData = $this->normalizeLine($line);
+		$this->data[] = $storeData;
+		return TRUE;
+	}
+
+	/**
+	 * Add multiple lines to internal representation of data
+	 * @param  array   $lines [description]
+	 * @return boolean        [description]
+	 */
+	public function addLines (array $lines) {
+		$success = TRUE;
+		foreach ($lines as $line) {
+			$success = $this->addLine($line) && $success;
+		}
+		return $success;
+	}
+
+	/**
 	 * Write a single array to CSV line. If a key array was given on __construct, the array will be forced into this structure
 	 * @param  array   $line    [description]
 	 * @param  boolean $locking Enable file locking while writing
@@ -106,10 +130,15 @@ class CsvInterface {
 	 */
 	public function writeLine (array $line, $locking = TRUE) {
 		$storeData = $this->normalizeLine($line);
+		fseek($this->fp, 0, SEEK_END);
 		if ($locking) {
-			fseek($this->fp, 0, SEEK_END);
+			flock($this->fp, LOCK_EX);
 		}
-		flock($this->fp, LOCK_EX);
+		if (!empty($this->encodingFile)) {
+			foreach ($storeData as $name => $value) {
+				$storeData[$name] = mb_convert_encoding($value,$this->encodingFile,$this->encodingScript);
+			}
+		}
 		$success = fputcsv($this->fp, $storeData, $this->delimiter, $this->enclosure);
 		if ($locking) {
 			flock($this->fp, LOCK_UN);
@@ -123,10 +152,16 @@ class CsvInterface {
 	 * @param  array   $lines [description]
 	 * @return boolean        [description]
 	 */
-	public function writeLines (array $lines) {
+	public function writeLines (array $lines, $locking = TRUE) {
 		$success = TRUE;
+		if ($locking) {
+			flock($this->fp, LOCK_EX);
+		}
 		foreach ($lines as $line) {
-			$success = $this->writeLine($line) && $success;
+			$success = $this->writeLine($line, FALSE) && $success;
+		}
+		if ($locking) {
+			flock($this->fp, LOCK_UN);
 		}
 		return $success;
 	}
@@ -136,12 +171,9 @@ class CsvInterface {
 	 * @return boolean [description]
 	 */
 	public function writeEntireFile () {
-		$sucess = true;
 		flock($this->fp, LOCK_EX);
 		ftruncate($this->fp, 0);
-		foreach ($this->data as $data) {
-			$this->writeLine($data, FALSE);
-		}
+		$success = $this->writeLines($this->data, FALSE);
 		flock($this->fp, LOCK_UN);
 		return $sucess;
 	}
@@ -159,9 +191,6 @@ class CsvInterface {
 					? $line[$name]
 					: ''
 				;
-				if (!empty($this->encodingFile)) {
-					$storeData[$name] = mb_convert_encoding($storeData[$name],$this->encodingFile,$this->encodingScript);
-				}
 			}
 		}
 		else {
