@@ -129,21 +129,21 @@ class CsvInterface {
 	 * @return boolean          [description]
 	 */
 	public function writeLine (array $line, $locking = TRUE) {
-		$storeData = $this->normalizeLine($line);
-		fseek($this->fp, 0, SEEK_END);
-		if ($locking) {
-			flock($this->fp, LOCK_EX);
-		}
-		if (!empty($this->encodingFile)) {
-			foreach ($storeData as $name => $value) {
-				$storeData[$name] = mb_convert_encoding($value,$this->encodingFile,$this->encodingScript);
+		$success = $locking ? flock($this->fp, LOCK_EX) : TRUE;
+		if ($success){
+			$storeData = $this->normalizeLine($line);
+			fseek($this->fp, 0, SEEK_END);
+			if (!empty($this->encodingFile)) {
+				foreach ($storeData as $name => $value) {
+					$storeData[$name] = mb_convert_encoding($value,$this->encodingFile,$this->encodingScript);
+				}
 			}
+			$success = fputcsv($this->fp, $storeData, $this->delimiter, $this->enclosure);
+			if ($locking) {
+				flock($this->fp, LOCK_UN);
+			}
+			$this->data[] = $storeData;
 		}
-		$success = fputcsv($this->fp, $storeData, $this->delimiter, $this->enclosure);
-		if ($locking) {
-			flock($this->fp, LOCK_UN);
-		}
-		$this->data[] = $storeData;
 		return $success;
 	}
 
@@ -153,15 +153,14 @@ class CsvInterface {
 	 * @return boolean        [description]
 	 */
 	public function writeLines (array $lines, $locking = TRUE) {
-		$success = TRUE;
-		if ($locking) {
-			flock($this->fp, LOCK_EX);
-		}
-		foreach ($lines as $line) {
-			$success = $this->writeLine($line, FALSE) && $success;
-		}
-		if ($locking) {
-			flock($this->fp, LOCK_UN);
+		$success = $locking ? flock($this->fp, LOCK_EX) : TRUE;
+		if ($success){
+			foreach ($lines as $line) {
+				$success = $this->writeLine($line, FALSE) && $success;
+			}
+			if ($locking) {
+				flock($this->fp, LOCK_UN);
+			}
 		}
 		return $success;
 	}
@@ -171,10 +170,12 @@ class CsvInterface {
 	 * @return boolean [description]
 	 */
 	public function writeEntireFile () {
-		flock($this->fp, LOCK_EX);
-		ftruncate($this->fp, 0);
-		$success = $this->writeLines($this->data, FALSE);
-		flock($this->fp, LOCK_UN);
+		$success = flock($this->fp, LOCK_EX);
+		if ($success) {
+			ftruncate($this->fp, 0);
+			$success = $this->writeLines($this->data, FALSE);
+			flock($this->fp, LOCK_UN);
+		}
 		return $sucess;
 	}
 
