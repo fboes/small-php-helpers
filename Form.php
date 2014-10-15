@@ -281,7 +281,7 @@ class Form {
 				$element->setOnEmpty('maxlength', 10 + 1 + 5);
 				break;
 			case 'email':
-				$element->setOnEmpty('data-pattern', '\S+@\S+');
+				$element->setOnEmpty('data-pattern', '[^@\s]+@[^@\s]+\.[^@\s]+');
 				$element->setOnEmpty('title', _('Expecting valid email address'));
 				$element->setOnEmpty('autocapitalize', 'off');
 				$element->setOnEmpty('autocorrect', 'off');

@@ -52,6 +52,9 @@ class toolshedTest extends Tester {
 		$this->assertTrue(is_blank($a),'Expecting is_blank on empty string being TRUE');
 		$a = array();
 		$this->assertTrue(is_blank($a),'Expecting is_blank on empty array being TRUE');
+		$this->assertTrue(is_blank($a['test']),'Expecting is_blank on empty array -key being TRUE');
+		$this->assertTrue(is_blank($a['test']),'Expecting is_blank on empty array -key being TRUE a second time');
+		#$this->outputLine($a);
 
 		$a = 0;
 		$this->assertTrue(empty($a));
