@@ -76,9 +76,10 @@ function _textile ($string, $singleLine = FALSE) {
 	else {
 		$str = preg_replace('/\n+/s','<br \/>',$str);
 	}
-	$str = preg_replace('/\*(\S.*?\S)\*/s','<strong>$1<\/strong>',$str);
-	$str = preg_replace('/_(\S.*?\S)_/s','<em>$1<\/em>',$str);
+	$str = preg_replace('/(^|\s)\*(\S.*?\S)\*/s','$1<strong>$2<\/strong>',$str);
+	$str = preg_replace('/(^|\s)_(\S.*?\S)_/s','$1<em>$2<\/em>',$str);
 	$str = preg_replace('/&quot;(.+?)&quot;\:([^<\s]+[^\.<!\?\s])/s','<a href=\"$2\">$1<\/a>',$str);
+	$str = preg_replace('/(<a href=\"http.+?\")(>)/s','$1 target="_blank"$2',$str);
 	return $str;
 }
 
