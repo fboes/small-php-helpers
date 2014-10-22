@@ -20,7 +20,7 @@ class FormTest extends Tester {
 			->input('<input data-label="b" type="hidden" name="b" />')
 			->textarea('<textarea data-label="c" name="c" />')
 			->select('<select data-label="d" name="d">', $options)
-			->select('<select data-label="e" name="e" multiple="multiple">', $options)
+			->select('<select data-label="e" data-hint="hint" name="e" multiple="multiple">', $options)
 			->checkbox('<input data-label="f" name="f">', $options)
 			->checkbox('<input data-label="g" name="g" type="radio">', $options)
 			#->input('<input data-label="h" name="h" />', $options)
@@ -37,6 +37,7 @@ class FormTest extends Tester {
 		$this->assertRegExp('#<label>#', $output, 'Expecting labels to be present');
 		$this->assertRegExp('#id="[a-z]"#', $output, 'Expecting ids to be present');
 		$this->assertRegExp('#<option#', $output, 'Expecting options to be present');
+		$this->assertRegExp('#>hint<#', $output, 'Expecting hint to be present');
 		$this->assertRegExp('#type="radio"#', $output, 'Expecting radio-buttons to be present');
 		$this->assertRegExp('#type="checkbox"#', $output, 'Expecting checkboxes to be present');
 
@@ -272,12 +273,12 @@ class FormTest extends Tester {
 		$this->assertValidXml($output);
 
 		if (!empty($error)) {
-			$this->assertRegExp('#class="[^"]*?error#', $output, "Expecting 'error' to be present in class");
-			$this->assertRegExp('#class="[^"]*?error-'.$error.'#', $output, "Expecting 'error-$error' to be present in class");
+			$this->assertRegExp('#class="[^"]*?invalid#', $output, "Expecting 'invalid' to be present in class");
+			$this->assertRegExp('#class="[^"]*?invalid-'.$error.'#', $output, "Expecting 'invalid-$error' to be present in class");
 
 		}
 		else {
-			$this->assertTrue (!(bool)preg_match('#class=".+?error#', $output), "Expecting no 'error' to be present in class");
+			$this->assertTrue (!(bool)preg_match('#class=".+?invalid#', $output), "Expecting no 'invalid' to be present in class");
 		}
 
 	}

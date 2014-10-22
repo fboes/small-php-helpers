@@ -251,13 +251,18 @@ class FormElement {
 			if (!empty($this->errors)) {
 				$formError = sprintf($htmlErrorWrapper, htmlspecialchars(implode(" ",$this->errors))); # TODO
 			}
+			// get hint
+			$hint = !empty($this->attributes['data-hint'])
+				? '<span class="form-field-hint">'.htmlspecialchars($this->attributes['data-hint']).'</span>'
+				: ''
+			;
 		}
 		else {
 			$formElement = $this->html;
 		}
 
 		return (!empty($htmlFieldWrapper) && isset($formLabel))
-			? sprintf($htmlFieldWrapper, $formLabel, $formElement, $formError)
+			? sprintf($htmlFieldWrapper, $formLabel, $formElement, $formError, $hint)
 			: $formElement
 		;
 	}
@@ -270,7 +275,7 @@ class FormElement {
 	 */
 	protected function returnAttributesAsHtml (array $attributes, array $forbiddenAttributes = array()) {
 		$html = '';
-		$forbiddenAttributes = array_merge($forbiddenAttributes, array('data-label', 'default'));
+		$forbiddenAttributes = array_merge($forbiddenAttributes, array('data-label','data-hint', 'default'));
 		foreach ($attributes as $key => $value) {
 			if (!Form::is_blank($value) && (empty($forbiddenAttributes) || !in_array($key, $forbiddenAttributes) && strpos($key, '_') !== 0)) {
 				if (is_array($value)) {

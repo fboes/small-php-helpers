@@ -10,6 +10,7 @@ require_once('Form/Element.php');
  *
  * Element special attributes:
  * - data-label: Add label to element
+ * - data-hint: Add extra hint to element
  * - data-preservekeys: Keep keys for numerical values
  * - data-output: Generate an <output> behind this field and show value
  * - default: Set value if no other value is present
@@ -128,9 +129,9 @@ class Form {
 
 	/**
 	 * Add HTML to wrap around every form field, but not free-form html.
-	 * @param string $html with %1$s being the label, %2$s being the actual form field, %3$s being the optional error message
+	 * @param string $html with %1$s being the label, %2$s being the actual form field, %3$s being the optional error message, %4$s being an optional hint
 	 */
-	public function setFieldWrapper ($html = "<div class=\"form-field\">%1\$s%2\$s%3\$s</div>\n") {
+	public function setFieldWrapper ($html = "<div class=\"form-field\">%1\$s%4\$s%2\$s%3\$s</div>\n") {
 		if (strpos($html,'%1$s') !== FALSE && strpos($html,'%2$s') !== FALSE) {
 			$this->htmlFieldWrapper = $html;
 		}
