@@ -62,10 +62,14 @@ class CsvInterface {
 		$this->data = array();
 		while (($line = fgetcsv($this->fp, 1000, $this->delimiter, $this->enclosure)) !== FALSE) {
 			if ($keyCount > 0) {
-				$line =  (count($line) === $keyCount)
-					? array_combine($this->keys, $line)
-					: NULL
-				;
+				$curLineLength = count($line);
+				if ($curLineLength !== $keyCount) {
+					$line = ($curLineLength > $keyCount)
+						? array_slice($line,0,$keyCount, TRUE)
+						: array_pad($line, $keyCount, '')
+					;
+				}
+				$line = array_combine($this->keys, $line);
 			}
 			if (!empty($line)) {
 				if (!empty($this->encodingFile)) {
