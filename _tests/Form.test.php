@@ -320,6 +320,24 @@ class FormTest extends Tester {
 		}
 	}
 
+	public function testDateOptionslist () {
+		$options = Form::getDateOptionslist();
+		$this->assertTrue(is_array($options), 'Expecting options to be an array');
+		$this->outputLine($options);
+
+
+		$f = Form::init()
+			->start('<form>')
+			->input('<input type="date" name="date" />', $options)
+			->end('</form>')
+		;
+
+		$output = $f->returnHTML();
+		#$this->outputLine($output);
+
+		$this->assertValidXml($output);
+
+	}
 
 }
 

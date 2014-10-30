@@ -224,7 +224,9 @@ class Form {
 	 * There are also some special types:
 	 *
 	 * - address
+	 * - bic
 	 * - creditcard-number
+	 * - iban
 	 *
 	 * Instead of "step" it is possible to use "decimals". So 'decimals="2"' translates to 'step="0.1"'
 	 *
@@ -319,13 +321,27 @@ class Form {
 				$element->attributes['type'] = 'text';
 				$element->setOnEmpty('autocorrect', 'off');
 				break;
+			case 'bic':
+				$element->attributes['type'] = 'text';
+				$element->setOnEmpty('pattern', '[a-zA-Z]{6}[a-zA-Z0-9]{2}([a-zA-Z0-9]{3})?');
+				$element->setOnEmpty('maxlength', 11); // 8 or 11 chars are valid
+				$element->setOnEmpty('autocorrect', 'off');
+				$element->setOnEmpty('autocapitalize', 'off');
+				break;
 			case 'creditcard-number':
 				$element->attributes['type'] = 'text';
-				$element->setOnEmpty('pattern', '\d*');
+				$element->setOnEmpty('pattern', '\d{16}');
 				$element->setOnEmpty('maxlength', 16);
 				$element->setOnEmpty('title', _('Expecting valid credit card number'));
 				$element->setOnEmpty('novalidate', 'novalidate');
 				$element->setOnEmpty('autocorrect', 'off');
+				break;
+			case 'iban':
+				$element->attributes['type'] = 'text';
+				$element->setOnEmpty('pattern', '[A-Za-z]{2}\d{2}[a-zA-Z0-9]{2,30}');
+				$element->setOnEmpty('maxlength', 34); // 4 - 34 characters are valid
+				$element->setOnEmpty('autocorrect', 'off');
+				$element->setOnEmpty('autocapitalize', 'off');
 				break;
 		}
 		if (!Form::is_blank($element->attributes['maxlength'])) {
@@ -608,5 +624,12 @@ class Form {
 			}
 		}
 		return $elements;
+	}
+
+	public static function getDateOptionslist ($dateFormat = 'Y-m-d') {
+		return array(
+			date($dateFormat,strtotime('next saturday')) => _('Next saturday'),
+			date($dateFormat,strtotime('next sunday')) => _('Next sunday'),
+		);
 	}
 }
