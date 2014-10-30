@@ -226,6 +226,7 @@ class Form {
 	 * - address
 	 * - bic
 	 * - creditcard-number
+	 * - currency
 	 * - iban
 	 *
 	 * Instead of "step" it is possible to use "decimals". So 'decimals="2"' translates to 'step="0.1"'
@@ -327,6 +328,7 @@ class Form {
 				$element->setOnEmpty('maxlength', 11); // 8 or 11 chars are valid
 				$element->setOnEmpty('autocorrect', 'off');
 				$element->setOnEmpty('autocapitalize', 'off');
+				$element->setOnEmpty('title', _('Expecting BIC, starting with six letters'));
 				break;
 			case 'creditcard-number':
 				$element->attributes['type'] = 'text';
@@ -335,6 +337,14 @@ class Form {
 				$element->setOnEmpty('title', _('Expecting valid credit card number'));
 				$element->setOnEmpty('novalidate', 'novalidate');
 				$element->setOnEmpty('autocorrect', 'off');
+				$element->setOnEmpty('title', _('Expecting 16-digit credit card number without any whitespaces'));
+				break;
+			case 'currency':
+				$element->attributes['type'] = 'number';
+				$element->setOnEmpty('step', '0.01');
+				$element->setOnEmpty('date-pattern', '\d+(\.\d{2})?');
+				$element->setOnEmpty('title', _('Expecting amount'));
+				$element->setOnEmpty('min', 0);
 				break;
 			case 'iban':
 				$element->attributes['type'] = 'text';
@@ -342,6 +352,7 @@ class Form {
 				$element->setOnEmpty('maxlength', 34); // 4 - 34 characters are valid
 				$element->setOnEmpty('autocorrect', 'off');
 				$element->setOnEmpty('autocapitalize', 'off');
+				$element->setOnEmpty('title', _('Expecting IBAN, starting with two letters'));
 				break;
 		}
 		if (!Form::is_blank($element->attributes['maxlength'])) {
@@ -626,10 +637,31 @@ class Form {
 		return $elements;
 	}
 
+	/**
+	 * Generat an array suitable for optionlists with dates to suggest for a datepicker
+	 * @param  string $dateFormat should match the date format used for input type, defaults to 'Y-m-d'
+	 * @return array              with date => label
+	 */
 	public static function getDateOptionslist ($dateFormat = 'Y-m-d') {
+		$now = time();
+		$thisYear = (int)date('Y');
+
+		$christmas = strtotime($thisYear.'-12-24');
+		if ($christmas < $now) {
+			$christmas = strtotime(($thisYear+1).'-12-24');
+		}
+
+		$easter = easter_date($thisYear);
+		if ($easter < $now) {
+			$easter = easter_date(($thisYear+1));
+		}
+
 		return array(
 			date($dateFormat,strtotime('next saturday')) => _('Next saturday'),
 			date($dateFormat,strtotime('next sunday')) => _('Next sunday'),
+			date($dateFormat,$christmas) => _('Next Christmas Eve'),
+			date($dateFormat,strtotime(($thisYear+1).'-01-01')) => _('Next New Year\'s Day'),
+			date($dateFormat,$easter) => _('Next Easter'),
 		);
 	}
 }

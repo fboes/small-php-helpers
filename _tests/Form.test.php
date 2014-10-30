@@ -325,7 +325,6 @@ class FormTest extends Tester {
 		$this->assertTrue(is_array($options), 'Expecting options to be an array');
 		$this->outputLine($options);
 
-
 		$f = Form::init()
 			->start('<form>')
 			->input('<input type="date" name="date" />', $options)
@@ -336,9 +335,23 @@ class FormTest extends Tester {
 		#$this->outputLine($output);
 
 		$this->assertValidXml($output);
-
 	}
 
+	public function testCurrency () {
+		$f = Form::init()
+			->start('<form>')
+			->input('<input type="currency" name="currency" />')
+			->input('<input type="iban" name="iban" />')
+			->input('<input type="bic" name="bic" />')
+			->input('<input type="creditcard-number" name="creditcard-number" />')
+			->end('</form>')
+		;
+
+		$output = $f->returnHTML();
+		#$this->outputLine($output);
+
+		$this->assertValidXml($output);
+	}
 }
 
 FormTest::doTest();
