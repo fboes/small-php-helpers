@@ -271,17 +271,17 @@ class Form {
 				break;
 			case 'date':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]');
-				$element->setOnEmpty('title', _('Expecting date like 2020-12-31'));
+				$element->setOnEmpty('title', sprintf(_('Expecting date like %s'),'2020-12-31'));
 				$element->setOnEmpty('maxlength', 10);
 				break;
 			case 'datetime':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]T[0-2]\d:[0-5]\d(:[0-5]\d(\.\d)?)?Z');
-				$element->setOnEmpty('title', _('Expecting date like 2020-12-31T23:59Z'));
+				$element->setOnEmpty('title', sprintf(_('Expecting date like %s'),'2020-12-31T23:59Z'));
 				$element->setOnEmpty('maxlength', 10 + 2 + 5);
 				break;
 			case 'datetime-local':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]-[0-3][\d]T[0-2]\d:[0-5]\d(:[0-5]\d(\.\d)?)?');
-				$element->setOnEmpty('title', _('Expecting date like 2020-12-31T23:59'));
+				$element->setOnEmpty('title', sprintf(_('Expecting date like %s'),'2020-12-31T23:59'));
 				$element->setOnEmpty('maxlength', 10 + 1 + 5);
 				break;
 			case 'email':
@@ -292,7 +292,7 @@ class Form {
 				break;
 			case 'month':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-[0-1][\d]');
-				$element->setOnEmpty('title', _('Expecting month like 2020-12'));
+				$element->setOnEmpty('title', sprintf(_('Expecting month like %s'),'2020-12'));
 				$element->setOnEmpty('maxlength', 7);
 				break;
 			case 'number':
@@ -302,7 +302,7 @@ class Form {
 				break;
 			case 'time':
 				$element->setOnEmpty('data-pattern', '[0-2][\d]:[0-5][\d](:[0-5]\d(\.\d)?)?');
-				$element->setOnEmpty('title', _('Expecting time like 23:59'));
+				$element->setOnEmpty('title', sprintf(_('Expecting time like %s'),'23:59'));
 				$element->setOnEmpty('maxlength', 8);
 				break;
 			case 'url':
@@ -313,7 +313,7 @@ class Form {
 				break;
 			case 'week':
 				$element->setOnEmpty('data-pattern', '[\d]{4}-W[0-5][\d]');
-				$element->setOnEmpty('title', _('Expecting week like 2020-W52'));
+				$element->setOnEmpty('title', sprintf(_('Expecting week like %s'),'2020-W52'));
 				$element->setOnEmpty('maxlength', 8);
 				break;
 

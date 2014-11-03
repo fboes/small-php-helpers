@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Small PHP helpers\n"
-"POT-Creation-Date: 2014-11-03 15:00+0100\n"
-"PO-Revision-Date: 2014-11-03 15:00+0100\n"
+"POT-Creation-Date: 2014-11-03 16:42+0100\n"
+"PO-Revision-Date: 2014-11-03 16:42+0100\n"
 "Last-Translator: Frank Boës <info@3960.org>\n"
 "Language-Team:  <info@3960.org>\n"
 "Language: de\n"
@@ -42,41 +42,37 @@ msgstr "W"
 msgid "Expecting web color"
 msgstr "Webfarbe erwartet"
 
-#: Form.php:274
-msgid "Expecting date like 2020-12-31"
-msgstr "Datum wie z.B. 2020-12-31 erwartet"
-
-#: Form.php:279
-msgid "Expecting date like 2020-12-31T23:59Z"
-msgstr "Datum wie z.B. 2020-12-31T23:59Z erwartet"
-
-#: Form.php:284
-msgid "Expecting date like 2020-12-31T23:59"
-msgstr "Datum wie z.B. 2020-12-31T23:59 erwartet"
+#: Form.php:274 Form.php:279 Form.php:284
+#, php-format
+msgid "Expecting date like %s"
+msgstr "Datum wie z.B. %s erwartet"
 
 #: Form.php:289
 msgid "Expecting valid email address"
 msgstr "Valide E-Mail-Adresse erwartet"
 
 #: Form.php:295
-msgid "Expecting month like 2020-12"
-msgstr "Monat wie z.B. 2020-12 erwartet"
+#, php-format
+msgid "Expecting month like %s"
+msgstr "Monat wie z.B. %s erwartet"
 
 #: Form.php:301
 msgid "Expecting numerical value"
 msgstr "Numerischer Wert erwartet"
 
 #: Form.php:305
-msgid "Expecting time like 23:59"
-msgstr "Uhrzeit wie z.B. 23:59 erwartet"
+#, php-format
+msgid "Expecting time like %s"
+msgstr "Uhrzeit wie z.B. %s erwartet"
 
 #: Form.php:310
 msgid "Expecting valid URL, starting with http"
 msgstr "Valide URL mit http am Anfang erwartet"
 
 #: Form.php:316
-msgid "Expecting week like 2020-W52"
-msgstr "Woche wie z.B. 2020-W52 erwartet"
+#, php-format
+msgid "Expecting week like %s"
+msgstr "Woche wie z.B. %s erwartet"
 
 #: Form.php:331
 msgid "Expecting BIC, starting with six letters"
