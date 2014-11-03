@@ -116,10 +116,11 @@ c : d', array('a' => 'b', 'c' => 'd')),
 		activate_translations('de','DE');
 		$translated = _('I am legend');
 
-		$this->outputLine(find_best_locale());
-
 		$this->outputLine($translated);
 		$this->assertTrue($translated != $test, 'Expecting translated string to be different from original string');
+
+		$locale = find_best_locale();
+		$this->assertTrue(is_array($locale), 'Expecting locale to be an array');
 	}
 }
 

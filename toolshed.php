@@ -331,8 +331,13 @@ function set_locale ($languageCode, $countryCode, $charset = 'UTF-8') {
 	ini_set('default_charset', $charset);
 	mb_internal_encoding($charset);
 
-	$localeCode = $languageCode.'_'.$countryCode;
-	$localeCode .= '.'.str_replace(' ','',$charset);
+	$localeCode = $languageCode;
+	if (!empty($countryCode)) {
+		$localeCode .= '_'.$countryCode;
+	}
+	if (!empty($charset)) {
+		$localeCode .= '.'.str_replace(' ','',$charset);
+	}
 	$categories = array(LC_COLLATE, LC_CTYPE, LC_TIME, LC_MESSAGES);
 
 	foreach ($categories as $c) {
@@ -365,6 +370,7 @@ function find_best_locale (array $availableLangs = array('en','de-de','de')) {
 	if (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) && preg_match('#^('.implode('|',$availableLangs).')#is',$_SERVER['HTTP_ACCEPT_LANGUAGE'],$match)) {
 		return explode('-',$match[1]);
 	}
+	return array();
 }
 
 /**
