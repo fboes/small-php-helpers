@@ -1,0 +1,143 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Small PHP helpers\n"
+"POT-Creation-Date: 2014-11-03 12:28+0100\n"
+"PO-Revision-Date: 2014-11-03 12:28+0100\n"
+"Last-Translator: \n"
+"Language-Team:  <info@3960.org>\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.10\n"
+"X-Poedit-Basepath: ../../..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: _\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: ./translations\n"
+
+#: Coordinates.php:182
+#, php-format
+msgid "%s m with direction %s deg from \"%s\""
+msgstr "%s m in Richtung %s Grad von \"%s\""
+
+#: Coordinates.php:246
+msgid "N"
+msgstr "N"
+
+#: Coordinates.php:246
+msgid "S"
+msgstr "S"
+
+#: Coordinates.php:256
+msgid "E"
+msgstr "O"
+
+#: Coordinates.php:256
+msgid "W"
+msgstr "W"
+
+#: Form.php:269
+msgid "Expecting web color"
+msgstr "Webfarbe erwartet"
+
+#: Form.php:274
+msgid "Expecting date like 2020-12-31"
+msgstr "Datum wie z.B. 2020-12-31 erwartet"
+
+#: Form.php:279
+msgid "Expecting date like 2020-12-31T23:59Z"
+msgstr "Datum wie z.B. 2020-12-31T23:59Z erwartet"
+
+#: Form.php:284
+msgid "Expecting date like 2020-12-31T23:59"
+msgstr "Datum wie z.B. 2020-12-31T23:59 erwartet"
+
+#: Form.php:289
+msgid "Expecting valid email address"
+msgstr "Valide E-Mail-Adresse erwartet"
+
+#: Form.php:295
+msgid "Expecting month like 2020-12"
+msgstr "Monat wie z.B. 2020-12 erwartet"
+
+#: Form.php:301
+msgid "Expecting numerical value"
+msgstr "Numerischer Wert erwartet"
+
+#: Form.php:305
+msgid "Expecting time like 23:59"
+msgstr "Uhrzeit wie z.B. 23:59 erwartet"
+
+#: Form.php:310
+msgid "Expecting valid URL, starting with http"
+msgstr "Valide URL mit http am Anfang erwartet"
+
+#: Form.php:316
+msgid "Expecting week like 2020-W52"
+msgstr "Woche wie z.B. 2020-W52 erwartet"
+
+#: Form.php:331
+msgid "Expecting BIC, starting with six letters"
+msgstr "BIC mit sechs Buchstaben am Anfang erwartet"
+
+#: Form.php:337
+msgid "Expecting valid credit card number"
+msgstr "Gültige Kreditkarten-Nummer erwartet"
+
+#: Form.php:340
+msgid "Expecting 16-digit credit card number without any whitespaces"
+msgstr "Gültige 16-stellige Kreditkarten-Nummer ohne Leerzeichen erwartet"
+
+#: Form.php:346
+msgid "Expecting amount"
+msgstr "Summe erwartet"
+
+#: Form.php:355
+msgid "Expecting IBAN, starting with two letters"
+msgstr "IBAN mit zwei Buchstaben am Anfang erwartet"
+
+#: Form.php:360 Form.php:413
+msgid "Field data is to long."
+msgstr "Eingabewert zu lang"
+
+#: Form.php:368
+msgid "Field value does not match expectations for this field."
+msgstr "Eingabewert entspricht nicht dem erwarteten Format."
+
+#: Form.php:372
+msgid "Field value is to big."
+msgstr "Eingabewert ist zu groß."
+
+#: Form.php:375
+msgid "Field value is to small."
+msgstr "Eingabewert ist zu klein."
+
+#: Form.php:660
+msgid "Next saturday"
+msgstr "Nächster Samsatg"
+
+#: Form.php:661
+msgid "Next sunday"
+msgstr "Nächster Sonntag"
+
+#: Form.php:662
+msgid "Next Christmas Eve"
+msgstr "Nächstes Heiligabend"
+
+#: Form.php:663
+msgid "Next New Year's Day"
+msgstr "Nächstes Neujahr"
+
+#: Form.php:664
+msgid "Next Easter"
+msgstr "Nächster Ostersonntag"
+
+#: Form/Element.php:176
+msgid "This form field is required."
+msgstr "DIeses Eingabefeld muss ausgefüllt sein."
+
+#: _tests/Form.test.php:291
+msgid "I am legend"
+msgstr "Ich bin eine Legende"

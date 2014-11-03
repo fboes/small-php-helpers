@@ -331,10 +331,39 @@ function set_locale ($languageCode, $countryCode, $charset = 'UTF-8') {
 	ini_set('default_charset', $charset);
 	mb_internal_encoding($charset);
 
+	$localeCode = $languageCode.'_'.$countryCode;
 	$localeCode .= '.'.str_replace(' ','',$charset);
 	$categories = array(LC_COLLATE, LC_CTYPE, LC_TIME, LC_MESSAGES);
+
 	foreach ($categories as $c) {
 		setlocale($c, $localeCode);
+	}
+	$categories = array('LC_COLLATE', 'LC_CTYPE', 'LC_TIME', 'LC_MESSAGES');
+	foreach ($categories as $c) {
+		putenv($c.'='.$localeCode);
+	}
+}
+
+/**
+ * Like set_locale, but automatically bind translations for this library
+ * @param   string  $languageCode   according to ISO 639-1
+ * @param   string  $countryCode	according to ISO 3166
+ * @param   string  $charset	optional, defaults to 'utf-8'
+ */
+function activate_translations ($languageCode, $countryCode, $charset = 'UTF-8') {
+	set_locale($languageCode, $countryCode, $charset);
+	bindtextdomain('messages', __DIR__.'/locale');
+	textdomain('messages');
+}
+
+/**
+ * Find best match with HTTP_ACCEPT_LANGUAGE and offered languages
+ * @param  array  $availableLangs [description]
+ * @return array                  0 => language, 1 => country
+ */
+function find_best_locale (array $availableLangs = array('en','de-de','de')) {
+	if (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) && preg_match('#^('.implode('|',$availableLangs).')#is',$_SERVER['HTTP_ACCEPT_LANGUAGE'],$match)) {
+		return explode('-',$match[1]);
 	}
 }
 
