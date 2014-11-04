@@ -357,7 +357,13 @@ class Form {
 		}
 		if (!Form::is_blank($element->attributes['maxlength'])) {
 			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {
-				$element->addError('maxlength',_('Field data is to long.'));
+				$element->addError('maxlength',
+					sprintf(ngettext(
+						'Field data is too long, maximum length is %s characters.',
+						'Field data is too long, maximum length is %s character.',
+						(int)$element->attributes['maxlength']
+					),(int)$element->attributes['maxlength'])
+				);
 			}
 		}
 		if (!Form::is_blank($element->attributes['value'])) {
@@ -369,10 +375,10 @@ class Form {
 				}
 			}
 			if (!Form::is_blank($element->attributes['max']) && (float)$element->attributes['value'] > (float)$element->attributes['max']) {
-					$element->addError('max',_('Field value is to big.'));
+					$element->addError('max',sprintf(_('Field value is to big, maximum is %s.'),$element->attributes['max']));
 			}
 			if (!Form::is_blank($element->attributes['min']) && (float)$element->attributes['value'] < (float)$element->attributes['min']) {
-					$element->addError('min',_('Field value is to small.'));
+					$element->addError('min',sprintf(_('Field value is to small, minimum is %s.'),$element->attributes['min']));
 			}
 		}
 		if (!Form::is_blank($element->attributes['pattern']) || !Form::is_blank($element->attributes['data-pattern'])) {
@@ -410,7 +416,13 @@ class Form {
 		$element->makeId(!empty($this->formStart->attributes['id']) ? $this->formStart->attributes['id'] : '');
 		if (!Form::is_blank($element->attributes['maxlength'])) {
 			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {
-				$element->addError('maxlength',_('Field data is to long.'));
+				$element->addError('maxlength',
+					sprintf(ngettext(
+						'Field data is too long, maximum length is %s characters.',
+						'Field data is too long, maximum length is %s character.',
+						(int)$element->attributes['maxlength']
+					),(int)$element->attributes['maxlength'])
+				);
 			}
 		}
     	$element->addErrorsOnRequired();

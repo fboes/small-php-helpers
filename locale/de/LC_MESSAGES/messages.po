@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Small PHP helpers\n"
-"POT-Creation-Date: 2014-11-03 16:42+0100\n"
-"PO-Revision-Date: 2014-11-03 16:42+0100\n"
+"POT-Creation-Date: 2014-11-04 10:59+0100\n"
+"PO-Revision-Date: 2014-11-04 10:59+0100\n"
 "Last-Translator: Frank Boës <info@3960.org>\n"
 "Language-Team:  <info@3960.org>\n"
 "Language: de\n"
@@ -94,46 +94,60 @@ msgstr "Summe erwartet"
 msgid "Expecting IBAN, starting with two letters"
 msgstr "IBAN mit zwei Buchstaben am Anfang erwartet"
 
-#: Form.php:360 Form.php:413
-msgid "Field data is to long."
-msgstr "Eingabewert zu lang"
+#: Form.php:362 Form.php:421
+#, php-format
+msgid "Field data is too long, maximum length is %s characters."
+msgid_plural "Field data is too long, maximum length is %s character."
+msgstr[0] "Eingabewert ist zu lang, maximal %s Zeichen erlaubt."
+msgstr[1] "Eingabewert ist zu lang, maximal %s Zeichen erlaubt."
 
-#: Form.php:368
+#: Form.php:374
 msgid "Field value does not match expectations for this field."
 msgstr "Eingabewert entspricht nicht dem erwarteten Format."
 
-#: Form.php:372
-msgid "Field value is to big."
-msgstr "Eingabewert ist zu groß."
+#: Form.php:378
+#, php-format
+msgid "Field value is to big, maximum is %s."
+msgstr "Eingabewert ist zu groß, Maximum ist %s."
 
-#: Form.php:375
-msgid "Field value is to small."
-msgstr "Eingabewert ist zu klein."
+#: Form.php:381
+#, php-format
+msgid "Field value is to small, minimum is %s."
+msgstr "Eingabewert ist zu klein, Minimum ist %s."
 
-#: Form.php:660
+#: Form.php:672
 msgid "Next saturday"
 msgstr "Nächster Samsatg"
 
-#: Form.php:661
+#: Form.php:673
 msgid "Next sunday"
 msgstr "Nächster Sonntag"
 
-#: Form.php:662
+#: Form.php:674
 msgid "Next Christmas Eve"
 msgstr "Nächstes Heiligabend"
 
-#: Form.php:663
+#: Form.php:675
 msgid "Next New Year's Day"
 msgstr "Nächstes Neujahr"
 
-#: Form.php:664
+#: Form.php:676
 msgid "Next Easter"
 msgstr "Nächster Ostersonntag"
 
 #: Form/Element.php:176
 msgid "This form field is required."
-msgstr "DIeses Eingabefeld muss ausgefüllt sein."
+msgstr "Dieses Eingabefeld muss ausgefüllt sein."
 
 #: _tests/Form.test.php:291 _tests/toolshed.test.php:117
 msgid "I am legend"
 msgstr "Ich bin eine Legende"
+
+#~ msgid "Field data is to long."
+#~ msgstr "Eingabewert zu lang"
+
+#~ msgid "Expecting date like 2020-12-31T23:59Z"
+#~ msgstr "Datum wie z.B. 2020-12-31T23:59Z erwartet"
+
+#~ msgid "Expecting date like 2020-12-31T23:59"
+#~ msgstr "Datum wie z.B. 2020-12-31T23:59 erwartet"
