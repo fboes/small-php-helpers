@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Small PHP helpers\n"
-"POT-Creation-Date: 2014-11-04 10:59+0100\n"
-"PO-Revision-Date: 2014-11-04 10:59+0100\n"
+"POT-Creation-Date: 2014-11-04 12:38+0100\n"
+"PO-Revision-Date: 2014-11-04 12:38+0100\n"
 "Last-Translator: Frank Boës <info@3960.org>\n"
 "Language-Team:  <info@3960.org>\n"
 "Language: de\n"
@@ -38,116 +38,107 @@ msgstr "O"
 msgid "W"
 msgstr "W"
 
-#: Form.php:269
+#: Form.php:271
 msgid "Expecting web color"
 msgstr "Webfarbe erwartet"
 
-#: Form.php:274 Form.php:279 Form.php:284
+#: Form.php:276 Form.php:281 Form.php:286
 #, php-format
 msgid "Expecting date like %s"
 msgstr "Datum wie z.B. %s erwartet"
 
-#: Form.php:289
+#: Form.php:291
 msgid "Expecting valid email address"
 msgstr "Valide E-Mail-Adresse erwartet"
 
-#: Form.php:295
+#: Form.php:297
 #, php-format
 msgid "Expecting month like %s"
 msgstr "Monat wie z.B. %s erwartet"
 
-#: Form.php:301
+#: Form.php:303
 msgid "Expecting numerical value"
 msgstr "Numerischer Wert erwartet"
 
-#: Form.php:305
+#: Form.php:307
 #, php-format
 msgid "Expecting time like %s"
 msgstr "Uhrzeit wie z.B. %s erwartet"
 
-#: Form.php:310
+#: Form.php:312
 msgid "Expecting valid URL, starting with http"
 msgstr "Valide URL mit http am Anfang erwartet"
 
-#: Form.php:316
+#: Form.php:318
 #, php-format
 msgid "Expecting week like %s"
 msgstr "Woche wie z.B. %s erwartet"
 
-#: Form.php:331
+#: Form.php:333
 msgid "Expecting BIC, starting with six letters"
 msgstr "BIC mit sechs Buchstaben am Anfang erwartet"
 
-#: Form.php:337
+#: Form.php:339
 msgid "Expecting valid credit card number"
 msgstr "Gültige Kreditkarten-Nummer erwartet"
 
-#: Form.php:340
+#: Form.php:342
 msgid "Expecting 16-digit credit card number without any whitespaces"
 msgstr "Gültige 16-stellige Kreditkarten-Nummer ohne Leerzeichen erwartet"
 
-#: Form.php:346
+#: Form.php:348
 msgid "Expecting amount"
 msgstr "Summe erwartet"
 
-#: Form.php:355
+#: Form.php:357
 msgid "Expecting IBAN, starting with two letters"
 msgstr "IBAN mit zwei Buchstaben am Anfang erwartet"
 
-#: Form.php:362 Form.php:421
-#, php-format
-msgid "Field data is too long, maximum length is %s characters."
-msgid_plural "Field data is too long, maximum length is %s character."
+#: Form.php:370 Form.php:430
+#, fuzzy, php-format
+msgid "Field data is too long, maximum length is %s character."
+msgid_plural "Field data is too long, maximum length is %s characters."
 msgstr[0] "Eingabewert ist zu lang, maximal %s Zeichen erlaubt."
 msgstr[1] "Eingabewert ist zu lang, maximal %s Zeichen erlaubt."
 
-#: Form.php:374
+#: Form.php:382
 msgid "Field value does not match expectations for this field."
 msgstr "Eingabewert entspricht nicht dem erwarteten Format."
 
-#: Form.php:378
+#: Form.php:386
 #, php-format
 msgid "Field value is to big, maximum is %s."
 msgstr "Eingabewert ist zu groß, Maximum ist %s."
 
-#: Form.php:381
+#: Form.php:389
 #, php-format
 msgid "Field value is to small, minimum is %s."
 msgstr "Eingabewert ist zu klein, Minimum ist %s."
 
-#: Form.php:672
+#: Form.php:681
 msgid "Next saturday"
 msgstr "Nächster Samsatg"
 
-#: Form.php:673
+#: Form.php:682
 msgid "Next sunday"
 msgstr "Nächster Sonntag"
 
-#: Form.php:674
+#: Form.php:683
 msgid "Next Christmas Eve"
 msgstr "Nächstes Heiligabend"
 
-#: Form.php:675
+#: Form.php:684
 msgid "Next New Year's Day"
 msgstr "Nächstes Neujahr"
 
-#: Form.php:676
+#: Form.php:685
 msgid "Next Easter"
 msgstr "Nächster Ostersonntag"
 
 #: Form/Element.php:176
 msgid "This form field is required."
-msgstr "Dieses Eingabefeld muss ausgefüllt sein."
+msgstr "DIeses Eingabefeld muss ausgefüllt sein."
 
-#: _tests/Form.test.php:291 _tests/toolshed.test.php:117
+#: _tests/Form.test.php:293 _tests/toolshed.test.php:117
 msgid "I am legend"
 msgstr "Ich bin eine Legende"
-
-#~ msgid "Field data is to long."
-#~ msgstr "Eingabewert zu lang"
-
-#~ msgid "Expecting date like 2020-12-31T23:59Z"
-#~ msgstr "Datum wie z.B. 2020-12-31T23:59Z erwartet"
-
-#~ msgid "Expecting date like 2020-12-31T23:59"
-#~ msgstr "Datum wie z.B. 2020-12-31T23:59 erwartet"

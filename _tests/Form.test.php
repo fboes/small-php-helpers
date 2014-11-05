@@ -2,6 +2,8 @@
 
 require('../Tester.php');
 require('../Form.php');
+#require('../toolshed.php');
+#activate_translations('de','DE');
 
 class FormTest extends Tester {
 	public function testSimple () {
@@ -344,6 +346,7 @@ class FormTest extends Tester {
 			->input('<input type="iban" name="iban" />')
 			->input('<input type="bic" name="bic" />')
 			->input('<input type="creditcard-number" name="creditcard-number" />')
+			->input('<input type="username" name="username" />')
 			->end('</form>')
 		;
 

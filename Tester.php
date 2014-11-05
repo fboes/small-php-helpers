@@ -54,6 +54,7 @@ class Tester {
 			echo('<!DOCTYPE html>'."\n");
 			echo('<html>');
 			echo('<head>');
+			echo('<meta charset="UTF-8" />');
 			echo('<title>'.htmlspecialchars($title).'</title>');
 			echo(
 				'<style>'

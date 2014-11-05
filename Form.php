@@ -13,6 +13,7 @@ require_once('Form/Element.php');
  * - data-hint: Add extra hint to element
  * - data-preservekeys: Keep keys for numerical values
  * - data-output: Generate an <output> behind this field and show value
+ * - data-pattern: Pattern for client side validation used for non-HTML5-compatible browsers
  * - default: Set value if no other value is present
  *
  * Other element attributes (see http://www.whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.html & http://baymard.com/labs/touch-keyboard-types):
@@ -221,13 +222,14 @@ class Form {
 	 * - url
 	 * - week
 	 *
-	 * There are also some special types:
+	 * There are also some special types (see http://baymard.com/labs/touch-keyboard-types):
 	 *
 	 * - address
 	 * - bic
 	 * - creditcard-number
 	 * - currency
 	 * - iban
+	 * - username
 	 *
 	 * Instead of "step" it is possible to use "decimals". So 'decimals="2"' translates to 'step="0.1"'
 	 *
@@ -335,7 +337,7 @@ class Form {
 				$element->setOnEmpty('pattern', '\d{16}');
 				$element->setOnEmpty('maxlength', 16);
 				$element->setOnEmpty('title', _('Expecting valid credit card number'));
-				$element->setOnEmpty('novalidate', 'novalidate');
+				#$element->setOnEmpty('novalidate', 'novalidate');
 				$element->setOnEmpty('autocorrect', 'off');
 				$element->setOnEmpty('title', _('Expecting 16-digit credit card number without any whitespaces'));
 				break;
@@ -354,13 +356,19 @@ class Form {
 				$element->setOnEmpty('autocapitalize', 'off');
 				$element->setOnEmpty('title', _('Expecting IBAN, starting with two letters'));
 				break;
+			case 'username':
+				$element->attributes['type'] = 'text';
+				$element->setOnEmpty('pattern', '\S\S+');
+				$element->setOnEmpty('autocapitalize', 'off');
+				$element->setOnEmpty('autocorrect', 'off');
+				break;
 		}
 		if (!Form::is_blank($element->attributes['maxlength'])) {
 			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {
 				$element->addError('maxlength',
 					sprintf(ngettext(
-						'Field data is too long, maximum length is %s characters.',
 						'Field data is too long, maximum length is %s character.',
+						'Field data is too long, maximum length is %s characters.',
 						(int)$element->attributes['maxlength']
 					),(int)$element->attributes['maxlength'])
 				);
@@ -387,6 +395,7 @@ class Form {
 		if (!empty($options)) {
 			$element->addClass  ('datalist');
 			$element->attributes['list'] = $element->attributes['id'].'-datalist';
+			$element->setOnEmpty('autocomplete', 'off');
 		}
 
 		switch ($element->attributes['type']) {
@@ -418,8 +427,8 @@ class Form {
 			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {
 				$element->addError('maxlength',
 					sprintf(ngettext(
-						'Field data is too long, maximum length is %s characters.',
 						'Field data is too long, maximum length is %s character.',
+						'Field data is too long, maximum length is %s characters.',
 						(int)$element->attributes['maxlength']
 					),(int)$element->attributes['maxlength'])
 				);
