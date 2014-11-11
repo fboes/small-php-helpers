@@ -401,7 +401,7 @@ function safe_filename ($filename, $directory, $allowedPattern = NULL) {
  * @return string          [description]
  */
 function returnCompleteUrl ($urlPart) {
-	$urlPartt = trim($urlPart);
+	$urlPart = trim($urlPart);
 	if (!preg_match('#^[a-z]+://#', $urlPart)) {
 		$protocol = (!empty($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] == 'https') ? 'https' : 'http';
 		$protocol .= '://';
