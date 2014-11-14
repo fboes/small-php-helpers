@@ -338,12 +338,18 @@ function set_locale ($languageCode, $countryCode, $charset = 'UTF-8') {
 	if (!empty($charset)) {
 		$localeCode .= '.'.str_replace(' ','',$charset);
 	}
-	$categories = array(LC_COLLATE, LC_CTYPE, LC_TIME, LC_MESSAGES);
+	$categories = array(LC_COLLATE, LC_CTYPE, LC_TIME);
+	if (defined('LC_MESSAGES')) {
+		$categories[] = LC_MESSAGES;
+	}
 
 	foreach ($categories as $c) {
 		setlocale($c, $localeCode);
 	}
-	$categories = array('LC_COLLATE', 'LC_CTYPE', 'LC_TIME', 'LC_MESSAGES');
+	$categories = array('LC_COLLATE', 'LC_CTYPE', 'LC_TIME');
+	if (defined('LC_MESSAGES')) {
+		$categories[] = 'LC_MESSAGES';
+	}
 	foreach ($categories as $c) {
 		putenv($c.'='.$localeCode);
 	}
