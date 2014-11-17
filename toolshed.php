@@ -166,7 +166,8 @@ function _vsprintf ($format, array $args) {
  */
 function htmlallchars ($string) {
 	$result = NULL;
-	for($i=0 ; $i<strlen($string) ; $i++) {
+	$strlen = strlen($string);
+	for($i=0 ; $i<$strlen; $i++) {
 		$result .= '&#'.ord($string[$i]).';';
 	}
 	return $result;
@@ -271,6 +272,100 @@ function make_id ($str) {
 }
 
 /**
+ * Convert certain typografical stuff into better typografical stuff
+ * See http://de.wikipedia.org/wiki/Anf%C3%BChrungszeichen
+ * @param  string  $str            [description]
+ * @param  boolean withHyphenation [description]
+ * @param  string  $langCode       According to ISO 639-1 2ALPHA, use {{ app.request.locale }}
+ * @return string                  [description]
+ */
+function improve_typography ($str, $withHyphenation = TRUE, $langCode = NULL) {
+	if (!is_scalar($str)) {
+		throw new \Exception('String expected in improve_typography');
+	}
+	if (empty($langCode)) {
+		$langCode = getenv('LANGUAGE');
+	}
+	$str = trim($str);
+	$str = str_replace('--', '—', $str);
+	$str = str_replace('...', '…', $str);
+	$str = str_replace('… …', '… ', $str);
+	$str = str_replace('(C)', '©', $str);
+	$str = str_replace('(R)', '®', $str);
+	$str = str_replace('(TM)', '™', $str);
+	$str = str_replace('(+-)', '±', $str);
+	$str = str_replace('(1/4)', '¼', $str);
+	$str = str_replace('(1/2)', '½', $str);
+	$str = str_replace('(3/4)', '¾', $str);
+	$str = preg_replace('#(\d)\s*-\s*(\d)#is','$1–$2',$str);
+	$str = preg_replace('#(\s)-(\s)#is','$1–$2',$str);
+	$str = preg_replace('#(\d\s*)(x|\*)(\s*\d)#is','$1×$3',$str);
+
+	if (!empty($langCode)) {
+		switch ($langCode) {
+			case 'af': # Afrikaans
+			case 'bg': # Bulgarian
+			case 'cs': # Czech
+			case 'de': # German
+			case 'et': # Estonian
+			case 'fi': # Finnish
+			case 'hr': # Croatian
+			case 'hu': # Hungarian
+			case 'is': # Icelandic
+			case 'ka': # Georgian
+			case 'lt': # Lithuanian
+			case 'lv': # Latvian
+			case 'pl': # Polish
+			case 'ro': # Romanian
+			case 'sk': # Slovak
+			case 'sl': # Slovenian
+			case 'sr': # Serbian
+				$str = preg_replace('#"(\S.*\S)"#is','„$1“',$str);
+				$str = preg_replace("#'(\S.*\S)'#is",'‚$1‘',$str);
+				break;
+			case 'ar': # Arabic
+			case 'be': # Belarusian
+			case 'ca': # Catalan
+			case 'el': # Modern Greek (1453-)
+			case 'es': # Spanish
+			case 'eu': # Basque
+			case 'fr': # French
+			case 'hy': # Armenian
+			case 'it': # Italian
+			case 'no': # Norwegian
+			case 'pt': # Portuguese
+			case 'ru': # Russian
+			case 'sq': # Albanian
+			case 'uk': # Ukrainian
+				$str = preg_replace('#"(\S.*\S)"#is','«$1»',$str);
+				$str = preg_replace("#'(\S.*\S)'#is",'‹$1›',$str);
+				break;
+			case 'da': # Danish
+				$str = preg_replace('#"(\S.*\S)"#is','»$1«',$str);
+				$str = preg_replace("#'(\S.*\S)'#is",'›$1‹',$str);
+				break;
+			default:
+				$str = preg_replace('#"(\S.*\S)"#is','“$1”',$str);
+				$str = preg_replace("#'(\S.*\S)'#is",'‘$1’',$str);
+				break;
+		}
+		if ($withHyphenation) {
+			switch ($langCode) {
+				case 'de':
+					$str = mb_ereg_replace('(\w)(lich|dorf|stadt|burg|berg|markt|straße|baden|tig|den)(\W)', '\1­\2\3', $str);
+					$str = mb_ereg_replace('(\W)(ver|vor|zer|ab|aus|auf)(\w)', '\1\2­\3', $str);
+					break;
+				case 'en':
+					$str = mb_ereg_replace('(\w)(town|ing|tion|ly)(\W)', '\1­\2\3', $str);
+					$str = mb_ereg_replace('(\W)(per)(\w)', '\1\2­\3', $str);
+					break;
+			}
+		}
+	}
+	return $str;
+}
+
+/**
  * Checks if a scalar value is FALSE, without content or only full of whitespaces. For non-scalar values will evaluate if value is empty().
  *
  * @param	mixed	$v	to test
@@ -346,13 +441,11 @@ function set_locale ($languageCode, $countryCode, $charset = 'UTF-8') {
 	foreach ($categories as $c) {
 		setlocale($c, $localeCode);
 	}
-	$categories = array('LC_COLLATE', 'LC_CTYPE', 'LC_TIME');
-	if (defined('LC_MESSAGES')) {
-		$categories[] = 'LC_MESSAGES';
-	}
+	$categories = array('LC_COLLATE', 'LC_CTYPE', 'LC_TIME', 'LC_MESSAGES');
 	foreach ($categories as $c) {
 		putenv($c.'='.$localeCode);
 	}
+	putenv('LANGUAGE='.$languageCode);
 }
 
 /**
