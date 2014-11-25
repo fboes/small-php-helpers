@@ -23,10 +23,15 @@ Integration in Symfony & Silex
 4. Put files in folder matching namespace
 5. Think of some clever way to use `toolshed.php` :smirk:
 
+Installation
+------------
+
+Via [Bower](http://bower.io/): `bower install fboes/small-php-helpers`
+
 Version
 -------
 
-Version: 1.2 (2014-07-25)
+Version: 1.2.1 (2014-11-25)
 
 Legal stuff
 -----------

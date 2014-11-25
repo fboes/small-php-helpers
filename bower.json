@@ -1,0 +1,19 @@
+{
+  "name": "small-php-helpers",
+  "version": "1.2.1",
+  "homepage": "https://github.com/fboes/small-php-helpers",
+  "authors": [
+    "Frank Boës <http://3960.org/>"
+  ],
+  "description": "This set of small libraries is intended as easy shortcuts for everyday situations.",
+  "keywords": [
+    "PHP"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "_tests"
+  ]
+}
