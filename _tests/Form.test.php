@@ -355,6 +355,26 @@ class FormTest extends Tester {
 
 		$this->assertValidXml($output);
 	}
+
+	public function testFauxHttpMethod () {
+		$f = Form::init()
+			->start('<form method="GET">')
+			->end('</form>')
+		;
+
+		$output = $f->returnHTML();
+		$this->assertValidXml($output);
+		$this->assertRegExp('#method="get"#', $output, "Expecting lower case GET");
+
+		$f = Form::init()
+			->start('<form method="PUT">')
+			->end('</form>')
+		;
+		$output = $f->returnHTML();
+		#$this->outputLine($output);
+		$this->assertValidXml($output);
+		$this->assertRegExp('#method="post"#', $output, "Expecting POST instead of PUT");
+	}
 }
 
 FormTest::doTest();

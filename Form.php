@@ -188,6 +188,14 @@ class Form {
 		$element = new FormElement(self::HTML_FORM, $html);
 		$element->setOnEmpty('action', $_SERVER['PHP_SELF']);
 		$element->setOnEmpty('method', 'post');
+		$element->attributes['method'] = strtolower($element->attributes['method']);
+
+		if ($element->attributes['method'] !== 'post' && $element->attributes['method'] !== 'get') {
+			$fauxMethod = $element->attributes['method'];
+			$element->attributes['method'] = 'post';
+			$this->storeElement($element);
+			return $this->input('<input type="hidden" name="_method" value="'.htmlspecialchars($fauxMethod).'" />');
+		}
 
 		return $this->storeElement($element);
 	}
