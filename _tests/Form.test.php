@@ -125,7 +125,7 @@ class FormTest extends Tester {
 			->select('<input name="'.htmlspecialchars($searchField).'" />',$selectValues)
 			->end('</form>')
 		;
-		$this->assertRegExp('#value="'.$searchValue.'" selected="selected"#', $f->returnHTML(), 'Expecting default value to be visible in HTML for select');
+		$this->assertRegExp('#selected="selected">'.$searchValue.'#', $f->returnHTML(), 'Expecting default value to be visible in HTML for select');
 
 		$f = Form::init($defaultValues)
 			->start('<form>')
@@ -374,6 +374,20 @@ class FormTest extends Tester {
 		#$this->outputLine($output);
 		$this->assertValidXml($output);
 		$this->assertRegExp('#method="post"#', $output, "Expecting POST instead of PUT");
+	}
+
+	public function testDatalist () {
+		$f = Form::init()
+			->start('<form>')
+			->input('<input type="hidden" name="a" />')
+			->datalist('<datalist id="x" />', array('a','b','c'))
+			->end('</form>')
+		;
+
+		$output = $f->returnHTML();
+		#$this->outputLine($output);
+		$this->assertValidXml($output);
+		$this->assertRegExp('#<datalist.*>#', $output, "Expecting datalist");
 	}
 }
 

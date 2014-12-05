@@ -64,6 +64,10 @@ class FormElement {
 		return $attributes;
 	}
 
+	/**
+	 * [setAttributesByArray description]
+	 * @param array $attributes [description]
+	 */
 	public function setAttributesByArray (array $attributes) {
 		foreach ($attributes as $attribute => $value) {
 			$this->setOnEmpty($attribute, $value);
@@ -218,6 +222,10 @@ class FormElement {
 					$attributes = $this->returnAttributesAsHtml($this->attributes);
 					$formElement = sprintf($this->html, $attributes, $this->attributes[Form::ATTRIBUTE_CONTENT]);
 					break;
+				case Form::HTML_INPUT_OPTIONS_WRAPPER:
+					$attributes = $this->returnAttributesAsHtml($this->attributes);
+					$formElement = sprintf($this->html, $this->makeOptions(), $attributes);
+					break;
 				default:
 					$attributes = $this->returnAttributesAsHtml($this->attributes);
 					$formElement = sprintf($this->html, $attributes);
@@ -227,7 +235,6 @@ class FormElement {
 					if (!Form::is_blank($this->attributes['data-output'])) {
 						$formElement .= '<output name="'.htmlspecialchars($this->attributes['id'].'-output').'" for="'.htmlspecialchars($this->attributes['id']).'">'.htmlspecialchars($this->attributes['data-output']).'</output>';
 					}
-
 					break;
 			}
 			// get label
@@ -320,17 +327,24 @@ class FormElement {
 		if (!empty($this->options)) {
 			switch ($this->html) {
 				case Form::HTML_INPUT:
+				case Form::HTML_INPUT_OPTIONS_WRAPPER:
 					foreach ($this->options as $id => $option) {
 						$checked = ($this->isChecked ($id)) ? ' '.$htmlSelected : '';
 						$label = ($option != $id) ?  ' label="'.htmlspecialchars($option).'"' : '';
-						$html .= sprintf($htmlOption, ' value="'.htmlspecialchars($id).'"'.$label.$checked, NULL);
+						$html .= sprintf($htmlOption,
+							(($id != $option) ? ' value="'.htmlspecialchars($id).'"' : '').$checked.$attributes,
+							htmlspecialchars($option)
+						);
 					}
 					$html = sprintf($htmlOptionsWrapper, $html, ' id="'.htmlspecialchars($this->attributes['list']).'"');
 					break;
 				case Form::HTML_SELECT:
 					foreach ($this->options as $id => $option) {
 						$checked = ($this->isChecked ($id)) ? ' '.$htmlSelected : '';
-						$html .= sprintf($htmlOption, ' value="'.htmlspecialchars($id).'"'.$checked, htmlspecialchars($option));
+						$html .= sprintf($htmlOption,
+							(($id != $option) ? ' value="'.htmlspecialchars($id).'"' : '').$checked.$attributes,
+							htmlspecialchars($option)
+						);
 					}
 					break;
 				case Form::HTML_CHECKBOXES:
@@ -340,6 +354,15 @@ class FormElement {
 						$html .= sprintf($htmlOption, ' value="'.htmlspecialchars($id).'"'.$checked.$attributes, htmlspecialchars($option));
 					}
 					$html = sprintf($htmlOptionsWrapper, $html, ' id="'.htmlspecialchars($this->attributes['id']).'"');
+					break;
+				default:
+					foreach ($this->options as $id => $option) {
+						$checked = ($this->isChecked ($id)) ? ' '.$htmlSelected : '';
+						$html .= sprintf($htmlOption,
+							(($id != $option) ? ' value="'.htmlspecialchars($id).'"' : '').$checked.$attributes,
+							htmlspecialchars($option)
+						);
+					}
 					break;
 			}
 		}

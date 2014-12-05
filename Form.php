@@ -25,16 +25,13 @@ require_once('Form/Element.php');
  * - dirname
  * - disabled="disabled"
  * - inputmode
- * - max="\d"
  * - maxlength="\d"
- * - min="\d"
  * - multiple="multiple"
  * - name
  * - novalidate="novalidate"
  * - pattern
  * - placeholder
  * - readonly="readonly"
- * - step="\d"
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   MIT License (MIT)
@@ -211,7 +208,7 @@ class Form {
 
 	/**
 	 * Add input field. Some input types will spawn a data-pattern-attribute containing rules to validate this field via JavaScript.
-	 * Supported input types:
+	 * Supported input type-attributes:
 	 * - color
 	 * - date
 	 * - datetime
@@ -230,7 +227,7 @@ class Form {
 	 * - url
 	 * - week
 	 *
-	 * There are also some special types (see http://baymard.com/labs/touch-keyboard-types):
+	 * There are also some special type-attributes (see http://baymard.com/labs/touch-keyboard-types):
 	 *
 	 * - address
 	 * - bic
@@ -238,6 +235,13 @@ class Form {
 	 * - currency
 	 * - iban
 	 * - username
+	 *
+	 * Special attributes for input:
+	 *
+	 * - list
+	 * - max="\d"
+	 * - min="\d"
+	 * - step="\d"
 	 *
 	 * Instead of "step" it is possible to use "decimals". So 'decimals="2"' translates to 'step="0.1"'
 	 *
@@ -416,6 +420,18 @@ class Form {
 	}
 
 	/**
+	 * Create standalone datalist (e.g. if you want to use a datalist with multiple input fields). If you want to use a datalist with only one input use $this->input() for convenience. HTML has to contain id-attribut, reference datalist via list-attribute
+	 * @param  string $html    [description]
+	 * @param  array  $options [description]
+	 * @return Form            [description]
+	 */
+	public function datalist ($html, array $options) {
+		$element = new FormElement(self::HTML_INPUT_OPTIONS_WRAPPER, $html, $options);
+		$element->throwExceptionOnEmpty('id');
+		return $this->storeElement($element);
+	}
+
+	/**
 	 * Add textarea field
 	 * @param  string $html like '<textarea name="test" />'
 	 * @return Form       [description]
@@ -442,7 +458,7 @@ class Form {
 				);
 			}
 		}
-    	$element->addErrorsOnRequired();
+		$element->addErrorsOnRequired();
 
 		return $this->storeElement($element);
 	}
