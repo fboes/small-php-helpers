@@ -203,16 +203,17 @@ class FormElement {
 	 * @return string HTML
 	 */
 	public function returnHtml ($htmlFieldWrapper = "<span>%1\$s%2\$s</span>\n", $htmlLabelWrapper = "%s", $htmlLabelRequired = " *", $htmlErrorWrapper = '<span class="invalid">%s</span>') {
+		$useOptgroup = !empty($this->attributes['data-optgroup']);
 		if (!empty($this->attributes)) {
 			// get form field
 			switch ($this->html) {
 				case Form::HTML_SELECT:
 					$attributes = $this->returnAttributesAsHtml($this->attributes, array('value'));
-					$formElement = sprintf($this->html, $attributes, $this->makeOptions(Form::HTML_SELECT_OPTION, Form::HTML_SELECT_OPTIONS_WRAPPER));
+					$formElement = sprintf($this->html, $attributes, $this->makeOptgroup(Form::HTML_SELECT_OPTION, Form::HTML_SELECT_OPTIONS_WRAPPER, Form::HTML_SELECT_OPTIONS_GROUP, $useOptgroup));
 					break;
 				case Form::HTML_CHECKBOXES:
 					$attributes = $this->returnAttributesAsHtml($this->attributes, array('value','name'));
-					$formElement = sprintf($this->html, $attributes, $this->makeOptions(Form::HTML_CHECKBOXES_OPTION, Form::HTML_CHECKBOXES_OPTIONS_WRAPPER, 'checked="checked"'));
+					$formElement = sprintf($this->html, $attributes, $this->makeOptgroup(Form::HTML_CHECKBOXES_OPTION, Form::HTML_CHECKBOXES_OPTIONS_WRAPPER , Form::HTML_CHECKBOXES_OPTIONS_GROUP, $useOptgroup, 'checked="checked"'));
 					break;
 				case Form::HTML_TEXTAREA:
 					$attributes = $this->returnAttributesAsHtml($this->attributes, array('value'));
@@ -224,13 +225,13 @@ class FormElement {
 					break;
 				case Form::HTML_INPUT_OPTIONS_WRAPPER:
 					$attributes = $this->returnAttributesAsHtml($this->attributes);
-					$formElement = sprintf($this->html, $this->makeOptions(), $attributes);
+					$formElement = sprintf($this->html, $this->makeOptgroup(), $attributes);
 					break;
 				default:
 					$attributes = $this->returnAttributesAsHtml($this->attributes);
 					$formElement = sprintf($this->html, $attributes);
 					if (!empty($this->options)) {
-						$formElement .= $this->makeOptions(Form::HTML_INPUT_OPTION, Form::HTML_INPUT_OPTIONS_WRAPPER);
+						$formElement .= $this->makeOptgroup(Form::HTML_INPUT_OPTION, Form::HTML_INPUT_OPTIONS_WRAPPER, Form::HTML_INPUT_OPTIONS_GROUP, $useOptgroup);
 					}
 					if (!Form::is_blank($this->attributes['data-output'])) {
 						$formElement .= '<output name="'.htmlspecialchars($this->attributes['id'].'-output').'" for="'.htmlspecialchars($this->attributes['id']).'">'.htmlspecialchars($this->attributes['data-output']).'</output>';
@@ -282,7 +283,7 @@ class FormElement {
 	 */
 	protected function returnAttributesAsHtml (array $attributes, array $forbiddenAttributes = array()) {
 		$html = '';
-		$forbiddenAttributes = array_merge($forbiddenAttributes, array('data-label','data-hint', 'default'));
+		$forbiddenAttributes = array_merge($forbiddenAttributes, array('data-label','data-hint', 'default', 'data-optgroup'));
 		foreach ($attributes as $key => $value) {
 			if (!Form::is_blank($value) && (empty($forbiddenAttributes) || !in_array($key, $forbiddenAttributes) && strpos($key, '_') !== 0)) {
 				if (is_array($value)) {
@@ -316,50 +317,75 @@ class FormElement {
 	}
 
 	/**
+	 * [makeOptgroup description]
+	 * @param  string $htmlOption         [description]
+	 * @param  string $htmlOptionsWrapper [description]
+	 * @param  string $htmlOptionGroup    [description]
+	 * @param  string $htmlSelected       [description]
+	 * @return string                     HTML
+	 */
+	protected function makeOptgroup ($htmlOption = '<option%1$s>%2$s</option>', $htmlOptionsWrapper = '%1$s', $htmlOptionGroup = '%2$s', $useOptgroup = FALSE, $htmlSelected = 'selected="selected"') {
+		if (!$useOptgroup) {
+			return $this->makeOptions($this->options, $htmlOption, $htmlOptionsWrapper, $htmlSelected);
+		}
+		$html = '';
+		if (!empty($this->options)) {
+			foreach ($this->options as $label => $options) {
+				$html .= sprintf($htmlOptionGroup, $label, $this->makeOptions($options, $htmlOption, $htmlOptionsWrapper, $htmlSelected));
+			}
+		}
+		return $html;
+	}
+
+	/**
 	 * [makeOptions description]
 	 * @param  string $htmlOption         [description]
 	 * @param  string $htmlOptionsWrapper [description]
 	 * @param  string $htmlSelected       [description]
 	 * @return string                     HTML
 	 */
-	protected function makeOptions ($htmlOption = '<option%1$s>%2$s</option>', $htmlOptionsWrapper = '%1$s', $htmlSelected = 'selected="selected"') {
+	protected function makeOptions ($options, $htmlOption = '<option%1$s>%2$s</option>', $htmlOptionsWrapper = '%1$s', $htmlSelected = 'selected="selected"') {
 		$html = '';
-		if (!empty($this->options)) {
+		if (!empty($options)) {
 			switch ($this->html) {
 				case Form::HTML_INPUT:
 				case Form::HTML_INPUT_OPTIONS_WRAPPER:
-					foreach ($this->options as $id => $option) {
+					foreach ($options as $id => $option) {
 						$checked = ($this->isChecked ($id)) ? ' '.$htmlSelected : '';
 						$label = ($option != $id) ?  ' label="'.htmlspecialchars($option).'"' : '';
 						$html .= sprintf($htmlOption,
-							(($id != $option) ? ' value="'.htmlspecialchars($id).'"' : '').$checked.$attributes,
+							(($id != $option) ? ' value="'.htmlspecialchars($id).'"' : '').$checked,
 							htmlspecialchars($option)
 						);
 					}
-					$html = sprintf($htmlOptionsWrapper, $html, ' id="'.htmlspecialchars($this->attributes['list']).'"');
+					$html = sprintf(
+						$htmlOptionsWrapper,
+						$html,
+						!empty($this->attributes['list']) ? ' id="'.htmlspecialchars($this->attributes['list']).'"' : NULL
+					);
 					break;
 				case Form::HTML_SELECT:
-					foreach ($this->options as $id => $option) {
+					foreach ($options as $id => $option) {
 						$checked = ($this->isChecked ($id)) ? ' '.$htmlSelected : '';
 						$html .= sprintf($htmlOption,
-							(($id != $option) ? ' value="'.htmlspecialchars($id).'"' : '').$checked.$attributes,
+							(($id != $option) ? ' value="'.htmlspecialchars($id).'"' : '').$checked,
 							htmlspecialchars($option)
 						);
 					}
 					break;
 				case Form::HTML_CHECKBOXES:
 					$attributes = $this->returnAttributesAsHtml($this->attributes, array('id','value'));
-					foreach ($this->options as $id => $option) {
+					foreach ($options as $id => $option) {
 						$checked = ($this->isChecked ($id)) ? ' '.$htmlSelected : '';
 						$html .= sprintf($htmlOption, ' value="'.htmlspecialchars($id).'"'.$checked.$attributes, htmlspecialchars($option));
 					}
 					$html = sprintf($htmlOptionsWrapper, $html, ' id="'.htmlspecialchars($this->attributes['id']).'"');
 					break;
 				default:
-					foreach ($this->options as $id => $option) {
+					foreach ($options as $id => $option) {
 						$checked = ($this->isChecked ($id)) ? ' '.$htmlSelected : '';
 						$html .= sprintf($htmlOption,
-							(($id != $option) ? ' value="'.htmlspecialchars($id).'"' : '').$checked.$attributes,
+							(($id != $option) ? ' value="'.htmlspecialchars($id).'"' : '').$checked,
 							htmlspecialchars($option)
 						);
 					}
@@ -374,12 +400,12 @@ class FormElement {
 	 * @return boolean           [description]
 	 */
 	public function isChecked ($value) {
-		if (!Form::is_blank($value)) {
+		if (!Form::is_blank($value) && !Form::is_blank($this->attributes['value'])) {
 			if (is_array($this->attributes['value'])) {
-				return !Form::is_blank($this->attributes['value']) && in_array($value, $this->attributes['value']);
+				return in_array($value, $this->attributes['value']);
 			}
 			else {
-				return !Form::is_blank($this->attributes['value']) && $value == $this->attributes['value'];
+				return $value == $this->attributes['value'];
 			}
 		}
 		return FALSE;

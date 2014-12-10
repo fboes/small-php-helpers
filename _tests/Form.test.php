@@ -30,7 +30,7 @@ class FormTest extends Tester {
 		;
 
 		$output = $f->returnHTML();
-		#$this->outputLine($output);
+		$this->outputLine($output);
 
 		$this->assertTrue(is_string($output), 'Expecting HTML output to be string');
 		$this->assertValidHtml($output);
@@ -385,9 +385,35 @@ class FormTest extends Tester {
 		;
 
 		$output = $f->returnHTML();
-		#$this->outputLine($output);
+		$this->outputLine($output);
 		$this->assertValidXml($output);
 		$this->assertRegExp('#<datalist.*>#', $output, "Expecting datalist");
+	}
+
+	/**
+	 * Test generic HTML output
+	 * @param  [type] $options [description]
+	 */
+	public function testHtmlOptgroup () {
+		$options = array(
+			'A' => array(1,2,3),
+			'B' => array(4,5,6),
+		);
+		$f = Form::init()
+			->start('<form>')
+			->select('<select data-optgroup="optgroup" data-label="d" name="d">', $options)
+			->select('<select data-optgroup="optgroup" data-label="e" data-hint="hint" name="e" multiple="multiple">', $options)
+			->checkbox('<input data-optgroup="optgroup" data-label="f" name="f">', $options)
+			->checkbox('<input data-optgroup="optgroup" data-label="g" name="g" type="radio">', $options)
+			->end('</form>')
+		;
+
+		$output = $f->returnHTML();
+		$this->outputLine($output);
+
+		$this->assertTrue(is_string($output), 'Expecting HTML output to be string');
+		$this->assertValidHtml($output);
+		$this->assertValidXml($output);
 	}
 }
 

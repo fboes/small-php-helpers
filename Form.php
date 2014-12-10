@@ -12,6 +12,7 @@ require_once('Form/Element.php');
  * - data-label: Add label to element
  * - data-hint: Add extra hint to element
  * - data-preservekeys: Keep keys for numerical values
+ * - data-optgroup: If $options are given, interpret it as 2d-array with 1d being the labels for optgroups
  * - data-output: Generate an <output> behind this field and show value
  * - data-pattern: Pattern for client side validation used for non-HTML5-compatible browsers
  * - default: Set value if no other value is present
@@ -49,13 +50,16 @@ class Form {
 	const HTML_FORM                       = '<form%s>';
 	const HTML_INPUT                      = '<input%1$s />';
 	const HTML_INPUT_OPTION               = '<option%1$s>%2$s</option>';
+	const HTML_INPUT_OPTIONS_GROUP        = '%2$s';
 	const HTML_INPUT_OPTIONS_WRAPPER      = '<datalist%2$s>%1$s</datalist>';
 	const HTML_TEXTAREA                   = '<textarea%1$s>%2$s</textarea>';
 	const HTML_SELECT                     = '<select%1$s>%2$s</select>';
 	const HTML_SELECT_OPTION              = '<option%1$s>%2$s</option>';
+	const HTML_SELECT_OPTIONS_GROUP       = '<optgroup label="%1$s">%2$s</optgroup>';
 	const HTML_SELECT_OPTIONS_WRAPPER     = '%1$s';
 	const HTML_CHECKBOXES                 = '%2$s';
 	const HTML_CHECKBOXES_OPTION          = "<li><label><input%1\$s /> <span>%2\$s</span></label></li>\n";
+	const HTML_CHECKBOXES_OPTIONS_GROUP   = '<li>%1$s<ul class="form-optionlist-optiongroup">%2$s</ul></li>';
 	const HTML_CHECKBOXES_OPTIONS_WRAPPER = '<ul class="form-optionlist"%2$s>%1$s</ul>';
 	const HTML_BUTTON                     = '<button%1$s>%2$s</button>';
 
