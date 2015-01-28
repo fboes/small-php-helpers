@@ -297,6 +297,10 @@ function improve_typography ($str, $withHyphenation = TRUE, $langCode = NULL) {
 	$str = str_replace('(1/4)', '¼', $str);
 	$str = str_replace('(1/2)', '½', $str);
 	$str = str_replace('(3/4)', '¾', $str);
+	$str = str_replace('->', '→', $str);
+	$str = str_replace('=>', '⇒', $str);
+	$str = str_replace('<-', '←', $str);
+	$str = str_replace('<=', '⇐', $str);
 	$str = preg_replace('#(\d)\s*-\s*(\d)#is','$1–$2',$str);
 	$str = preg_replace('#(\s)-(\s)#is','$1–$2',$str);
 	$str = preg_replace('#(\d\s*)(x|\*)(\s*\d)#is','$1×$3',$str);
