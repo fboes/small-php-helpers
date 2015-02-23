@@ -116,7 +116,7 @@ class Page {
 	 * @return string [description]
 	 */
 	public function facebookUrl () {
-		return 'http://www.facebook.com/sharer.php?u='.rawurlencode($this->url);
+		return 'https://www.facebook.com/sharer.php?u='.rawurlencode($this->url);
 	}
 
 	/**
@@ -124,7 +124,7 @@ class Page {
 	 * @return string [description]
 	 */
 	public function facebookIframe () {
-		return 'http://www.facebook.com/plugins/like.php?locale='.rawurlencode($this->getLocale).'&href='.rawurlencode($this->url).'&send=false&layout=button_count&width=120&show_faces=false&action=recommend&colorscheme=light&font&height=21';
+		return 'https://www.facebook.com/plugins/like.php?locale='.rawurlencode($this->getLocale).'&href='.rawurlencode($this->url).'&send=false&layout=button_count&width=120&show_faces=false&action=recommend&colorscheme=light&font&height=21';
 	}
 
 	/**
@@ -134,7 +134,7 @@ class Page {
 	 */
 	public function twitterUrl ($text = '') {
 		$text = (!empty($text)) ? $text : $this->title;
-		return 'https://twitter.com/intent/tweet?original_referer='.rawurlencode($this->url).'&source=tweetbutton&text'.rawurlencode($text).'&url='.rawurlencode($this->url);
+		return 'https://twitter.com/intent/tweet?original_referer='.rawurlencode($this->url).'&source=tweetbutton&text='.rawurlencode($text).'&url='.rawurlencode($this->url);
 	}
 
 	/**
@@ -144,7 +144,7 @@ class Page {
 	 */
 	public function twitterIframe ($text = '') {
 		$text = (!empty($text)) ? $text : $this->title;
-		return 'http://platform.twitter.com/widgets/tweet_button.html?url='.rawurlencode($this->url).'&counturl='.rawurlencode($this->url).'&text='.rawurlencode($text).'&count=horizontal&lang='.rawurlencode($this->language);
+		return 'https://platform.twitter.com/widgets/tweet_button.html?url='.rawurlencode($this->url).'&counturl='.rawurlencode($this->url).'&text='.rawurlencode($text).'&count=horizontal&lang='.rawurlencode($this->language);
 	}
 
 	/**
