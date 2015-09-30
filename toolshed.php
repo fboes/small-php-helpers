@@ -519,6 +519,43 @@ function returnCompleteUrl ($urlPart) {
 	return $urlPart;
 }
 
+/**
+ * Parse CSV file into array, with first line interpreted as header
+ * @param  string  $filename  [description]
+ * @param  boolean $useHeader [description]
+ * @param  string  $delimiter [description]
+ * @return array              of objects
+ */
+function importCsv ($filename, $useHeader = TRUE, $delimiter = ";") {
+	$data = [];
+	$header = array();
+	if (!file_exists($filename)) {
+		throw new Exception($filename . ' not found');
+	}
+	if (($handle = fopen($filename, "r")) !== FALSE) {
+		while (($line = fgetcsv($handle, 1000, $delimiter)) !== FALSE) {
+			if ($useHeader && empty($header)) {
+				foreach ($line as $key => $value) {
+					$line[$key] = preg_replace('#[^a-zA-Z0-9_]#is','', $value);
+				}
+				$header = $line;
+			}
+			else {
+				foreach ($line as $key => $value) {
+					$line[$key] = trim($value);
+				}
+				$data[] = !empty($header)
+					? (object)array_combine($header, $line)
+					: $line
+				;
+			}
+		}
+		fclose($handle);
+	}
+	return $data;
+}
+
+
 if (!function_exists('_')) {
 	function _ ($string) {
 		return $string;
