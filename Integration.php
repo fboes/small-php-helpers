@@ -53,9 +53,11 @@ class Integration {
 			'Twitter'     => 'https://twitter.com/intent/tweet?original_referer='.rawurlencode($url).'&source=tweetbutton&text='.rawurlencode($title.' '.$description).'&url='.rawurlencode($url),
 			'Pinterest'   => !empty($image) ? 'http://pinterest.com/pin/create/button/?url='.rawurlencode($url).'&media='.rawurlencode($image).'&description='.rawurlencode($description) : NULL,
 			'Google Plus' => 'https://plus.google.com/share?url='.rawurlencode($url),
-			'Email'       => 'mailto:?subject='.rawurlencode($title).'&body='.rawurlencode($description.' ['.$url.']'),
+			'Xing'    => 'https://www.xing.com/spi/shares/new?url='.rawurlencode($url),
 			'LinkedIn'    => 'https://www.linkedin.com/shareArticle?mini=true&url='.rawurlencode($url).'&title='.rawurlencode($title).'&summary='.rawurlencode($description).'&source=',
-			'print'       => 'javascript:window.print();',
+			'Whatsapp'    => 'whatsapp://send?text='.rawurlencode($title.' ['.$url.']'),
+			'Email'       => 'mailto:?subject='.rawurlencode($title).'&body='.rawurlencode($description.' ['.$url.']'),
+			'Print'       => 'javascript:window.print();',
 		);
 	}
 }
