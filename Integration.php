@@ -39,4 +39,23 @@ class Integration {
 		return $returnUrl;
 	}
 
+	/**
+	 * Generate list of social links
+	 * @param  string $url         [description]
+	 * @param  string $title       [description]
+	 * @param  string $description [description]
+	 * @param  string $image       [description]
+	 * @return array               with SERVICE => URL
+	 */
+	static function socialLinks ($url, $title, $description = NULL, $image = NULL) {
+		return array(
+			'Facebook'    => 'https://www.facebook.com/sharer.php?u='.rawurlencode($url),
+			'Twitter'     => 'https://twitter.com/intent/tweet?original_referer='.rawurlencode($url).'&source=tweetbutton&text='.rawurlencode($title.' '.$description).'&url='.rawurlencode($url),
+			'Pinterest'   => !empty($image) ? 'http://pinterest.com/pin/create/button/?url='.rawurlencode($url).'&media='.rawurlencode($image).'&description='.rawurlencode($description) : NULL,
+			'Google Plus' => 'https://plus.google.com/share?url='.rawurlencode($url),
+			'Email'       => 'mailto:?subject='.rawurlencode($title).'&body='.rawurlencode($description.' ['.$url.']'),
+			'LinkedIn'    => 'https://www.linkedin.com/shareArticle?mini=true&url='.rawurlencode($url).'&title='.rawurlencode($title).'&summary='.rawurlencode($description).'&source=',
+			'print'       => 'javascript:window.print();',
+		);
+	}
 }
