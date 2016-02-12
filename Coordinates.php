@@ -3,9 +3,7 @@
 
 /**
  * @class Coordinates
- * Mini-Unit-Test (in case PhpUnit ist not available)
- * Extend this class for doing the real test. Methods with "test" prefixed get tested. Methods with 'data' prefixed are used as data providers for corresponding "test"-methods. "data"-methods MUST return an array of arrays.
- * This class intentionally has direct HTML output.
+ * Calculate distances and bearings with coordinates on any given planet
  *
  * @author      Frank Bo"es <info@3960.org>
  * @copyright   MIT License (MIT)
