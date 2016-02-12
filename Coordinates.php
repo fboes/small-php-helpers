@@ -256,6 +256,45 @@ class Coordinates {
 		return static::returnCoordinate($this->longitude, _('E'), _('W'), $format);
 	}
 
+	/**
+	 * Return maidenhead locator string
+	 * @param  integer $precision [description]
+	 * @return string             [description]
+	 */
+	public function getMaidenheadLocator ($precision = 5) {
+		$lat = $this->latitude;
+		$lon = $this->longitude;
+		$string = '';
+		$charMode = TRUE;
+		$lat += 90;
+		$lon += 180;
+
+		for ($i = 0; $i < $precision; $i++) {
+			if ($i === 0) {
+				$lat1 = floor($lat / 10);
+				$lon1 = floor($lon / 20);
+				$lat -= ($lat1 * 10);
+				$lon -= ($lon1 * 20); $lon /= 2;
+			}
+			else {
+				if ($charMode) {
+					$lat = $lat / 10 * 24;
+					$lon = $lon / 10 * 24;
+				}
+				$lat1 = floor($lat);
+				$lon1 = floor($lon);
+				$lat -= ($lat1); $lat *= 10;
+				$lon -= ($lon1); $lon *= 10;
+			}
+			$string .= $charMode ?
+				chr($lon1 + (($i === 0) ? 65 : 97)). chr($lat1 + (($i === 0) ? 65 : 97))
+				: $lon1 . $lat1
+			;
+			$charMode = !$charMode;
+		}
+		return $string;
+	}
+
 	static public function returnCoordinate ($value, $plusPrefix, $minusPrefix, $format = '%1$09.5f %2$s') {
 		return sprintf($format, abs($value), static::convertPrefix($value, $plusPrefix, $minusPrefix));
 	}
