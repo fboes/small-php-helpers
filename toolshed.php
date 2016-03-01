@@ -56,18 +56,18 @@ function _paragraph ($string, $withLinks = FALSE) {
  * @return string              [description]
  */
 function _textile ($string, $singleLine = FALSE) {
-	$str = htmlspecialchars($str);
+	$str = htmlspecialchars($string);
 	if (!$singleLine) {
 		$str = '<p>'.$str.'</p>';
-		$str = preg_replace('/\n\n+/s','<\/p><p>',$str);
-		$str = preg_replace('/\n/s','<br \/>',$str);
-		$str = preg_replace('/(<\/p>)(<p>)/s','$1\n$2',$str);
-		$str = preg_replace('/<p>h(\d)\.\s(.+?)<\/p>/s','<h$1>$2<\/h$1>',$str);
-		$str = preg_replace('/<p>h(\d)\(#([a-zA-Z0-9_-]+)\)\.\s(.+?)<\/p>/s','<h$1 id="$2">$3<\/h$1>',$str);
-		$str = preg_replace('/(<p>)(&gt;|bq\.)\s(.+?)(<\/p>)/s','<blockquote>$1$3$4<\/blockquote>',$str);
+		$str = preg_replace('/\n\n+/s','</p><p>',$str);
+		$str = preg_replace('/\n/s','<br />',$str);
+		$str = preg_replace('/(<\/p>)(<p>)/s','$1'."\n".'$2',$str);
+		$str = preg_replace('/<p>h(\d)\.\s(.+?)<\/p>/s','<h$1>$2</h$1>',$str);
+		$str = preg_replace('/<p>h(\d)\(#([a-zA-Z0-9_-]+)\)\.\s(.+?)<\/p>/s','<h$1 id="$2">$3</h$1>',$str);
+		$str = preg_replace('/(<p>)(&gt;|bq\.)\s(.+?)(<\/p>)/s','<blockquote>$1$3$4</blockquote>',$str);
 		$str = preg_replace('/<\/blockquote>(\s*)<blockquote>/s','$1',$str);
-		$str = preg_replace('/<p>\*\s(.+?)<\/p>/s','<ul><li>$1<\/li><\/ul>',$str);
-		$str = preg_replace('/<p>#\s(.+?)<\/p>/s','<ol><li>$1<\/li><\/ol>',$str);
+		$str = preg_replace('/<p>\*\s(.+?)<\/p>/s','<ul><li>$1</li></ul>',$str);
+		$str = preg_replace('/<p>#\s(.+?)<\/p>/s','<ol><li>$1</li></ol>',$str);
 		$str = preg_replace('/<br \/>(\*|#)\s/s','<\/li><li>',$str);
 		#$str = preg_replace('/<p>\|(.+?)\|<\/p>/s','<table><tr><td>$1</td></tr></table>',$str);
 		#$str = preg_replace('/\|<br \/>\|/s','</td></tr>\n<tr><td>',$str);
@@ -76,9 +76,47 @@ function _textile ($string, $singleLine = FALSE) {
 	else {
 		$str = preg_replace('/\n+/s','<br \/>',$str);
 	}
-	$str = preg_replace('/(^|\s)\*(\S.*?\S)\*/s','$1<strong>$2<\/strong>',$str);
-	$str = preg_replace('/(^|\s)_(\S.*?\S)_/s','$1<em>$2<\/em>',$str);
-	$str = preg_replace('/&quot;(.+?)&quot;\:([^<\s]+[^\.<!\?\s])/s','<a href=\"$2\">$1<\/a>',$str);
+	$str = preg_replace('/(^|\s)\*(\S.*?\S)\*/s','$1<strong>$2</strong>',$str);
+	$str = preg_replace('/(^|\s)_(\S.*?\S)_/s','$1<em>$2</em>',$str);
+	$str = preg_replace('/&quot;(.+?)&quot;\:([^<\s]+[^\.<!\?\s])/s','<a href="$2\">$1</a>',$str);
+	$str = preg_replace('/(<a href=\"http.+?\")(>)/s','$1 target="_blank"$2',$str);
+	return $str;
+}
+
+/**
+ * Does some mor output converting into HTML using a simple subset of Markdown
+ * @param  string  $string     [description]
+ * @param  boolean $singleLine [description]
+ * @return string              [description]
+ */
+function _markdown ($string, $singleLine = FALSE) {
+	$str = htmlspecialchars($string);
+	if (!$singleLine) {
+		$str = '<p>'.$str.'</p>';
+		$str = preg_replace('/\n\n+/s','</p><p>',$str);
+		$str = preg_replace('/\n/s','<br />',$str);
+		$str = preg_replace('/(<\/p>)(<p>)/s','$1'."\n".'$2',$str);
+		$str = preg_replace('/<p>#\s(.+?)<\/p>/s','<h1>$1</h1>',$str);
+		$str = preg_replace('/<p>([^<]+?)<br \/>[=]+<\/p>/s','<h1>$1</h1>',$str);
+		$str = preg_replace('/<p>##\s(.+?)<\/p>/s','<h2>$1</h2>',$str);
+		$str = preg_replace('/<p>([^<]+?)<br \/>[\-]+<\/p>/s','<h1>$1</h1>',$str);
+		$str = preg_replace('/<p>###\s(.+?)<\/p>/s','<h3>$1</h3>',$str);
+		$str = preg_replace('/(<p>)(&gt;|bq\.)\s(.+?)(<\/p>)/s','<blockquote>$1$3$4</blockquote>',$str);
+		$str = preg_replace('/(<br \/>)(&gt;|bq\.)\s/s','$1',$str);
+		$str = preg_replace('/<\/blockquote>(\s*)<blockquote>/s','$1',$str);
+		$str = preg_replace('/<p>\*\s(.+?)<\/p>/s','<ul><li>$1</li></ul>',$str);
+		$str = preg_replace('/<p>\d+\.\s(.+?)<\/p>/s','<ol><li>$1</li></ol>',$str);
+		$str = preg_replace('/<br \/>(\*|\d+\.)\s/s','</li><li>',$str);
+		#$str = preg_replace('/<p>\|(.+?)\|<\/p>/s','<table><tr><td>$1</td></tr></table>',$str);
+		#$str = preg_replace('/\|<br \/>\|/s','</td></tr>\n<tr><td>',$str);
+		#$str = preg_replace('/\|/s','</td><td>',$str);
+	}
+	else {
+		$str = preg_replace('/\n+/s','<br />',$str);
+	}
+	$str = preg_replace('/(^|\s)\*(\S.*?\S)\*/s','$1<strong>$2</strong>',$str);
+	$str = preg_replace('/(^|\s)_(\S.*?\S)_/s','$1<em>$2</em>',$str);
+	$str = preg_replace('/\[(.+?)\]\((\S+)\)/s','<a href="$2">$1</a>',$str);
 	$str = preg_replace('/(<a href=\"http.+?\")(>)/s','$1 target="_blank"$2',$str);
 	return $str;
 }
