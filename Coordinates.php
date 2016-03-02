@@ -27,6 +27,14 @@ class Coordinates {
 	}
 
 	/**
+	 * Return coordinates if object is casted into string
+	 * @return string [description]
+	 */
+	public function __toString() {
+		return $this->latitude.';'.$this->longitude;
+	}
+
+	/**
 	 * Will set $this->planetMeanRadius for astronomical bodies
 	 * http://en.wikipedia.org/wiki/Earth_radius#Mean_radius
 	 * @param float $equatorialRadius in meters. Aka semi-major axis

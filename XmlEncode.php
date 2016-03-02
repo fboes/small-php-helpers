@@ -20,6 +20,14 @@ class XmlEncode {
 	}
 
 	/**
+	 * Return XML if object is casted into string
+	 * @return string [description]
+	 */
+	public function __toString() {
+		return $this->output();
+	}
+
+	/**
 	 * [output description]
 	 * @return string [description]
 	 */

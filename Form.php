@@ -80,6 +80,14 @@ class Form {
 	}
 
 	/**
+	 * Return HTML of this form if object is casted into string
+	 * @return string [description]
+	 */
+	public function __toString() {
+		return $this->returnHTML();
+	}
+
+	/**
 	 * Static constructor for chaining
 	 * @param  array  $defaultValues [description]
 	 * @return Form       [description]

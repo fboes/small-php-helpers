@@ -33,6 +33,14 @@ class Media {
 	}
 
 	/**
+	 * Return HTML if object is casted into string
+	 * @return string [description]
+	 */
+	public function __toString() {
+		return $this->returnHtml();
+	}
+
+	/**
 	 * Static invocation of construct
 	 * @see  __construct()
 	 * @param  int $width  in pixels
