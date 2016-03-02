@@ -31,7 +31,7 @@ Via [Bower](http://bower.io/): `bower install fboes/small-php-helpers`
 Version
 -------
 
-Version: 1.2.1 (2014-11-25)
+Version: 1.2.3 (2016-03-02)
 
 Legal stuff
 -----------

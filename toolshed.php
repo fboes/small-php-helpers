@@ -50,7 +50,7 @@ function _paragraph ($string, $withLinks = FALSE) {
 }
 
 /**
- * Does some mor output converting into HTML using a simple subset of Textile
+ * Does some more output converting into HTML using a simple subset of Textile
  * @param  string  $string     [description]
  * @param  boolean $singleLine [description]
  * @return string              [description]
@@ -94,7 +94,7 @@ function _textile ($string, $singleLine = FALSE) {
 }
 
 /**
- * Does some mor output converting into HTML using a simple subset of Markdown
+ * Does some more output converting into HTML using a simple subset of Markdown
  * @param  string  $string     [description]
  * @param  boolean $singleLine [description]
  * @return string              [description]
@@ -134,6 +134,19 @@ function _markdown ($string, $singleLine = FALSE) {
 	$str = preg_replace('/(<a href=\"http.+?\")(>)/s','$1 target="_blank"$2',$str);
 	return $str;
 }
+
+/**
+ * Converting single line links to Youtube or Vimeo into an embedded video player iframe
+ * @param  string $html HTML to parse
+ * @return string       HTML with added video players
+ */
+function addingTubes ($html) {
+	$str = $html;
+	$str = preg_replace('/(<p>)\s*(?:<a.+>)?[^<]*?youtube.+v=([a-zA-Z0-9\-_]+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s','<div class="video youtube"><iframe src="https://www.youtube.com/embed/$2?enablejsapi=1"></iframe></div>', $str);
+	$str = preg_replace('/(<p>)\s*(?:<a.+>)?[^<]*?vimeo.com\/(\d+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s','<div class="video vimeo"><iframe src="https://player.vimeo.com/video/$2"></iframe></div>', $str);
+	return $str;
+}
+
 
 /**
  * Like print_r, but safe for HTML-Output. You may also wnt to try _print_r(var_dump(…));
