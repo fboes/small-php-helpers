@@ -62,8 +62,10 @@ function _textile ($string, $singleLine = FALSE) {
 		$str = preg_replace('/\n\n+/s','</p><p>',$str);
 		$str = preg_replace('/\n/s','<br />',$str);
 		$str = preg_replace('/(<\/p>)(<p>)/s','$1'."\n".'$2',$str);
+		$str = preg_replace('/<p>([a-z0-9]+)\(([a-z0-9]+?)\)\.\s(.+?)<\/p>/s','<$1 class="$2">$3</$1>',$str);
 		$str = preg_replace('/<p>h(\d)\.\s(.+?)<\/p>/s','<h$1>$2</h$1>',$str);
 		$str = preg_replace('/<p>h(\d)\(#([a-zA-Z0-9_-]+)\)\.\s(.+?)<\/p>/s','<h$1 id="$2">$3</h$1>',$str);
+		$str = preg_replace('/<p>[*_\-]{3}<\/p>/s','<hr />',$str);
 		$str = preg_replace('/(<p>)(&gt;|bq\.)\s(.+?)(<\/p>)/s','<blockquote>$1$3$4</blockquote>',$str);
 		$str = preg_replace('/<\/blockquote>(\s*)<blockquote>/s','$1',$str);
 		$str = preg_replace('/<p>\*\s(.+?)<\/p>/s','<ul><li>$1</li></ul>',$str);
@@ -78,6 +80,14 @@ function _textile ($string, $singleLine = FALSE) {
 	}
 	$str = preg_replace('/(^|\s)\*(\S.*?\S)\*/s','$1<strong>$2</strong>',$str);
 	$str = preg_replace('/(^|\s)_(\S.*?\S)_/s','$1<em>$2</em>',$str);
+	$str = preg_replace('/(>|\s)@(\S.*?\S)@/s','$1<code>$2</code>',$str);
+	$str = preg_replace('/(>|\s)\-(\S.*?\S)\-/s','$1<del>$2</del>',$str);
+	$str = preg_replace('/(>|\s)\+(\S.*?\S)\+/s','$1<ins>$2</ins>',$str);
+	$str = preg_replace('/(>|\s)\?\?(\S.*?\S)\?\?/s','$1<cite>$2<\/cite>',$str);
+	$str = preg_replace('/!(\S+)\(([^\)]+?)\)!/s','<img src="$1" alt="$2" title="$2" \/>',$str);
+	$str = preg_replace('/(<img)( src=")(&gt;)/s','$1 style="float:right;margin:0 0 1em 1em;"$2',$str);
+	$str = preg_replace('/(<img)( src=")(&lt;)/s','$1 style="float:left;margin:0 1em 1em 0;"$2',$str);
+	$str = preg_replace('/<p>(<img[^>]+\/>)<\/p>/s','$1',$str);
 	$str = preg_replace('/&quot;(.+?)&quot;\:([^<\s]+[^\.<!\?\s])/s','<a href="$2\">$1</a>',$str);
 	$str = preg_replace('/(<a href=\"http.+?\")(>)/s','$1 target="_blank"$2',$str);
 	return $str;
@@ -96,11 +106,12 @@ function _markdown ($string, $singleLine = FALSE) {
 		$str = preg_replace('/\n\n+/s','</p><p>',$str);
 		$str = preg_replace('/\n/s','<br />',$str);
 		$str = preg_replace('/(<\/p>)(<p>)/s','$1'."\n".'$2',$str);
-		$str = preg_replace('/<p>#\s(.+?)<\/p>/s','<h1>$1</h1>',$str);
 		$str = preg_replace('/<p>([^<]+?)<br \/>[=]+<\/p>/s','<h1>$1</h1>',$str);
+		$str = preg_replace('/<p>([^<]+?)<br \/>[\-]+<\/p>/s','<h2>$1</h2>',$str);
+		$str = preg_replace('/<p>#\s(.+?)<\/p>/s','<h1>$1</h1>',$str);
 		$str = preg_replace('/<p>##\s(.+?)<\/p>/s','<h2>$1</h2>',$str);
-		$str = preg_replace('/<p>([^<]+?)<br \/>[\-]+<\/p>/s','<h1>$1</h1>',$str);
 		$str = preg_replace('/<p>###\s(.+?)<\/p>/s','<h3>$1</h3>',$str);
+		$str = preg_replace('/<p>[*_\-]{3}<\/p>/s','<hr />',$str);
 		$str = preg_replace('/(<p>)(&gt;|bq\.)\s(.+?)(<\/p>)/s','<blockquote>$1$3$4</blockquote>',$str);
 		$str = preg_replace('/(<br \/>)(&gt;|bq\.)\s/s','$1',$str);
 		$str = preg_replace('/<\/blockquote>(\s*)<blockquote>/s','$1',$str);
@@ -116,6 +127,9 @@ function _markdown ($string, $singleLine = FALSE) {
 	}
 	$str = preg_replace('/(^|\s)\*(\S.*?\S)\*/s','$1<strong>$2</strong>',$str);
 	$str = preg_replace('/(^|\s)_(\S.*?\S)_/s','$1<em>$2</em>',$str);
+	$str = preg_replace('/(>|\s)`(\S.*?\S)`/s','$1<code>$2</code>',$str);
+	$str = preg_replace('/!\[(.*?)\]\((\S+)\)/s','<img src="$2" alt="$1" />',$str);
+	$str = preg_replace('/<p>(<img[^>]+\/>)<\/p>/s','$1',$str);
 	$str = preg_replace('/\[(.+?)\]\((\S+)\)/s','<a href="$2">$1</a>',$str);
 	$str = preg_replace('/(<a href=\"http.+?\")(>)/s','$1 target="_blank"$2',$str);
 	return $str;
