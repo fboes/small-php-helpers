@@ -147,21 +147,6 @@ function addingTubes ($html) {
 	return $str;
 }
 
-/**
- * Add nice typography to HTML
- * @param  string $html HTML to parse
- * @return string       HTML with added imporved typography
- */
-function niceTypography ($html) {
-	$str = $html;
-	$str = preg_replace('/&quot;(\S|\S.*?\S)&quot;/s','&bdquo;$1&rdquo;',$str);
-	$str = preg_replace('/--/s','&#8212;',$str);
-	$str = preg_replace('/(\d\s?)[x\*](\s?\d)/s','$1&#215;$2',$str);
-	$str = preg_replace('/(\d\s?)-(\s?\d)/s','$1&ndash;$2',$str);
-	$str = preg_replace('/\.\.\./s','&hellip;',$str);
-	return $str;
-}
-
 
 /**
  * Like print_r, but safe for HTML-Output. You may also wnt to try _print_r(var_dump(…));
