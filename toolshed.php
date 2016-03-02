@@ -78,12 +78,12 @@ function _textile ($string, $singleLine = FALSE) {
 	else {
 		$str = preg_replace('/\n+/s','<br \/>',$str);
 	}
-	$str = preg_replace('/(^|\s)\*(\S.*?\S)\*/s','$1<strong>$2</strong>',$str);
-	$str = preg_replace('/(^|\s)_(\S.*?\S)_/s','$1<em>$2</em>',$str);
-	$str = preg_replace('/(>|\s)@(\S.*?\S)@/s','$1<code>$2</code>',$str);
-	$str = preg_replace('/(>|\s)\-(\S.*?\S)\-/s','$1<del>$2</del>',$str);
-	$str = preg_replace('/(>|\s)\+(\S.*?\S)\+/s','$1<ins>$2</ins>',$str);
-	$str = preg_replace('/(>|\s)\?\?(\S.*?\S)\?\?/s','$1<cite>$2<\/cite>',$str);
+	$str = preg_replace('/(^|\s)\*(\S|\S.*?\S)\*/s','$1<strong>$2</strong>',$str);
+	$str = preg_replace('/(^|\s)_(\S|\S.*?\S)_/s','$1<em>$2</em>',$str);
+	$str = preg_replace('/(>|\s)@(\S|\S.*?\S)@/s','$1<code>$2</code>',$str);
+	$str = preg_replace('/(>|\s)\-(\S|\S.*?\S)\-/s','$1<del>$2</del>',$str);
+	$str = preg_replace('/(>|\s)\+(\S|\S.*?\S)\+/s','$1<ins>$2</ins>',$str);
+	$str = preg_replace('/(>|\s)\?\?(\S|\S.*?\S)\?\?/s','$1<cite>$2<\/cite>',$str);
 	$str = preg_replace('/!(\S+)\(([^\)]+?)\)!/s','<img src="$1" alt="$2" title="$2" \/>',$str);
 	$str = preg_replace('/(<img)( src=")(&gt;)/s','$1 style="float:right;margin:0 0 1em 1em;"$2',$str);
 	$str = preg_replace('/(<img)( src=")(&lt;)/s','$1 style="float:left;margin:0 1em 1em 0;"$2',$str);
@@ -125,9 +125,9 @@ function _markdown ($string, $singleLine = FALSE) {
 	else {
 		$str = preg_replace('/\n+/s','<br />',$str);
 	}
-	$str = preg_replace('/(^|\s)\*(\S.*?\S)\*/s','$1<strong>$2</strong>',$str);
-	$str = preg_replace('/(^|\s)_(\S.*?\S)_/s','$1<em>$2</em>',$str);
-	$str = preg_replace('/(>|\s)`(\S.*?\S)`/s','$1<code>$2</code>',$str);
+	$str = preg_replace('/(^|\s)\*(\S|\S.*?\S)\*/s','$1<strong>$2</strong>',$str);
+	$str = preg_replace('/(^|\s)_(\S|\S.*?\S)_/s','$1<em>$2</em>',$str);
+	$str = preg_replace('/(>|\s)`(\S|\S.*?\S)`/s','$1<code>$2</code>',$str);
 	$str = preg_replace('/!\[(.*?)\]\((\S+)\)/s','<img src="$2" alt="$1" />',$str);
 	$str = preg_replace('/<p>(<img[^>]+\/>)<\/p>/s','$1',$str);
 	$str = preg_replace('/\[(.+?)\]\((\S+)\)/s','<a href="$2">$1</a>',$str);
@@ -144,6 +144,21 @@ function addingTubes ($html) {
 	$str = $html;
 	$str = preg_replace('/(<p>)\s*(?:<a.+>)?[^<]*?youtube.+v=([a-zA-Z0-9\-_]+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s','<div class="video youtube"><iframe src="https://www.youtube.com/embed/$2?enablejsapi=1"></iframe></div>', $str);
 	$str = preg_replace('/(<p>)\s*(?:<a.+>)?[^<]*?vimeo.com\/(\d+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s','<div class="video vimeo"><iframe src="https://player.vimeo.com/video/$2"></iframe></div>', $str);
+	return $str;
+}
+
+/**
+ * Add nice typography to HTML
+ * @param  string $html HTML to parse
+ * @return string       HTML with added imporved typography
+ */
+function niceTypography ($html) {
+	$str = $html;
+	$str = preg_replace('/&quot;(\S|\S.*?\S)&quot;/s','&bdquo;$1&rdquo;',$str);
+	$str = preg_replace('/--/s','&#8212;',$str);
+	$str = preg_replace('/(\d\s?)[x\*](\s?\d)/s','$1&#215;$2',$str);
+	$str = preg_replace('/(\d\s?)-(\s?\d)/s','$1&ndash;$2',$str);
+	$str = preg_replace('/\.\.\./s','&hellip;',$str);
 	return $str;
 }
 
