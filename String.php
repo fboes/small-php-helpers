@@ -193,7 +193,7 @@ class String {
 	 * @param   array   $args
 	 * @return  self
 	 */
-	function vsprintf ($format, array $args) {
+	function vsprintf (array $args) {
 		$this->string = vsprintf(htmlspecialchars($this->string), $args);
 		return $this;
 	}
@@ -229,14 +229,14 @@ class String {
 	 */
 	function str_shorten ($maxChars = 72, $weight = 100, $replace = '…') {
 		$strLen = mb_strlen($this->string);
-		if ($stringLen > $maxChars) {
+		if ($strLen > $maxChars) {
 			$border = round ($maxChars * max(0,min(100,$weight)) / 100);
 			switch ($border) {
 				case $maxChars:
 					$this->string = trim(mb_substr($this->string,0,$maxChars - 1)) . $replace;
 					break;
 				case 0:
-					$this->string = $replace . trim(mb_substr($this->string,$stringLen - $maxChars +1,$stringLen));
+					$this->string = $replace . trim(mb_substr($this->string,$strLen - $maxChars +1,$strLen));
 					break;
 				default:
 					$this->string = mb_ereg_replace('^(.{'.$border.'}).+(.{'.($maxChars - $border -1).'})$', '\1' . $replace . '\2', $this->string);
@@ -316,7 +316,7 @@ class String {
 	 * @param  string  $langCode       According to ISO 639-1 2ALPHA, use {{ app.request.locale }}
 	 * @return self                    [description]
 	 */
-	function improve_typography ($str, $withHyphenation = TRUE, $langCode = NULL) {
+	function improve_typography ($withHyphenation = TRUE, $langCode = NULL) {
 		$str = $this->string;
 		if (empty($langCode)) {
 			$langCode = getenv('LANGUAGE');

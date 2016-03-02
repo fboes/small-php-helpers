@@ -10,11 +10,33 @@ class StringTest extends Tester {
 	}
 
 	public function testChaining () {
-		$test = 'Ich bin ein längerer Test';
-		$string = (string)String::init($test)->paragraph();
+		$test = 'I am a lengthy test and chain all methods for testing.';
+		$string = (string)String::init($test)
+			->paragraph()
+			->textile()
+			->markdown()
+			->addingTubes()
+			->sprintf('x')
+			->vsprintf(array('x'))
+			->htmlallchars()
+			->str_shorten()
+			->str_nice_shorten()
+			->asciify()
+			->make_id()
+			->improve_typography()
+		;
 		$this->outputLine($string);
 		$this->assertTrue(is_string($string), 'String is string');
 		$this->assertTrue(!empty($string), 'String is not empty');
+	}
+
+	public function testMarkdown () {
+		$test = 'X... Y 2x2 "xx" *test*';
+		$string = (string)String::init($test)->improve_typography()->markdown();
+		$this->outputLine($string);
+		$this->assertTrue(is_string($string), 'String is string');
+		$this->assertTrue(!empty($string), 'String is not empty');
+		$this->assertTrue($string !== $test, 'String is not in its original state');
 	}
 }
 
