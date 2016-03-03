@@ -71,7 +71,7 @@ class String {
 		$this->string = preg_replace('#(<br\s?/?>\s*){2,}#is',"</p>\n<p>",$this->string);
 		if ($withLinks) {
 			$this->string = preg_replace('#(http(s)?\://\S+)#is','<a href="$1">$1</a>',$this->string);
-			$this->string = preg_replace('#(\S+@\S+)#ise',"'<a href=\"'.htmlallchars('mailto:\\1').'\">'.htmlallchars('\\1').'</a>'",$this->string);
+			$this->string = preg_replace('#(\S+@\S+)#is','<a href="mailto:$1">$1</a>',$this->string);
 		}
 		return $this;
 	}
@@ -115,7 +115,6 @@ class String {
 		$str = preg_replace('/(<img)( src=")(&lt;)/s','$1 style="float:left;margin:0 1em 1em 0;"$2',$str);
 		$str = preg_replace('/<p>(<img[^>]+\/>)<\/p>/s','$1',$str);
 		$str = preg_replace('/&quot;(.+?)&quot;\:([^<\s]+[^\.<!\?\s])/s','<a href="$2\">$1</a>',$str);
-		$str = preg_replace('/(<a href=\"http.+?\")(>)/s','$1 target="_blank"$2',$str);
 		$this->string = $str;
 		return $this;
 	}
@@ -158,7 +157,6 @@ class String {
 		$str = preg_replace('/!\[(.*?)\]\((\S+)\)/s','<img src="$2" alt="$1" />',$str);
 		$str = preg_replace('/<p>(<img[^>]+\/>)<\/p>/s','$1',$str);
 		$str = preg_replace('/\[(.+?)\]\((\S+)\)/s','<a href="$2">$1</a>',$str);
-		$str = preg_replace('/(<a href=\"http.+?\")(>)/s','$1 target="_blank"$2',$str);
 		$this->string = $str;
 		return $this;
 	}
@@ -402,6 +400,15 @@ class String {
 			}
 		}
 		$this->string = $str;
+		return $this;
+	}
+
+	/**
+	 * Add target="blank" to all external links
+	 * @return [type] [description]
+	 */
+	public function externalLinks () {
+		$this->string = preg_replace('/(<a href=\"http.+?\")(>)/s','$1 target="_blank"$2',$this->string);
 		return $this;
 	}
 }

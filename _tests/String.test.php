@@ -24,6 +24,7 @@ class StringTest extends Tester {
 			->asciify()
 			->make_id()
 			->improve_typography()
+			->externalLinks()
 		;
 		$this->outputLine($string);
 		$this->assertTrue(is_string($string), 'String is string');
@@ -33,6 +34,21 @@ class StringTest extends Tester {
 	public function testMarkdown () {
 		$test = 'X... Y 2x2 "xx" *test*';
 		$string = (string)String::init($test)->improve_typography()->markdown();
+		$this->outputLine($string);
+		$this->assertTrue(is_string($string), 'String is string');
+		$this->assertTrue(!empty($string), 'String is not empty');
+		$this->assertTrue($string !== $test, 'String is not in its original state');
+	}
+
+	public function testNormalize () {
+		$test = '1. IDs füngen nie mit Züffern an!';
+		$string = (string)String::init($test)->make_id();
+		$this->outputLine($string);
+		$this->assertTrue(is_string($string), 'String is string');
+		$this->assertTrue(!empty($string), 'String is not empty');
+		$this->assertTrue($string !== $test, 'String is not in its original state');
+
+		$string = (string)String::init($test)->asciify();
 		$this->outputLine($string);
 		$this->assertTrue(is_string($string), 'String is string');
 		$this->assertTrue(!empty($string), 'String is not empty');
