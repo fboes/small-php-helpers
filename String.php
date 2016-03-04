@@ -5,7 +5,9 @@
  * @class String
  * Chainable string converter
  *
- * new String('Test')->;
+ * $string = String::init('Test')->str_nice_shorten()->paragraph()->r();
+ * $string = (string)String::init('Test')->str_nice_shorten()->paragraph();
+ * String::init('Test')->str_nice_shorten()->paragraph()->e(); // echo
  *
  *
  * @author      Frank Bo"es <info@3960.org>
