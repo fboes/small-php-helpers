@@ -139,6 +139,7 @@ class String {
 			$str = preg_replace('/<p>#\s(.+?)<\/p>/s','<h1>$1</h1>',$str);
 			$str = preg_replace('/<p>##\s(.+?)<\/p>/s','<h2>$1</h2>',$str);
 			$str = preg_replace('/<p>###\s(.+?)<\/p>/s','<h3>$1</h3>',$str);
+			$str = preg_replace('/<p>####\s(.+?)<\/p>/s','<h4>$1</h4>',$str);
 			$str = preg_replace('/<p>[*_\-]{3}<\/p>/s','<hr />',$str);
 			$str = preg_replace('/(<p>)(&gt;|bq\.)\s(.+?)(<\/p>)/s','<blockquote>$1$3$4</blockquote>',$str);
 			$str = preg_replace('/(<br \/>)(&gt;|bq\.)\s/s','$1',$str);
