@@ -66,7 +66,7 @@ class String {
 	 * @param   bool	$withLinks
 	 * @return  self
 	 */
-	function paragraph ($withLinks = FALSE) {
+	public function paragraph ($withLinks = FALSE) {
 		$this->string = '<p>'.nl2br(htmlspecialchars(trim($this->string))).'</p>';
 		$this->string = preg_replace('#(<br\s?/?>\s*){2,}#is',"</p>\n<p>",$this->string);
 		if ($withLinks) {
@@ -81,7 +81,7 @@ class String {
 	 * @param  boolean $singleLine [description]
 	 * @return self                [description]
 	 */
-	function textile ($singleLine = FALSE) {
+	public function textile ($singleLine = FALSE) {
 		$str = htmlspecialchars($this->string);
 		if (!$singleLine) {
 			$str = '<p>'.$str.'</p>';
@@ -125,7 +125,7 @@ class String {
 	 * @param  boolean $singleLine [description]
 	 * @return self                [description]
 	 */
-	function markdown ($singleLine = FALSE) {
+	public function markdown ($singleLine = FALSE) {
 		$str = htmlspecialchars($this->string);
 		if (!$singleLine) {
 			$str = '<p>'.$str.'</p>';
@@ -164,7 +164,7 @@ class String {
 	/**
 	 * Converting single line links to Youtube or Vimeo into an embedded video player iframe
 	 */
-	function addingTubes () {
+	public function addingTubes () {
 		$this->string = preg_replace('/(<p>)\s*(?:<a.+>)?[^<]*?youtube.+v=([a-zA-Z0-9\-_]+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s','<div class="video youtube"><iframe src="https://www.youtube.com/embed/$2?enablejsapi=1"></iframe></div>', $this->string);
 		$this->string = preg_replace('/(<p>)\s*(?:<a.+>)?[^<]*?vimeo.com\/(\d+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s','<div class="video vimeo"><iframe src="https://player.vimeo.com/video/$2"></iframe></div>', $this->string);
 		return $this;
@@ -179,7 +179,7 @@ class String {
 	 * @param   string  $args   and more args
 	 * @return  self
 	 */
-	function sprintf () {
+	public function sprintf () {
 		return $this->vsprintf(func_get_args());
 	}
 
@@ -191,7 +191,7 @@ class String {
 	 * @param   array   $args
 	 * @return  self
 	 */
-	function vsprintf (array $args) {
+	public function vsprintf (array $args) {
 		$this->string = vsprintf(htmlspecialchars($this->string), $args);
 		return $this;
 	}
@@ -201,7 +201,7 @@ class String {
 	 *
 	 * @return  self
 	 */
-	function htmlallchars () {
+	public function htmlallchars () {
 		$result = NULL;
 		$strlen = strlen($this->string);
 		for($i=0 ; $i<$strlen; $i++) {
@@ -225,7 +225,7 @@ class String {
 	 *  characters. Optional, defaults to a horizontal ellipse in UTF-8
 	 * @return  self
 	 */
-	function str_shorten ($maxChars = 72, $weight = 100, $replace = '…') {
+	public function str_shorten ($maxChars = 72, $weight = 100, $replace = '…') {
 		$strLen = mb_strlen($this->string);
 		if ($strLen > $maxChars) {
 			$border = round ($maxChars * max(0,min(100,$weight)) / 100);
@@ -254,7 +254,7 @@ class String {
 	 *  characters. Optional, defaults to a horizontal ellipse in UTF-8
 	 * @return  self
 	 */
-	function str_nice_shorten ($maxChars = 72, $replace = '…') {
+	public function str_nice_shorten ($maxChars = 72, $replace = '…') {
 		if (mb_strlen($this->string) > $maxChars) {
 			$this->string = trim(mb_ereg_replace('^(.{0,'.((int)$maxChars-2).'}\W)(.*)$','\1',$this->string)).$replace;
 		}
@@ -267,7 +267,7 @@ class String {
 	 * @param   string
 	 * @return  self
 	 */
-	function asciify () {
+	public function asciify () {
 		if (!preg_match('#^[a-z0-9_\-\.]+$#s', $this->string)) {
 			$this->string = str_replace(
 				array('ä', 'Ä', 'æ', 'ö', 'Ö', 'ü', 'Ü', 'ß'),
@@ -296,7 +296,7 @@ class String {
 	 * @param  string $str [description]
 	 * @return self  	  [description]
 	 */
-	function make_id () {
+	public function make_id () {
 		if (!preg_match('#^[A-Za-z][A-Za-z0-9\-_]*$#', $this->string)) {
 			$this->string = preg_replace(
 				array('#^[^A-Za-z]#','#[^A-Za-z0-9\-_]#', '#(_)_+#'),
@@ -314,7 +314,7 @@ class String {
 	 * @param  string  $langCode       According to ISO 639-1 2ALPHA, use {{ app.request.locale }}
 	 * @return self                    [description]
 	 */
-	function improve_typography ($withHyphenation = TRUE, $langCode = NULL) {
+	public function improve_typography ($withHyphenation = TRUE, $langCode = NULL) {
 		$str = $this->string;
 		if (empty($langCode)) {
 			$langCode = getenv('LANGUAGE');
