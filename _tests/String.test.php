@@ -31,13 +31,27 @@ class StringTest extends Tester {
 		$this->assertTrue(!empty($string), 'String is not empty');
 	}
 
-	public function testMarkdown () {
-		$test = 'X... Y 2x2 "xx" *test*';
+	public function dataMarkdown () {
+		return array(
+			'Simple' => array(
+				'X... Y 2x2 "xx" *test*',
+				'<p>X… Y 2×2 &quot;xx&quot; <strong>test</strong></p>'
+			),
+			'Table' => array(
+				"|1|2|\n|3|4|",
+				"<table><tr><td>1</td><td>2</td></tr>\n<tr><td>3</td><td>4</td></tr></table>"
+			)
+		);
+	}
+
+	public function testMarkdown ($test, $result) {
 		$string = (string)String::init($test)->improve_typography()->markdown();
 		$this->outputLine($string);
 		$this->assertTrue(is_string($string), 'String is string');
 		$this->assertTrue(!empty($string), 'String is not empty');
 		$this->assertTrue($string !== $test, 'String is not in its original state');
+		$this->assertTrue($string === $result, 'String is expected result');
+		$this->assertValidHtml($string);
 	}
 
 	public function testNormalize () {

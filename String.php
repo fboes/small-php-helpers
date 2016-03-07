@@ -99,9 +99,9 @@ class String {
 			$str = preg_replace('/<p>\*\s(.+?)<\/p>/s','<ul><li>$1</li></ul>',$str);
 			$str = preg_replace('/<p>#\s(.+?)<\/p>/s','<ol><li>$1</li></ol>',$str);
 			$str = preg_replace('/<br \/>(\*|#)\s/s','<\/li><li>',$str);
-			#$str = preg_replace('/<p>\|(.+?)\|<\/p>/s','<table><tr><td>$1</td></tr></table>',$str);
-			#$str = preg_replace('/\|<br \/>\|/s','</td></tr>\n<tr><td>',$str);
-			#$str = preg_replace('/\|/s','</td><td>',$str);
+			$str = preg_replace('/<p>\|(.+?)\|<\/p>/s','<table><tr><td>$1</td></tr></table>',$str);
+			$str = preg_replace('/\|<br \/>\|/s','</td></tr>\n<tr><td>',$str);
+			$str = preg_replace('/\|/s','</td><td>',$str);
 		}
 		else {
 			$str = preg_replace('/\n+/s','<br \/>',$str);
@@ -112,6 +112,7 @@ class String {
 		$str = preg_replace('/(>|\s)\-(\S|\S.*?\S)\-/s','$1<del>$2</del>',$str);
 		$str = preg_replace('/(>|\s)\+(\S|\S.*?\S)\+/s','$1<ins>$2</ins>',$str);
 		$str = preg_replace('/(>|\s)\?\?(\S|\S.*?\S)\?\?/s','$1<cite>$2<\/cite>',$str);
+		$str = preg_replace('/(\S+)\((.+?)\)/g','<abbr title="$2">$1</abbr>',$str);
 		$str = preg_replace('/!(\S+)\(([^\)]+?)\)!/s','<img src="$1" alt="$2" title="$2" \/>',$str);
 		$str = preg_replace('/(<img)( src=")(&gt;)/s','$1 style="float:right;margin:0 0 1em 1em;"$2',$str);
 		$str = preg_replace('/(<img)( src=")(&lt;)/s','$1 style="float:left;margin:0 1em 1em 0;"$2',$str);
@@ -147,9 +148,9 @@ class String {
 			$str = preg_replace('/<p>\*\s(.+?)<\/p>/s','<ul><li>$1</li></ul>',$str);
 			$str = preg_replace('/<p>\d+\.\s(.+?)<\/p>/s','<ol><li>$1</li></ol>',$str);
 			$str = preg_replace('/<br \/>(\*|\d+\.)\s/s','</li><li>',$str);
-			#$str = preg_replace('/<p>\|(.+?)\|<\/p>/s','<table><tr><td>$1</td></tr></table>',$str);
-			#$str = preg_replace('/\|<br \/>\|/s','</td></tr>\n<tr><td>',$str);
-			#$str = preg_replace('/\|/s','</td><td>',$str);
+			$str = preg_replace('/<p>\|(.+?)\|<\/p>/s','<table><tr><td>$1</td></tr></table>',$str);
+			$str = preg_replace('/\|<br \/>\|/s',"</td></tr>\n<tr><td>",$str);
+			$str = preg_replace('/\|/s','</td><td>',$str);
 		}
 		else {
 			$str = preg_replace('/\n+/s','<br />',$str);
@@ -157,6 +158,7 @@ class String {
 		$str = preg_replace('/(^|\s)\*(\S|\S.*?\S)\*/s','$1<strong>$2</strong>',$str);
 		$str = preg_replace('/(^|\s)_(\S|\S.*?\S)_/s','$1<em>$2</em>',$str);
 		$str = preg_replace('/(>|\s)`(\S|\S.*?\S)`/s','$1<code>$2</code>',$str);
+		$str = preg_replace('/(\S+)\((.+?)\)/s','<abbr title="$2">$1</abbr>',$str); # unofficially
 		$str = preg_replace('/!\[(.*?)\]\((\S+)\)/s','<img src="$2" alt="$1" />',$str);
 		$str = preg_replace('/<p>(<img[^>]+\/>)<\/p>/s','$1',$str);
 		$str = preg_replace('/\[(.+?)\]\((\S+)\)/s','<a href="$2">$1</a>',$str);
