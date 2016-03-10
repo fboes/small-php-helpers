@@ -117,7 +117,7 @@ msgstr "Eingabewert ist zu klein, Minimum ist %s."
 
 #: Form.php:681
 msgid "Next saturday"
-msgstr "Nächster Samsatg"
+msgstr "Nächster Samstag"
 
 #: Form.php:682
 msgid "Next sunday"
@@ -137,7 +137,7 @@ msgstr "Nächster Ostersonntag"
 
 #: Form/Element.php:176
 msgid "This form field is required."
-msgstr "DIeses Eingabefeld muss ausgefüllt sein."
+msgstr "Dieses Eingabefeld muss ausgefüllt sein."
 
 #: _tests/Form.test.php:293 _tests/toolshed.test.php:117
 msgid "I am legend"
