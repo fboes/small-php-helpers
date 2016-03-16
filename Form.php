@@ -19,7 +19,7 @@ require_once('Form/Element.php');
  *
  * Other element attributes (see http://www.whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.html & http://baymard.com/labs/touch-keyboard-types):
  * - accept
- * - autocapitalize="on|off"
+ * - autocapitalize="none|characters|words|sentences"
  * - autocomplete="on|off"
  * - autocorrect="on|off"
  * - autofocus="autofocus"
