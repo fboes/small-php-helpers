@@ -167,11 +167,27 @@ class String {
 	}
 
 	/**
-	 * Converting single line links to Youtube or Vimeo into an embedded video player iframe
+	 * Converting single line links to Youtube or Vimeo into an embedded video player iframe. Use with this CSS:
+	 * ```sass
+	 *	.video-player {
+	 *		position: relative;
+	 *		padding-bottom: 56.25%;
+	 *		width:100%;
+	 *		height:0;
+	 *		iframe {
+	 *			position: absolute;
+	 *			top: 0;
+	 *			left: 0;
+	 *			width:100%;
+	 *			height:100%;
+	 *			border:none;
+	 *		}
+	 *	}
+	 * ```
 	 */
 	public function addingTubes () {
-		$this->string = preg_replace('/(<p>)\s*(?:<a.+>)?[^<]*?youtube.+v=([a-zA-Z0-9\-_]+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s','<div class="video youtube"><iframe src="https://www.youtube.com/embed/$2?enablejsapi=1"></iframe></div>', $this->string);
-		$this->string = preg_replace('/(<p>)\s*(?:<a.+>)?[^<]*?vimeo.com\/(\d+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s','<div class="video vimeo"><iframe src="https://player.vimeo.com/video/$2"></iframe></div>', $this->string);
+		$this->string = preg_replace('/(<p>)\s*(?:<a.+>)?[^<]*?youtube.+v=([a-zA-Z0-9\-_]+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s','<div class="video-player youtube"><iframe allowfullscreen="true" src="https://www.youtube.com/embed/$2?enablejsapi=1"></iframe></div>', $this->string);
+		$this->string = preg_replace('/(<p>)\s*(?:<a.+>)?[^<]*?vimeo.com\/(\d+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s','<div class="video-player vimeo"><iframe allowfullscreen="true" src="https://player.vimeo.com/video/$2"></iframe></div>', $this->string);
 		return $this;
 	}
 
