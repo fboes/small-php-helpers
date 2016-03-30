@@ -185,9 +185,17 @@ class String {
 	 *	}
 	 * ```
 	 */
-	public function addingTubes () {
-		$this->string = preg_replace('/(<p>)\s*(?:<a.+>)?[^<]*?youtube.+v=([a-zA-Z0-9\-_]+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s','<div class="video-player youtube"><iframe allowfullscreen="true" src="https://www.youtube.com/embed/$2?enablejsapi=1"></iframe></div>', $this->string);
-		$this->string = preg_replace('/(<p>)\s*(?:<a.+>)?[^<]*?vimeo.com\/(\d+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s','<div class="video-player vimeo"><iframe allowfullscreen="true" src="https://player.vimeo.com/video/$2"></iframe></div>', $this->string);
+	public function addingTubes ($autoplay = FALSE) {
+		$this->string = preg_replace(
+			'/(<p>)\s*(?:<a.+>)?[^<]*?youtube.+v=([a-zA-Z0-9\-_]+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s',
+			'<div class="video-player youtube"><iframe allowfullscreen="true" src="https://www.youtube.com/embed/$2?enablejsapi=1'.($autoplay ? '&amp;autoplay=1' : '').'"></iframe></div>',
+			$this->string
+		);
+		$this->string = preg_replace(
+			'/(<p>)\s*(?:<a.+>)?[^<]*?vimeo.com\/(\d+)[^>]*?(?:<\/a>)?\s*(<\/p>)/s',
+			'<div class="video-player vimeo"><iframe allowfullscreen="true" src="https://player.vimeo.com/video/$2'.($autoplay ? '?autoplay=1' : '').'"></iframe></div>',
+			$this->string
+		);
 		return $this;
 	}
 
