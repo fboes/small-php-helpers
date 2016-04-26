@@ -114,7 +114,28 @@ class CoordinatesTest extends Tester {
 		foreach ($moreCoords as $c) {
 			$this->assertTrue($c instanceof Coordinates, 'Expecting return items of array to be Coordinates objects');
 		}
-		$this->outputLine($moreCoords);
+		//$this->outputLine($moreCoords);
+	}
+
+	public function dataMaidenheadlocator () {
+		return array(
+			'Zero/Zero' => array(0,0,''),
+			'Southwest' => array(-90,-179.9999,''),
+			'Northeast' => array(89.9999,179.9999,''),
+			'Newington' => array(41.71463,-72.72713,'FN31pr',3),
+			'Eiffel Tower' => array(48.8587, 2.2946,'JN18du',3),
+		);
+	}
+	public function testMaidenheadlocator ($lat, $lon, $result = NULL, $precision = 5) {
+		$coords = Coordinates::set($lat, $lon);
+		$maidenhead = $coords->getMaidenheadLocator($precision);
+		#$this->outputLine($coords);
+		if (!empty($result)) {
+			$this->assertEquals($maidenhead, $result);
+		}
+		else {
+			$this->outputLine($maidenhead);
+		}
 	}
 }
 
