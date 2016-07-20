@@ -23,6 +23,7 @@ require_once('Form/Element.php');
  * - autocomplete="on|off"
  * - autocorrect="on|off"
  * - autofocus="autofocus"
+ * - capture="camera|microphone|camcorder"
  * - dirname
  * - disabled="disabled"
  * - inputmode
@@ -386,6 +387,20 @@ class Form {
 				$element->setOnEmpty('autocapitalize', 'off');
 				$element->setOnEmpty('autocorrect', 'off');
 				break;
+		}
+		if (!Form::is_blank($element->attributes['capture'])) {
+			$element->attributes['type'] = 'file';
+			switch ($element->attributes['capture']) {
+				case 'camcorder':
+					$element->setOnEmpty('accept', 'video/*');
+					break;
+				case 'microphone':
+					$element->setOnEmpty('accept', 'audio/*');
+					break;
+				default:
+					$element->setOnEmpty('accept', 'image/*');
+					break;
+			}
 		}
 		if (!Form::is_blank($element->attributes['maxlength'])) {
 			if (!Form::is_blank($element->attributes['value']) && mb_strlen($element->attributes['value']) > (int)$element->attributes['maxlength']) {

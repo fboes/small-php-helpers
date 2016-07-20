@@ -403,8 +403,25 @@ class FormTest extends Tester {
 			->start('<form>')
 			->select('<select data-optgroup="optgroup" data-label="d" name="d">', $options)
 			->select('<select data-optgroup="optgroup" data-label="e" data-hint="hint" name="e" multiple="multiple">', $options)
-			->checkbox('<input data-optgroup="optgroup" data-label="f" name="f">', $options)
-			->checkbox('<input data-optgroup="optgroup" data-label="g" name="g" type="radio">', $options)
+			#->checkbox('<input data-optgroup="optgroup" data-label="f" name="f">', $options)
+			#->checkbox('<input data-optgroup="optgroup" data-label="g" name="g" type="radio">', $options)
+			->end('</form>')
+		;
+
+		$output = $f->returnHTML();
+		$this->outputLine($output);
+
+		$this->assertTrue(is_string($output), 'Expecting HTML output to be string');
+		$this->assertValidHtml($output);
+		$this->assertValidXml($output);
+	}
+
+	public function testMediaCapture () {
+		$f = Form::init()
+			->start('<form>')
+			->input('<input name="camera" capture="camera">')
+			->input('<input name="microphone" capture="microphone">')
+			->input('<input name="camcorder" capture="camcorder">')
 			->end('</form>')
 		;
 
