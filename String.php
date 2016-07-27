@@ -22,7 +22,7 @@ class String {
 	 */
 	public function __construct ($string) {
 		if (!is_scalar($string)) {
-			throw new \Exception('String expected in improve_typography');
+			throw new \Exception('String expected');
 		}
 		$this->string = $string;
 	}
