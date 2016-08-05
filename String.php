@@ -403,16 +403,16 @@ class String {
 				case 'ru': # Russian
 				case 'sq': # Albanian
 				case 'uk': # Ukrainian
-					$str = preg_replace('#"(\S.*\S)"#is','«$1»',$str);
-					$str = preg_replace("#'(\S.*\S)'#is",'‹$1›',$str);
+					$str = preg_replace('#"(\S.*?\S)"#is','«$1»',$str);
+					$str = preg_replace("#'(\S.*?\S)'#is",'‹$1›',$str);
 					break;
 				case 'da': # Danish
-					$str = preg_replace('#"(\S.*\S)"#is','»$1«',$str);
-					$str = preg_replace("#'(\S.*\S)'#is",'›$1‹',$str);
+					$str = preg_replace('#"(\S.*?\S)"#is','»$1«',$str);
+					$str = preg_replace("#'(\S.*?\S)'#is",'›$1‹',$str);
 					break;
 				default:
-					$str = preg_replace('#"(\S.*\S)"#is','“$1”',$str);
-					$str = preg_replace("#'(\S.*\S)'#is",'‘$1’',$str);
+					$str = preg_replace('#"(\S.*?\S)"#is','“$1”',$str);
+					$str = preg_replace("#'(\S.*?\S)'#is",'‘$1’',$str);
 					break;
 			}
 			if ($withHyphenation) {
