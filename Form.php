@@ -364,6 +364,7 @@ class Form {
 				$element->setOnEmpty('title', _('Expecting valid credit card number'));
 				#$element->setOnEmpty('novalidate', 'novalidate');
 				$element->setOnEmpty('autocorrect', 'off');
+				$element->setOnEmpty('inputmode', 'numeric');
 				$element->setOnEmpty('title', _('Expecting 16-digit credit card number without any whitespaces'));
 				break;
 			case 'currency':
@@ -385,6 +386,7 @@ class Form {
 				$element->attributes['type'] = 'text';
 				$element->setOnEmpty('pattern', '\S\S+');
 				$element->setOnEmpty('autocapitalize', 'off');
+				$element->setOnEmpty('inputmode', 'verbatim');
 				$element->setOnEmpty('autocorrect', 'off');
 				break;
 		}
