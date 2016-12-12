@@ -14,15 +14,6 @@ This set of small libraries is intended as easy shortcuts for everyday situation
 * Tester: Simple unit test in case PhpUnit is not deployable
 * toolshed: Missing PHP-functions like quoted <code>echo()</code> or a better replacement for <code>empty()</code>
 
-Integration in Symfony & Silex
-------------------------------
-
-1. Search and replace `require` with `# require`
-2. Search and replace `# namespace` with `namespace`
-3. Search and replace `# use` with `use`
-4. Put files in folder matching namespace
-5. Think of some clever way to use `toolshed.php` :smirk:
-
 Installation
 ------------
 
@@ -31,7 +22,7 @@ Via [Bower](http://bower.io/): `bower install fboes/small-php-helpers`
 Version
 -------
 
-Version: 1.3.0 (2016-03-10)
+Version: 2.0.0 (2016-12-09)
 
 Legal stuff
 -----------

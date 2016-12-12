@@ -1,10 +1,10 @@
 {
-	"name": "fboes/SmallPhpHelpers",
-	"description": "This set of small libraries is intended as easy shortcuts for everyday situations.",
-	"homepage": "https://github.com/fboes/Small-PHP-helpers",
-	"type": "library",
-	"license": "MIT",
-	"require": {
-		"php": ">=5.3.0"
-	}
+    "name": "fboes/SmallPhpHelpers",
+    "description": "This set of small libraries is intended as easy shortcuts for everyday situations.",
+    "homepage": "https://github.com/fboes/Small-PHP-helpers",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=5.3.0"
+    }
 }

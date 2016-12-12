@@ -1,11 +1,19 @@
 <?php
+use fboes\SmallPhpHelpers\Tester;
+use fboes\SmallPhpHelpers\SuperPDO;
 
-require('../Tester.php');
-require('../SuperPDO.php');
+/**
+ * Autoloader ;)
+ * @param $class
+ */
+function __autoload($class)
+{
+    require_once('../'.str_replace('fboes\SmallPhpHelpers', '', $class).'.php');
+}
 
 class SuperPDOTest extends Tester {
-	public function testSimple () {
-	}
+    public function testSimple () {
+    }
 
 }
 

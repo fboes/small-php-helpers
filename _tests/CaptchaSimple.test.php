@@ -1,22 +1,34 @@
 <?php
 
-require('../Tester.php');
-require('../Captcha/Simple.php');
+use fboes\SmallPhpHelpers\Tester;
+use fboes\SmallPhpHelpers\Captcha;
 
-class CaptchaSimpleTest extends Tester {
-	public function testSimple () {
-		$this->assertTrue(is_object(new CaptchaSimple('a')), 'CaptchaSimple is object');
-	}
+/**
+ * Autoloader ;)
+ * @param $class
+ */
+function __autoload($class)
+{
+    require_once('../'.str_replace('fboes\SmallPhpHelpers', '', $class).'.php');
+}
 
-	public function testHtml () {
-		$f = new CaptchaSimple('a');
+class CaptchaSimpleTest extends Tester
+{
+    public function testSimple()
+    {
+        $this->assertTrue(is_object(new Captcha\Simple('a')), 'CaptchaSimple is object');
+    }
 
-		$output = $f->getHtml();
-		$this->outputLine($output);
+    public function testHtml()
+    {
+        $f = new Captcha\Simple('a');
 
-		$this->assertTrue(is_string($output), 'Expecting HTML output to be string');
-		$this->assertValidHtml($output);
-	}
+        $output = $f->getHtml();
+        $this->outputLine($output);
+
+        $this->assertTrue(is_string($output), 'Expecting HTML output to be string');
+        $this->assertValidHtml($output);
+    }
 }
 
 CaptchaSimpleTest::doTest();
