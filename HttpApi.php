@@ -15,6 +15,9 @@ class HttpApi
     protected $httpPassword;
     protected $cookies = array();
 
+    /**
+     * @var Memoization
+     */
     protected $memoizationObject;
     protected $memoizationExpire = 5;
 
@@ -118,10 +121,10 @@ class HttpApi
     /**
      * Add Memoization object to be used as query cache.
      * This objects needs to have at least these methods: set($key, $data) and get($key)
-     * @param Object $memoizationObject [description]
+     * @param Memoization $memoizationObject [description]
      * @return  HttpApi self
      */
-    public function setMemoization($memoizationObject)
+    public function setMemoization(Memoization $memoizationObject)
     {
         if (!is_object($memoizationObject)) {
             error_log('Memoization object is no object');
@@ -203,7 +206,7 @@ class HttpApi
         }
 
 
-        if (!empty($this->memoization)) {
+        if (!empty($this->memoizationObject)) {
             $memoization = $this->memoizationObject->get($this->lastRequest->memoizationKey);
         }
         if (!empty($memoization) && !empty($this->memoizationExpire)) {
@@ -289,7 +292,7 @@ class HttpApi
                             : $this->standardReplyMimeType
                     );
                 }
-                if (!empty($this->memoizationObject) && !empty($this->memoizationExpire)){
+                if (!empty($this->memoizationObject) && !empty($this->memoizationExpire)) {
                     $this->memoizationObject->set(
                         $this->lastRequest->memoizationKey,
                         $this->lastRequest->reply,
