@@ -40,6 +40,11 @@ class Integration
                     }
                     break;
             }
+            if (preg_match_all('#(autoplay|controls|loop|start)=\d#', $url, $parameters)) {
+                foreach ($parameters[0] as $p) {
+                    $returnUrl .= '&' . $p;
+                }
+            }
         }
         return $returnUrl;
     }
