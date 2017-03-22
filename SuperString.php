@@ -360,6 +360,33 @@ class SuperString
     }
 
     /**
+     * Convert free form phone number into phone number usable in tel: links.
+     * @param  string $plainPhone [description]
+     * @return string             [description]
+     */
+    function fixPhoneUrl($plainPhone)
+    {
+        $plainPhone = preg_replace_callback('#[a-z]#i', function(array $vanityChar) {
+            $vanityChar[0] = preg_replace('#[abc]#i', '1', $vanityChar[0]);
+            $vanityChar[0] = preg_replace('#[def]#i', '2', $vanityChar[0]);
+            $vanityChar[0] = preg_replace('#[ghi]#i', '3', $vanityChar[0]);
+            $vanityChar[0] = preg_replace('#[jkl]#i', '4', $vanityChar[0]);
+            $vanityChar[0] = preg_replace('#[mno]#i', '5', $vanityChar[0]);
+            $vanityChar[0] = preg_replace('#[pqrs]#i', '6', $vanityChar[0]);
+            $vanityChar[0] = preg_replace('#[tuv]#i', '7', $vanityChar[0]);
+            $vanityChar[0] = preg_replace('#[wxyz]#i', '8', $vanityChar[0]);
+            return $vanityChar[0];
+        }, $plainPhone);
+
+        $plainPhone = preg_replace('#(\(0\)|/)#', '-', $plainPhone);
+        $plainPhone = preg_replace('/[^0-9\+\-#]/', '', $plainPhone);
+        $plainPhone = preg_replace('#^00#', '+', $plainPhone);
+        $plainPhone = preg_replace('#^0#', '+49-', $plainPhone);
+        $plainPhone = preg_replace('#\-+#', '-', $plainPhone);
+        return $plainPhone;
+    }
+
+    /**
      * Convert certain typografical stuff into better typografical stuff
      * See http://de.wikipedia.org/wiki/Anf%C3%BChrungszeichen
      * @param  boolean $withHyphenation [description]
